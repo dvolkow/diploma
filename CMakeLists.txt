@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(diploma)
-set(SRC_LIST sources/jtests/memory.c sources/jtests/math.c sources/core/core.c sources/io/io.c sources/debug/debug.c sources/math/math.c sources/mem/memory.c)
+set(SRC_LIST sources/jtests/io.c sources/jtests/memory.c sources/jtests/math.c sources/core/core.c sources/io/io.c sources/debug/debug.c sources/math/math.c sources/mem/memory.c)
 set(LIBS ${LIBS} ${GSL_LIBRARIES})
 add_definitions(-Wall -pedantic )
 find_package(GSL REQUIRED)

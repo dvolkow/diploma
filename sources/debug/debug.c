@@ -1,5 +1,5 @@
 #include "debug.h"
 
-void print_table()
+static int dummy()
 {
 }

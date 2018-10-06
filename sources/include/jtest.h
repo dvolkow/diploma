@@ -3,5 +3,6 @@
 
 int jmemory(void);
 int jmath(void);
+int jio(void);
 
 #endif // JTESTS_H
