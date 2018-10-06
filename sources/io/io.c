@@ -5,11 +5,11 @@
 #include "debug.h"
 
 
-apogee_rc_t  *read_table()
+apogee_rc_t  *read_table(const char *input_file_name)
 {
         FILE *inp_f;
-        unsigned int size = countlines(INPUT_TABLE_FILE_NAME);
-        inp_f = fopen(INPUT_TABLE_FILE_NAME, "r");
+        unsigned int size = countlines(input_file_name);
+        inp_f = fopen(input_file_name, "r");
         if (inp_f == NULL)
                 return inp_f;
 

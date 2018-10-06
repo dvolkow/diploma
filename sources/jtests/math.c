@@ -1,6 +1,13 @@
 #include "math.h"
 #include "asserts.h"
 #include "mem.h"
+#include "types.h"
+
+void jtrigonometry(apogee_rc_t *a)
+{
+        printf("%s: test distance = %lf\n",
+                        __FUNCTION__, get_R_distance(a, 8));
+}
 
 /**
  * From https://www.gnu.org/software/gsl/manual/html_node/Linear-Algebra-Examples.html
@@ -37,4 +44,5 @@ void jmath()
                 printf("%s: %f\n",
                                 __FUNCTION__, *(res->data + i));
         }
+
 }

@@ -1,4 +1,6 @@
+#include "asserts.h"
 #include "math.h"
+#include "types.h"
 #include "mem.h"
 #include <stdio.h>
 #include <gsl/gsl_linalg.h>
@@ -9,6 +11,14 @@
 
 #define to_gsl_vector(a)        \
         gsl_vector_view_array((a)->data, (a)->size)
+
+static double __factorial_storage[PRECACHED_FACTORIAL_LEN] = {
+        1, 2, 6, 24, 
+        120, 720, 5040,
+        40320, 362880, 3628800
+};
+
+
 
 void *make_linear_struct(double *data, int size, 
                                 linear_type_t type)
@@ -54,4 +64,9 @@ void solve(linear_equation_t *eq, linear_eq_solve_t *b, linear_eq_solve_t *x)
         gsl_vector_copy_to(x->data, gx, b->size);
         gsl_permutation_free(p);
         gsl_vector_free(gx);
+}
+
+int dv_factorial(const int n)
+{
+        return __factorial_storage[n];
 }

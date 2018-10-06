@@ -2,7 +2,7 @@
 #define DEBUG_H  1
 
 #include <stdio.h>
-#include "io.h"
+#include "types.h"
 
 #define PRINTOK()       \
         printf("%s: line %d OK!\n", __FUNCTION__, __LINE__)
