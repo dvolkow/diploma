@@ -27,5 +27,7 @@ double get_R_distance(apogee_rc_t *line, double r_0);
 #define PRECACHED_FACTORIAL_LEN         12
 int dv_factorial(const int n);
 
+double dot_prod(double *a, double *b, int size);
+
 #endif // MATH_H
 

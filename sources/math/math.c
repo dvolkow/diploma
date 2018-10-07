@@ -70,3 +70,13 @@ int dv_factorial(const int n)
 {
         return __factorial_storage[n];
 }
+
+double dot_prod(double *a, double *b, int size) 
+{
+        int i = 0;
+        double res = 0;
+        for (i = 0; i < size; ++i) {
+                res += a[i] * b[i];
+        }
+        return res; 
+}

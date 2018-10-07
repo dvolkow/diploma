@@ -3,6 +3,9 @@
 
 #define MAX_ORDER_SOLUTION      10
 
+#define LOWER_BOUND_R0          3.0
+#define UPPER_BOUND_R0          15.0
+
 typedef enum {
         FIRST = 0,
         SECOND,
