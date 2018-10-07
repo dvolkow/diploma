@@ -1,10 +1,15 @@
 #ifndef CORE_H  
 #define CORE_H  1
 
+#include "types.h"
+
 #define MAX_ORDER_SOLUTION      10
 
 #define LOWER_BOUND_R0          3.0
 #define UPPER_BOUND_R0          15.0
+
+#define SEARCH_PRECISION        0.001
+#define STEP_DIVISOR            2
 
 typedef enum {
         FIRST = 0,

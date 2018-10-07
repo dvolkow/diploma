@@ -42,40 +42,41 @@ double get_alpha_n(const apogee_rc_t *line,
         return res;
 }
 
-void fill_mnk_matrix_vr(double *matrix, const int ord,
+void fill_mnk_matrix_vr(linear_equation_t *eq,
                          apogee_rc_table_t *table)
 {
         unsigned int i, j, k;
-        unsigned int len = BETA_QTY + ord;
-        matrix_line_t *line = dv_alloc(sizeof(matrix_line_t));
+        unsigned int len = BETA_QTY + eq->ord;
+        static matrix_line_t m;
+        matrix_line_t *line = &m;
 
         for (j = 0; j < table->size; ++j) {
                 for (i = 0; i < BETA_QTY; ++i) {
                         line->_[i] = get_beta_n(table->data + j, i);
                 }
 
-                for (i = BETA_QTY; i < ord; ++i) {
+                for (i = BETA_QTY; i < eq->ord; ++i) {
                         line->_[i] = get_alpha_n(table->data + j, table->r_0, i);
                 }
 
                 for (i = 0; i < len; ++i) {
                         double m = line->_[i];
                         for (k = 0; k < len; ++k) {
-                                matrix[i * len + k] += line->_[k] * m;
+                                eq->data[i * len + k] += line->_[k] * m;
                         }
                 }
         }
 #ifdef DEBUG
-        print_matrix(matrix, len);
+        print_matrix(eq->data, len);
 #endif
 }
 
-void fill_mnk_matrix(double *matrix, const int ord, 
+void fill_mnk_matrix(linear_equation_t *eq, 
                         apogee_rc_table_t *table, eq_mode_t mode)
 {
         switch (mode) {
                 case VR_MODE:
-                        fill_mnk_matrix_vr(matrix, ord, table);
+                        fill_mnk_matrix_vr(eq, table);
                         break;
                 default:
                         printf("%s: mode not implemented!\n", __FUNCTION__);
@@ -104,16 +105,22 @@ void get_solution(int argc, char *argv[])
         double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) * 
                                                    (size + BETA_QTY));
         apogee_rc_table_t *table = read_table(argv[INPUT_FILE_ARG]);
+
         if (table == NULL) {
                 printf("%s: fail to open %s!\n",
                                 __FUNCTION__, argv[INPUT_FILE_ARG]);
                 return;
         }
 
+        linear_equation_t eq = {
+                .data = matrix,
+                .size = size + BETA_QTY,
+                .ord = size
+        };
 #ifdef DEBUG
         printf("%s: ord = %d\n", __FUNCTION__, size);
 #endif
-        fill_mnk_matrix(matrix, size, table, VR_MODE);
+        fill_mnk_matrix(&eq, table, VR_MODE);
 }
 
 int main(int argc, char *argv[])

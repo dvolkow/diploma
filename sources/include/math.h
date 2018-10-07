@@ -13,6 +13,7 @@ typedef enum {
 typedef struct {
         double  *data;
         int     size;
+        short   ord;
 } linear_equation_t;
 
 typedef struct {

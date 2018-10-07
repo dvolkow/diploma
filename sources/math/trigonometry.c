@@ -1,7 +1,7 @@
+#include <math.h>
+
 #include "math.h"
 #include "types.h"
-
-#include <math.h>
 
 double get_R_distance(apogee_rc_t *line, double r_0)
 {
