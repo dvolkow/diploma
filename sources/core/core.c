@@ -150,9 +150,12 @@ void get_solution(int argc, char *argv[])
 #ifdef DEBUG
         print_vector(solution->s.data, solution->s.size);
 #endif
+
         get_errors(solution, table);
         dump_result(solution, table, &p);
-        dump_rotation_curve(table, solution);
+
+        iteration_storage_t *st = iteration_storage_create(table, solution);
+        dump_rotation_curve(st, solution);
 }
 
 int main(int argc, char *argv[])

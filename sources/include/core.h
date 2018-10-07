@@ -36,4 +36,5 @@ typedef enum {
         CMD_ARGS_QTY
 } cmd_line_arg_t;
 
+
 #endif // CORE_H

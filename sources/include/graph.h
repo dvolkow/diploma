@@ -20,6 +20,11 @@
         "sun.txt"
 
 
+typedef enum {
+        COUNTER,
+        DISTANCE,
+} averages_mode_t;
+
 void dump_result(opt_t *, apogee_rc_table_t *, prec_t *);
 
 #endif // GRAPH_H

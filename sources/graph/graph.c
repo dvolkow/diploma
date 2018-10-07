@@ -5,6 +5,7 @@
 #include "io.h"
 #include "opt.h"
 #include "math.h"
+#include "utils.h"
 
 
 #define OUTPUT_RESULT_FILENAME  \
@@ -69,7 +70,7 @@ static double get_sun_shift(const apogee_rc_table_t *table,
 }
 */
 
-void dump_rotation_curve(apogee_rc_table_t *table, opt_t *solution)
+void dump_rotation_curve(iteration_storage_t *storage, opt_t *solution)
 {
         FILE *fout = fopen(RC_OUT_FILE_NAME, "w");
         if (fout == NULL) {
@@ -92,14 +93,9 @@ void dump_rotation_curve(apogee_rc_table_t *table, opt_t *solution)
         printf("%s: enrty\n", __func__);
         unsigned int i;
         double r;
-        for (i = 0; i < table->size; ++i) {
-                r = get_R_distance(&table->data[i], solution->r_0);
-                double theta = r * ((table->data[i].v_helio - 
-                                     solution->s.data[U_P] * get_beta_n(&table->data[i], FIRST) 
-                                    + solution->s.data[W_P] * sin(table->data[i].b)) / 
-                                        (solution->r_0 * sin(table->data[i].l) *
-                                                             cos(table->data[i].b)) + OMEGA_SUN);
-                fprintf(oout, "%lf %lf\n", r, theta);
+        for (i = 0; i < solution->size; ++i) {
+                fprintf(oout, "%lf %lf\n", 
+                                storage[i].r, storage[i].theta);
         }
 
         r = ROTC_LOWER_BOUND;
@@ -120,4 +116,9 @@ void dump_rotation_curve(apogee_rc_table_t *table, opt_t *solution)
         fclose(sout);
         fclose(oout);
         fclose(fout);
+}
+
+void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mode) 
+{
+        sort_iteration_storage_by_r(st, solution->size);
 }

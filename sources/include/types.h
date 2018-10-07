@@ -25,9 +25,12 @@ typedef struct {
 
 
 typedef struct {
-        double err; 
-        double r; // R 
-        double theta;
+        double  err; 
+        double  r; // R 
+        double  theta;
+
+        apogee_rc_t     data;
+        // may be idx ? that about performance?
 } iteration_storage_t;
 
 typedef struct {

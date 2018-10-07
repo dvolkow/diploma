@@ -52,6 +52,7 @@ typedef struct {
         double r_0;
         double sq;
         prec_t *bounds;
+        size_t size;
 } opt_t;
 
 

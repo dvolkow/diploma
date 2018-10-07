@@ -149,7 +149,8 @@ opt_t *opt_linear(linear_equation_t *eq,
         opt_t opt_params = {
                 .s = dv_alloc(sizeof(linear_eq_solve_t)),
                 .r_0 = table->r_0,
-                .sq = sq
+                .sq = sq,
+                .size = table->size
         };
         opt_params.s.data = dv_alloc(sizeof(double) * s.size);
 
