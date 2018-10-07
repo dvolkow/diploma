@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "math.h"
+#include "opt.h"
 #ifdef DEBUG
 #include "debug.h"
 #endif // DEBUG
@@ -56,6 +57,67 @@ static void fill_estimated_vector(const apogee_rc_table_t *table,
         for (i = 0; i < table->size; ++i) {
                 v->data[i] = table->data[i].v_helio;
         }
+}
+
+
+static double __bound_parameter(linear_equation_t *eq, 
+                                        apogee_rc_table_t *table,
+                                        double r_0, bound_t type) 
+{
+        unsigned int i;
+        linear_eq_solve_t s = {
+                .data = dv_alloc(sizeof(double) * eq->size),
+                .size = eq->size
+        };
+
+        double step = SEARCH_PRECISION / 2;
+        table->r_0 = r_0;
+
+        fill_mnk_matrix_vr(eq, table);
+        solve(eq, &s); 
+        double sq = residuals_summary(eq, &s, table);
+        double thr_sq = sq * (1.0 + 1.0 / (table->size + eq->size + 1.0));
+
+        while (1) {
+                switch(type) {
+                        case LOWER:
+                                table->r_0 -= step;
+                                break;
+                        case UPPER:
+                                table->r_0 += step;
+                                break;
+                        default:
+                                printf("%s: error bound type!\n",
+                                        __FUNCTION__);
+                                return 0;
+                }
+
+                fill_mnk_matrix_vr(eq, table);
+                solve(eq, &s);
+                sq = residuals_summary(eq, &s, table);
+#ifdef DEBUG
+                printf("%s: r_0 = %lf, sq = %lf, need >= %lf\n",
+                                __FUNCTION__, table->r_0, sq, thr_sq);
+#endif
+                if (sq >= thr_sq)
+                        break;
+
+        }
+        return table->r_0;
+}
+
+double lower_bound_search(linear_equation_t *eq, 
+                                apogee_rc_table_t *table,
+                                double r_0)
+{
+        return __bound_parameter(eq, table, r_0, LOWER);
+}
+
+double upper_bound_search(linear_equation_t *eq, 
+                                apogee_rc_table_t *table,
+                                double r_0)
+{
+        return __bound_parameter(eq, table, r_0, UPPER);
 }
 
 opt_t *opt_linear(linear_equation_t *eq, 

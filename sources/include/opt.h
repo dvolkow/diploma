@@ -4,7 +4,18 @@
 #include "math.h"
 #include "types.h"
 
+typedef enum {
+        LOWER,
+        UPPER
+} bound_t;
+
 opt_t *opt_linear(linear_equation_t *eq, 
                                 apogee_rc_table_t *table);
 
+double lower_bound_search(linear_equation_t *eq, 
+                                apogee_rc_table_t *table,
+                                double r_0);
+double upper_bound_search(linear_equation_t *eq, 
+                                apogee_rc_table_t *table,
+                                double r_0);
 #endif // OPT_H

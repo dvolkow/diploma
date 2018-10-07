@@ -138,6 +138,11 @@ void get_solution(int argc, char *argv[])
         printf("%s: solution: R_0 = %lf\n",
                         __FUNCTION__, solution->r_0);
 
+
+        printf("%s: solution: -R_0 = %lf\n", 
+                        __FUNCTION__, lower_bound_search(&eq, table, solution->r_0));
+        printf("%s: solution: +R_0 = %lf\n", 
+                        __FUNCTION__, upper_bound_search(&eq, table, solution->r_0));
 }
 
 int main(int argc, char *argv[])
