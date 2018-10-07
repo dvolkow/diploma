@@ -23,4 +23,5 @@ int jmemory()
                       __FUNCTION__, jes);
       printf("%s: jle2 has %p memaddr\n",
                       __FUNCTION__, jle2);
+      return 0;
 }

@@ -9,7 +9,7 @@
 #define INPUT_FILE_PATH         \
         "./data/"
 
-apogee_rc_t *read_table(const char *input_file_name);
+apogee_rc_table_t *read_table(const char *input_file_name);
 void output_result(void);
 unsigned int countlines(char *filename);
 

@@ -1,18 +1,33 @@
+#include <math.h>
+
 #include "math.h"
 #include "asserts.h"
 #include "mem.h"
 #include "types.h"
+#include "io.h"
 
-void jtrigonometry(apogee_rc_t *a)
+#define HRD_JTRIG_CONST  7.821446
+
+int __jtrigonometry(apogee_rc_table_t *a)
 {
+        /*
         printf("%s: test distance = %lf\n",
-                        __FUNCTION__, get_R_distance(a, 8));
+                        __FUNCTION__, get_R_distance(a->data, 8));
+        */
+        return !(fabs(get_R_distance(a->data, 8) - HRD_JTRIG_CONST) < 1e-7);
+}
+
+
+int jtrigonometry()
+{
+        apogee_rc_table_t *table = read_table(INPUT_TABLE_FILE_NAME);
+        return __jtrigonometry(table);
 }
 
 /**
  * From https://www.gnu.org/software/gsl/manual/html_node/Linear-Algebra-Examples.html
  */
-void jmath()
+int jmath()
 {
         int size = 4;
 
@@ -45,4 +60,5 @@ void jmath()
                                 __FUNCTION__, *(res->data + i));
         }
 
+        return 0;
 }

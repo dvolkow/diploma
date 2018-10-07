@@ -15,6 +15,7 @@ int jio()
         PRINT_JOI_RES("./deleted_file");
         PRINT_JOI_RES("../sources/jtests/io_test.txt");
 
-        apogee_rc_t *table = read_table(INPUT_TABLE_FILE_NAME);
-        print_table(table, countlines(INPUT_TABLE_FILE_NAME));
+        apogee_rc_table_t *table = read_table(INPUT_TABLE_FILE_NAME);
+        print_table(table);
+        return 0;
 }

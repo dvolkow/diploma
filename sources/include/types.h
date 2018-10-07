@@ -16,26 +16,21 @@ typedef struct {
         double pm_dec;
 } apogee_rc_t;
 
+typedef struct {
+        apogee_rc_t *data;
+        double r_0; 
+        int size;
+} apogee_rc_table_t;
+
 
 typedef struct {
-        double err[MAX_ORDER_SOLUTION]; 
+        double err; 
         double r; // R 
         double theta;
 } iteration_storage_t;
 
-
 typedef struct {
-        double _1;
-        double _2;
-        double _3;
-} beta_coeff_t;
+        double _[BETA_QTY + MAX_ORDER_SOLUTION];
+} matrix_line_t;
 
-typedef struct {
-        double _[MAX_ORDER_SOLUTION];
-} alpha_coeff_t;
-
-typedef struct {
-        beta_coeff_t *beta;
-        alpha_coeff_t *alpha;
-} matrix_line_mnk_t;
 #endif // TYPES_H

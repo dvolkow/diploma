@@ -5,7 +5,7 @@
 #include "debug.h"
 
 
-apogee_rc_t  *read_table(const char *input_file_name)
+apogee_rc_table_t *read_table(const char *input_file_name)
 {
         FILE *inp_f;
         unsigned int size = countlines(input_file_name);
@@ -14,6 +14,9 @@ apogee_rc_t  *read_table(const char *input_file_name)
                 return inp_f;
 
         apogee_rc_t *apogee_rc = dv_alloc(sizeof(apogee_rc_t) * size);
+        apogee_rc_table_t *table = dv_alloc(sizeof(apogee_rc_table_t));
+        table->data = apogee_rc;
+        table->size = size;
 
         unsigned int i;
         for (i = 0; i < size; ++i) {
@@ -27,7 +30,7 @@ apogee_rc_t  *read_table(const char *input_file_name)
                                 );
         }
 
-        return apogee_rc;
+        return table;
 }
 
 unsigned int countlines(char *filename) 
