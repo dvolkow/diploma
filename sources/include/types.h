@@ -39,5 +39,11 @@ typedef struct {
 } parameter_t;
 
 
+enum {
+        U_P = 0,
+        V_P,
+        W_P,
+        A_P,
+};
 
 #endif // TYPES_H

@@ -152,6 +152,7 @@ void get_solution(int argc, char *argv[])
 #endif
         get_errors(solution, table);
         dump_result(solution, table, &p);
+        dump_rotation_curve(table, solution);
 }
 
 int main(int argc, char *argv[])

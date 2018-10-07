@@ -19,4 +19,6 @@ double upper_bound_search(linear_equation_t *eq,
                                 apogee_rc_table_t *table,
                                 double r_0);
 void get_errors(opt_t *, apogee_rc_table_t *table);
+
+double get_beta_n(const apogee_rc_t *line, beta_ord_t type);
 #endif // OPT_H

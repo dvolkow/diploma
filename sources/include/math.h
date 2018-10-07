@@ -2,6 +2,7 @@
 #define MATH_H  1
 
 #include "types.h"
+#include <stdlib.h>
 
 #define MAX_EQUATION_SIZE       10
 
