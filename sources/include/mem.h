@@ -2,7 +2,7 @@
 #define MEM_H   1
 #include <stdlib.h>
 
-#define MAX_MEMORY_USAGE        1000000
+#define MAX_MEMORY_USAGE        10000000
 
 void *dv_alloc(const size_t size);
 

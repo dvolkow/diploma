@@ -12,6 +12,7 @@ static size_t current_usage = 0;
 void *dv_alloc(const size_t size) 
 {
         MEMORY_LIMIT_ASSERT(current_usage + size);
+        MEMORY_ALLOC_ASSERT(size);
         void *ret = (void*)(__g_memory_buffer + current_usage);
         current_usage += size;
 #ifdef DEBUG

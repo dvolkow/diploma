@@ -11,4 +11,7 @@
         
 #define FACTORIAL_STORAGE_ASSERT(a)     \
         assert((a) < PRECACHED_FACTORIAL_LEN)
+
+#define MEMORY_ALLOC_ASSERT(a)          \
+        assert((a) != 0)
 #endif // ASSERTS_H

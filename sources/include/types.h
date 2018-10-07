@@ -1,6 +1,7 @@
 #ifndef TYPES_H  
 #define TYPES_H  1
 
+#include <stdlib.h>
 #include "core.h"
 
 /**
@@ -19,7 +20,7 @@ typedef struct {
 typedef struct {
         apogee_rc_t *data;
         double r_0; 
-        int size;
+        size_t size;
 } apogee_rc_table_t;
 
 

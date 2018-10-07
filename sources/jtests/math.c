@@ -6,15 +6,15 @@
 #include "types.h"
 #include "io.h"
 
-#define HRD_JTRIG_CONST  7.821446
+#define HRD_JTRIG_CONST   9.606614
 
 int __jtrigonometry(apogee_rc_table_t *a)
 {
-        /*
+#ifdef DEBUG
         printf("%s: test distance = %lf\n",
                         __FUNCTION__, get_R_distance(a->data, 8));
-        */
-        return !(fabs(get_R_distance(a->data, 8) - HRD_JTRIG_CONST) < 1e-7);
+#endif
+        return !(fabs(get_R_distance(a->data, 8) - HRD_JTRIG_CONST) < 1e-6);
 }
 
 
@@ -41,18 +41,16 @@ int jmath()
         };
         eq->data = data_eq;
 
-        linear_eq_solve_t *b = dv_alloc(sizeof(linear_eq_solve_t));
-        b->size = 4;
         static double data_b[] = {
                 1.0, 2.0, 3.0, 4.0
         };
-        b->data = data_b;
+        eq->right = data_b;
 
         linear_eq_solve_t *res = dv_alloc(sizeof(linear_eq_solve_t));
         res->size = 4;
         res->data = (double *)dv_alloc(sizeof(double) * res->size);
 
-        solve(eq, b, res);
+        solve(eq, res);
 
         unsigned int i;
         for (i = 0; i < size; ++i) {
@@ -60,5 +58,11 @@ int jmath()
                                 __FUNCTION__, *(res->data + i));
         }
 
+        int f;
+        assert(dv_factorial(0) == 1);
+        assert(dv_factorial(1) == 1);
+        assert(dv_factorial(2) == 2);
+        assert(dv_factorial(3) == 6);
+        assert(dv_factorial(4) == 24);
         return 0;
 }

@@ -2,6 +2,9 @@
 #include <stdlib.h>
 
 #include "io.h"
+#include "math.h"
+#include "mem.h"
+#include "types.h"
 #include "debug.h"
 
 
@@ -11,7 +14,7 @@ apogee_rc_table_t *read_table(const char *input_file_name)
         unsigned int size = countlines(input_file_name);
         inp_f = fopen(input_file_name, "r");
         if (inp_f == NULL)
-                return inp_f;
+                return NULL;
 
         apogee_rc_t *apogee_rc = dv_alloc(sizeof(apogee_rc_t) * size);
         apogee_rc_table_t *table = dv_alloc(sizeof(apogee_rc_table_t));
@@ -28,12 +31,18 @@ apogee_rc_table_t *read_table(const char *input_file_name)
                                 &(apogee_rc[i].pm_ra),
                                 &(apogee_rc[i].pm_dec)
                                 );
+                apogee_rc[i].l = deg_to_rad(apogee_rc[i].l);
+                apogee_rc[i].b = deg_to_rad(apogee_rc[i].b);
         }
 
+#ifdef DEBUG
+        //print_table(table);
+        printf("%s: size table: %lu\n", __FUNCTION__, table->size);
+#endif
         return table;
 }
 
-unsigned int countlines(char *filename) 
+unsigned int countlines(const char *filename) 
 {
         FILE *f;
         f = fopen(filename, "a+");

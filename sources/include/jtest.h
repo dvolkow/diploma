@@ -19,7 +19,8 @@ typedef struct {
 int jmemory(void);
 int jmath(void);
 int jio(void);
-int jtrigonometry(apogee_rc_t *a);
+int jtrigonometry(void);
+int jcore(void);
 
 
 static jtest_table_t jtest_table[] = {
@@ -27,6 +28,7 @@ static jtest_table_t jtest_table[] = {
       , { .test = jmath, .name = "math test" }
       , { .test = jio, .name = "input/output test" }
       , { .test = jtrigonometry, .name = "trigonometry test" }
+      , { .test = jcore, .name = "core test" }
       // MUST BE LAST:
       , { .test = NULL, .name = NULL }
       

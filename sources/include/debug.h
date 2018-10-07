@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include "types.h"
-
+#include "math.h"
 #define PRINTOK()       \
         printf("%s: line %d OK!\n", __FUNCTION__, __LINE__)
 
@@ -25,6 +25,16 @@ static inline void print_table(const apogee_rc_table_t *table)
                                 );
 }
 
+static inline void print_vector(const double *data, 
+                                const unsigned int size)
+{
+        unsigned int i;
+        for (i = 0; i < size; ++i) {
+                printf("%s: [debug] %lf\n", __FUNCTION__, 
+                                        data[i]);
+        }
+}
+
 static inline print_matrix(const double *matrix, const int size)
 {
         int i, j;
@@ -37,4 +47,9 @@ static inline print_matrix(const double *matrix, const int size)
         }
 }
 
+static inline print_solution(const opt_t *opts)
+{
+        printf("%s: opt r_0 = %lf, sd = %lf\n", __FUNCTION__, 
+                                opts->r_0, opts->sq);
+}
 #endif // DEBUG_H
