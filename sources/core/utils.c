@@ -49,6 +49,22 @@ iteration_storage_t *iteration_storage_create(const apogee_rc_table_t *table,
         return storage;
 }
 
+static inline double __get_c(const iteration_storage_t *st_part,
+                                 const opt_t *solution)
+{
+        return st_part->data.v_helio + 
+                        solution->s.data[U_P] * cos(st_part->data.l) * cos(st_part->data.b)
+                        + solution->s.data[W_P] * sin(st_part->data.b) +
+                                        OMEGA_SUN * solution->r_0 * sin(st_part->data.l) *
+                                                        cos(st_part->data.b);
+}
+
+static inline double __get_a(const iteration_storage_t *st_part,
+                                const opt_t *solution)
+{
+        return sin(st_part->data.l) * cos(st_part->data.b) * solution->r_0 / st_part->r;
+}
+
 average_res_t *get_average_theta(const iteration_storage_t *st_part, 
                                  const opt_t *solution,
                                  const size_t size) 
@@ -59,17 +75,22 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
         double a = 0;
         unsigned int i;
         for (i = 0; i < size; ++i) {
-                c += st_part[i].data.v_helio + 
-                        solution->s.data[U_P] * cos(st_part[i].data.l) * cos(st_part[i].data.b)
-                        + solution->s.data[W_P] * sin(st_part[i].data.b) +
-                                        OMEGA_SUN * solution->r_0 * sin(st_part[i].data.l) *
-                                                        cos(st_part[i].data.b);
-                a += sin(st_part[i].data.l) * cos(st_part[i].data.b) * solution->r_0 / st_part[i].r;
+                c += __get_c(&st_part[i], solution);
+                a += __get_a(&st_part[i], solution);
         }
+
         average_res_t *res = dv_alloc(sizeof(average_res_t));
         res->theta = c / a;
-        // TODO: errors fill
         res->err = 0;
+
+        for (i = 0; i < size; ++i) {
+                double d = __get_c(&st_part[i], solution) - 
+                                __get_a(&st_part[i], solution) * res->theta;
+                res->err += pow_double(d, 2);
+        }
+        res->err /= size;
+        res->err = sqrt((1.0 / fabs(a)) * res->err);
+
         res->size = size;
 
         return res;
