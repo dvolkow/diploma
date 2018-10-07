@@ -41,11 +41,11 @@ static jtest_table_t jtest_table[] = {
         do {                                                    \
                 if ((table_line)->test())                       \
                         printf("%s: fail for [%s]\n",           \
-                                __FUNCTION__,                   \
+                                __func__,                       \
                                 (table_line)->name);            \
                 else                                            \
                         printf("%s: success for [%s]\n",        \
-                                        __FUNCTION__,           \
+                                        __func__,               \
                                         (table_line)->name);    \
         } while (0)
 #endif // JTESTS_H

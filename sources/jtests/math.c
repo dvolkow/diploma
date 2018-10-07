@@ -12,7 +12,7 @@ int __jtrigonometry(apogee_rc_table_t *a)
 {
 #ifdef DEBUG
         printf("%s: test distance = %lf\n",
-                        __FUNCTION__, get_R_distance(a->data, 8));
+                        __func__, get_R_distance(a->data, 8));
 #endif
         return !(fabs(get_R_distance(a->data, 8) - HRD_JTRIG_CONST) < 1e-6);
 }
@@ -55,7 +55,7 @@ int jmath()
         unsigned int i;
         for (i = 0; i < size; ++i) {
                 printf("%s: %f\n",
-                                __FUNCTION__, *(res->data + i));
+                                __func__, *(res->data + i));
         }
 
         int f;

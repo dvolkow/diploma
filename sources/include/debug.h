@@ -5,7 +5,7 @@
 #include "types.h"
 #include "math.h"
 #define PRINTOK()       \
-        printf("%s: line %d OK!\n", __FUNCTION__, __LINE__)
+        printf("%s: line %d OK!\n", __func__, __LINE__)
 
 static inline void print_table(const apogee_rc_table_t *table) 
 {
@@ -15,7 +15,7 @@ static inline void print_table(const apogee_rc_table_t *table)
 
         for (i = 0; i < table->size; ++i)
                 printf("%s: %lf, %lf, %lf, %lf, %lf, %lf\n",
-                                __FUNCTION__,
+                                __func__,
                                 table->data[i].l,
                                 table->data[i].b,
                                 table->data[i].v_helio,
@@ -30,16 +30,16 @@ static inline void print_vector(const double *data,
 {
         unsigned int i;
         for (i = 0; i < size; ++i) {
-                printf("%s: [debug] %lf\n", __FUNCTION__, 
+                printf("%s: [debug] %lf\n", __func__, 
                                         data[i]);
         }
 }
 
-static inline print_matrix(const double *matrix, const int size)
+static inline void print_matrix(const double *matrix, const int size)
 {
         int i, j;
         for (i = 0; i < size; ++i) {
-                printf("%s: line %d: ", __FUNCTION__, i);
+                printf("%s: line %d: ", __func__, i);
                 for (j = 0; j < size; ++j) {
                         printf(" %lf", matrix[i * size + j]);
                 }
@@ -47,9 +47,9 @@ static inline print_matrix(const double *matrix, const int size)
         }
 }
 
-static inline print_solution(const opt_t *opts)
+static inline void print_solution(const opt_t *opts)
 {
-        printf("%s: opt r_0 = %lf, sd = %lf\n", __FUNCTION__, 
+        printf("%s: opt r_0 = %lf, sd = %lf\n", __func__, 
                                 opts->r_0, opts->sq);
 }
 #endif // DEBUG_H

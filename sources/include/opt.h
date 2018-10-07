@@ -18,4 +18,5 @@ double lower_bound_search(linear_equation_t *eq,
 double upper_bound_search(linear_equation_t *eq, 
                                 apogee_rc_table_t *table,
                                 double r_0);
+void get_errors(opt_t *, apogee_rc_table_t *table);
 #endif // OPT_H

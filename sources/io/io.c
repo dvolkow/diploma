@@ -37,7 +37,7 @@ apogee_rc_table_t *read_table(const char *input_file_name)
 
 #ifdef DEBUG
         //print_table(table);
-        printf("%s: size table: %lu\n", __FUNCTION__, table->size);
+        printf("%s: size table: %lu\n", __func__, table->size);
 #endif
         return table;
 }

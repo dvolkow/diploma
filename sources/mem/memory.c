@@ -17,7 +17,7 @@ void *dv_alloc(const size_t size)
         current_usage += size;
 #ifdef DEBUG
         printf("%s: call from [%p], now usage %lu bytes\n",
-                        __FUNCTION__, __builtin_return_address(0),
+                        __func__, __builtin_return_address(0),
                         current_usage);
 #endif
         return ret;

@@ -34,4 +34,10 @@ typedef struct {
         double _[BETA_QTY + MAX_ORDER_SOLUTION];
 } matrix_line_t;
 
+typedef struct {
+        char *name;
+} parameter_t;
+
+
+
 #endif // TYPES_H

@@ -14,14 +14,14 @@ int jmemory()
       assert(jes != NULL);
       assert(jle != NULL);
       printf("%s: linear_equation_t has %lu\n", 
-                      __FUNCTION__, sizeof(*jle));
+                      __func__, sizeof(*jle));
       printf("%s: linear_eq_solve_t has %lu\n", 
-                      __FUNCTION__, sizeof(*jes));
+                      __func__, sizeof(*jes));
       printf("%s: jle has %p memaddr\n",
-                      __FUNCTION__, jle);
+                      __func__, jle);
       printf("%s: jes has %p memaddr\n",
-                      __FUNCTION__, jes);
+                      __func__, jes);
       printf("%s: jle2 has %p memaddr\n",
-                      __FUNCTION__, jle2);
+                      __func__, jle2);
       return 0;
 }

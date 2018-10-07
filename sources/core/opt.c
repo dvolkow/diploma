@@ -1,4 +1,5 @@
 #include <math.h>
+#include <string.h>
 #include "asserts.h"
 
 #include "types.h"
@@ -16,6 +17,8 @@ double get_alpha_n(const apogee_rc_t *line,
 
 void fill_mnk_matrix_vr(linear_equation_t *eq,
                          apogee_rc_table_t *table);
+void fill_mnk_matrix(linear_equation_t *eq, 
+                        apogee_rc_table_t *table, eq_mode_t mode);
 /**
  * TODO: generic
  */
@@ -64,7 +67,6 @@ static double __bound_parameter(linear_equation_t *eq,
                                         apogee_rc_table_t *table,
                                         double r_0, bound_t type) 
 {
-        unsigned int i;
         linear_eq_solve_t s = {
                 .data = dv_alloc(sizeof(double) * eq->size),
                 .size = eq->size
@@ -88,16 +90,19 @@ static double __bound_parameter(linear_equation_t *eq,
                                 break;
                         default:
                                 printf("%s: error bound type!\n",
-                                        __FUNCTION__);
+                                        __func__);
                                 return 0;
                 }
 
                 fill_mnk_matrix_vr(eq, table);
                 solve(eq, &s);
+        #ifdef DEBUG
+                print_vector(s.data, s.size);
+        #endif
                 sq = residuals_summary(eq, &s, table);
 #ifdef DEBUG
                 printf("%s: r_0 = %lf, sq = %lf, need >= %lf\n",
-                                __FUNCTION__, table->r_0, sq, thr_sq);
+                                __func__, table->r_0, sq, thr_sq);
 #endif
                 if (sq >= thr_sq)
                         break;
@@ -123,7 +128,6 @@ double upper_bound_search(linear_equation_t *eq,
 opt_t *opt_linear(linear_equation_t *eq, 
                                 apogee_rc_table_t *table) 
 {
-        unsigned int i;
         linear_eq_solve_t s = {
                 .data = dv_alloc(sizeof(double) * eq->size),
                 .size = eq->size
@@ -143,10 +147,11 @@ opt_t *opt_linear(linear_equation_t *eq,
         double sq = residuals_summary(eq, &s, table);
 
         opt_t opt_params = {
-                .s = s,
+                .s = dv_alloc(sizeof(linear_eq_solve_t)),
                 .r_0 = table->r_0,
                 .sq = sq
         };
+        opt_params.s.data = dv_alloc(sizeof(double) * s.size);
 
         while (step > SEARCH_PRECISION) {
                 while (table->r_0 < high_r) {
@@ -160,12 +165,14 @@ opt_t *opt_linear(linear_equation_t *eq,
                         double sq_tmp = residuals_summary(eq, &s, table);
         #ifdef DEBUG
                         printf("%s: sd = %lf, r_0 = %lf\n", 
-                                        __FUNCTION__, sq_tmp, table->r_0);
+                                        __func__, sq_tmp, table->r_0);
         #endif
                         if (sq_tmp < opt_params.sq) {
-                                opt_params.s = s;
+                                opt_params.s = s,
                                 opt_params.r_0 = table->r_0;
                                 opt_params.sq = sq_tmp;
+                                opt_params.s.data = dv_alloc(sizeof(double) * s.size);
+                                memcpy(opt_params.s.data, s.data, s.size * sizeof(double));
                         }
                 }
 
@@ -181,3 +188,22 @@ opt_t *opt_linear(linear_equation_t *eq,
         return ret;
 }
 
+void get_errors(opt_t *solution, apogee_rc_table_t *table) 
+{
+        linear_equation_t m, invm;
+        m.data = dv_alloc(sizeof(double) * solution->s.size * solution->s.size);
+        m.right = dv_alloc(sizeof(double) * solution->s.size);
+        m.size = solution->s.size;
+        invm.data = dv_alloc(sizeof(double) * solution->s.size * solution->s.size);
+        invm.size = solution->s.size;
+
+        fill_mnk_matrix(&m, table, VR_MODE);
+        inverse_and_diag(&m, &invm);
+
+        solution->bounds = dv_alloc(sizeof(prec_t) * solution->s.size);
+        unsigned int i;
+        for (i = 0; i < solution->s.size; ++i) {
+                solution->bounds[i].l = 
+                        get_error_mnk_estimated(invm.data[i * invm.size + i], invm.size + table->size + 1, solution->sq / (table->size + 1));
+        }
+}

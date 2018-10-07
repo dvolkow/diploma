@@ -24,7 +24,7 @@ double get_beta_n(const apogee_rc_t *line, beta_ord_t type)
                 case THIRD:
                         return -sin(line->b);
                 default:
-                        printf("%s: type error!\n", __FUNCTION__);
+                        printf("%s: type error!\n", __func__);
         }
 
         return 0;
@@ -91,7 +91,7 @@ void fill_mnk_matrix(linear_equation_t *eq,
                         fill_mnk_matrix_vr(eq, table);
                         break;
                 default:
-                        printf("%s: mode not implemented!\n", __FUNCTION__);
+                        printf("%s: mode not implemented!\n", __func__);
                         exit(1);
         }
 }
@@ -101,13 +101,13 @@ void fill_mnk_matrix(linear_equation_t *eq,
 void run_all_jtests()
 {
         UTEST_LINE_PRINT();
-        printf("%s: start unit tests...\n", __FUNCTION__);
+        printf("%s: start unit tests...\n", __func__);
 
         unsigned int i;
         FORALL_JTEST_TABLE(jtest_table, i) {
                 TRY_TEST(&jtest_table[i]);
         }
-        printf("%s: unit test completed!\n", __FUNCTION__);
+        printf("%s: unit test completed!\n", __func__);
         UTEST_LINE_PRINT();
 }
 
@@ -120,7 +120,7 @@ void get_solution(int argc, char *argv[])
 
         if (table == NULL) {
                 printf("%s: fail to open %s!\n",
-                                __FUNCTION__, argv[INPUT_FILE_ARG]);
+                                __func__, argv[INPUT_FILE_ARG]);
                 return;
         }
         assert(table->size != 0);
@@ -132,17 +132,26 @@ void get_solution(int argc, char *argv[])
                 .ord = size
         };
 #ifdef DEBUG
-        printf("%s: ord = %d\n", __FUNCTION__, eq.ord);
+        printf("%s: ord = %d\n", __func__, eq.ord);
 #endif
         opt_t *solution = opt_linear(&eq, table);
         printf("%s: solution: R_0 = %lf\n",
-                        __FUNCTION__, solution->r_0);
+                        __func__, solution->r_0);
 
 
+        prec_t p = {
+                .l = lower_bound_search(&eq, table, solution->r_0),
+                .h = upper_bound_search(&eq, table, solution->r_0)
+        };
         printf("%s: solution: -R_0 = %lf\n", 
-                        __FUNCTION__, lower_bound_search(&eq, table, solution->r_0));
+                        __func__, p.l);
         printf("%s: solution: +R_0 = %lf\n", 
-                        __FUNCTION__, upper_bound_search(&eq, table, solution->r_0));
+                        __func__, p.h);
+#ifdef DEBUG
+        print_vector(solution->s.data, solution->s.size);
+#endif
+        get_errors(solution, table);
+        dump_result(solution, table, &p);
 }
 
 int main(int argc, char *argv[])

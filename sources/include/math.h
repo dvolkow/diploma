@@ -41,16 +41,25 @@ typedef struct {
         int     size;
 } linear_eq_solve_t;
 
+typedef struct {
+        double l;
+        double h;
+} prec_t;
 
 typedef struct {
         linear_eq_solve_t s;
         double r_0;
         double sq;
+        prec_t *bounds;
 } opt_t;
 
+
 void solve(linear_equation_t *, linear_eq_solve_t *);
+void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res);
 
 double get_R_distance(apogee_rc_t *line, double r_0);
+double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const int nfree,
+                                const double sd);
 
 #define PRECACHED_FACTORIAL_LEN         12
 int dv_factorial(const int n);

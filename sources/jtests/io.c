@@ -7,7 +7,7 @@
 
 #define PRINT_JOI_RES(s)                        \
         printf("%s: count lines in %s: %d\n",   \
-                        __FUNCTION__, (s), countlines((s)))
+                        __func__, (s), countlines((s)))
 
 int jio()
 {

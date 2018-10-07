@@ -18,9 +18,9 @@ int jcore()
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i)
                 printf("%s: get_beta_n(%d) for line table default: %lf\n",
-                        __FUNCTION__, i, get_beta_n(&table->data[0], i));
+                        __func__, i, get_beta_n(&table->data[0], i));
         for (i = 1; i < 10; ++i)
                 printf("%s: get_alpha_n(%d) for line table default: %lf\n",
-                        __FUNCTION__, i, get_alpha_n(&table->data[0], 8, i));
+                        __func__, i, get_alpha_n(&table->data[0], 8, i));
         return 0;
 }
