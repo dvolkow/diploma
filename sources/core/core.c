@@ -9,9 +9,7 @@
 #include "io.h"
 #include "mem.h"
 #include "math.h"
-#ifdef DEBUG
 #include "debug.h"
-#endif // DEBUG
 #include "opt.h"
 #include "graph.h"
 #include "utils.h"
@@ -115,25 +113,31 @@ void run_all_jtests()
 
 void get_solution(int argc, char *argv[])
 {
-        int size = atoi(argv[ORD_ARG]);
+        parser_t *cfg = parse_args(argc, argv);
+        if (cfg == NULL || !parser_t_is_valid(cfg)) {
+                printf("%s: invalid parameters!\n",
+                                __func__);
+                return;
+        }
+
+        int size = cfg->ord;
         double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) * 
                                                    (size + BETA_QTY));
-        apogee_rc_table_t *table = read_table(argv[INPUT_FILE_ARG]);
+        apogee_rc_table_t *table = read_table(cfg->input_file_name);
 
         if (table == NULL) {
                 printf("%s: fail to open %s!\n",
-                                __func__, argv[INPUT_FILE_ARG]);
+                                __func__, cfg->input_file_name);
                 return;
         }
         assert(table->size != 0);
 
-        /* Filter: */
-        filter_t f = {
-                .l = 0,
-                .h = deg_to_rad(180),
-                .f = __limited_by_l
-        };
-        table = get_limited_generic(table, &f, L_FILTER);
+        /* TODO: Filter assigner: */
+        if (cfg->filter != NULL) {
+                filter_t *f = filter_factory(cfg);
+                table = get_limited_generic(table, f, L_FILTER);
+        }
+        
 
         linear_equation_t eq = {
                 .data = matrix,

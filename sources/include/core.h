@@ -1,7 +1,7 @@
 #ifndef CORE_H  
 #define CORE_H  1
 
-#include "types.h"
+#include <stdbool.h>
 
 #define MAX_ORDER_SOLUTION      10
 
@@ -37,5 +37,20 @@ typedef enum {
 } cmd_line_arg_t;
 
 
+typedef struct {
+#define DEFAULT_ORD             1
+        int ord;
+#define DEFAULT_INF_NAME        "apogee_rc.txt"
+        char *input_file_name;
+#define DEFAULT_L               0
+        double l;
+#define DEFAULT_H               0
+        double h;
+#define DEFAULT_FILTER          NULL
+        char *filter;
+} parser_t;
+
+parser_t *parse_args(int, const char **);
+bool parser_t_is_valid(const parser_t *cfg);
 
 #endif // CORE_H

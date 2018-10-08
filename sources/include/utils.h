@@ -36,5 +36,6 @@ apogee_rc_table_t *get_limited_generic(const void *table,
                                        const filter_t *filter,
                                        filter_mode_t mode);
 
+filter_t *filter_factory(const parser_t *cfg);
 bool __limited_by_l(const void *line, const double l, const double h);
 #endif // UTILS_H

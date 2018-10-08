@@ -105,6 +105,17 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
 /**
  * Filters for dataset
  */
+filter_t *filter_factory(const parser_t *cfg)
+{
+        filter_t *filter = dv_alloc(sizeof(filter));
+        if (!strcmp(cfg->filter, "L")) {
+                filter->l = deg_to_rad(cfg->l);
+                filter->h = deg_to_rad(cfg->h);
+                filter->f = __limited_by_l;
+        }
+
+        return filter;
+}
 
 bool __limited_by_l(const void *line, const double l, const double h)
 {
@@ -115,7 +126,7 @@ bool __limited_by_l(const void *line, const double l, const double h)
 /**
  * Return transorm table!
  */
-apogee_rc_table_t *get_limited_by_l(const void *table, const filter_t *filter)
+apogee_rc_table_t *get_limited_replace(const void *table, const filter_t *filter)
 {
         apogee_rc_table_t *src = table;
         unsigned int i;
@@ -135,10 +146,14 @@ apogee_rc_table_t *get_limited_generic(const void *table,
                                        filter_mode_t mode) 
 {
         unsigned int new_size = 0;
+        if (filter == NULL)
+                return (apogee_rc_table_t *)table;
+
         switch (mode) {
                 case L_FILTER:
-                        return get_limited_by_l(table, filter);
                 default:
+                        return get_limited_replace(table, filter);
+                        // TODO: mode supporting
                         printf("%s: unknown mode 0x%x!\n",
                                         __func__, mode);
                         return NULL;
