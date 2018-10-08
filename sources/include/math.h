@@ -14,6 +14,11 @@ static inline double deg_to_rad(const double deg)
         return deg * M_PI / 180;
 }
 
+static inline double rad_to_deg(const double rad)
+{
+        return rad * 180 / M_PI;
+}
+
 static inline double pow_double(const double m, const unsigned int n) 
 {
         unsigned int i;
@@ -30,6 +35,7 @@ typedef enum {
         SOLUTION,
 } linear_type_t;
 
+
 typedef struct {
         double  *data;
         double  *right;
@@ -37,15 +43,18 @@ typedef struct {
         short   ord;
 } linear_equation_t;
 
+
 typedef struct {
         double  *data;        
         int     size;
 } linear_eq_solve_t;
 
+
 typedef struct {
         double l;
         double h;
 } prec_t;
+
 
 typedef struct {
         linear_eq_solve_t s;
@@ -56,12 +65,20 @@ typedef struct {
 } opt_t;
 
 
+typedef struct {
+        double x;
+        double y;
+        double z;
+} point_t;
+
+
 void solve(linear_equation_t *, linear_eq_solve_t *);
 void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res);
 
-double get_R_distance(apogee_rc_t *line, double r_0);
+double get_R_distance(const apogee_rc_t *line, double r_0);
 double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const int nfree,
                                 const double sd);
+point_t *get_point(const apogee_rc_t *line, const double r_0); 
 
 double get_median(const double *data, const size_t size);
 

@@ -49,6 +49,11 @@ iteration_storage_t *iteration_storage_create(const apogee_rc_table_t *table,
         return storage;
 }
 
+
+/**
+ * Average theta by R for graphic plotting. Use 
+ * LSE by each interval. More details into text.
+ */
 static inline double __get_c(const iteration_storage_t *st_part,
                                  const opt_t *solution)
 {
@@ -94,4 +99,48 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
         res->size = size;
 
         return res;
+}
+
+
+/**
+ * Filters for dataset
+ */
+
+bool __limited_by_l(const void *line, const double l, const double h)
+{
+        apogee_rc_t *_l = line;
+        return _l->l < h && _l->l >= l;
+}
+
+/**
+ * Return transorm table!
+ */
+apogee_rc_table_t *get_limited_by_l(const void *table, const filter_t *filter)
+{
+        apogee_rc_table_t *src = table;
+        unsigned int i;
+        unsigned int count = 0;
+        for (i = 0; i < src->size; ++i) {
+                if (filter->f(&src->data[i], filter->l, filter->h)) {
+                        src->data[count++] = src->data[i];
+                } 
+        }
+
+        src->size = count;
+        return src;
+}
+
+apogee_rc_table_t *get_limited_generic(const void *table, 
+                                       const filter_t *filter,
+                                       filter_mode_t mode) 
+{
+        unsigned int new_size = 0;
+        switch (mode) {
+                case L_FILTER:
+                        return get_limited_by_l(table, filter);
+                default:
+                        printf("%s: unknown mode 0x%x!\n",
+                                        __func__, mode);
+                        return NULL;
+        }
 }

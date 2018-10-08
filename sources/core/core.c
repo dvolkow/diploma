@@ -14,6 +14,7 @@
 #endif // DEBUG
 #include "opt.h"
 #include "graph.h"
+#include "utils.h"
 
 double get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 {
@@ -125,6 +126,14 @@ void get_solution(int argc, char *argv[])
                 return;
         }
         assert(table->size != 0);
+
+        /* Filter: */
+        filter_t f = {
+                .l = 0,
+                .h = deg_to_rad(180),
+                .f = __limited_by_l
+        };
+        table = get_limited_generic(table, &f, L_FILTER);
 
         linear_equation_t eq = {
                 .data = matrix,
