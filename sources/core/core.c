@@ -13,6 +13,7 @@
 #include "debug.h"
 #endif // DEBUG
 #include "opt.h"
+#include "graph.h"
 
 double get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 {
@@ -156,6 +157,7 @@ void get_solution(int argc, char *argv[])
 
         iteration_storage_t *st = iteration_storage_create(table, solution);
         dump_rotation_curve(st, solution);
+        dump_averages(st, solution, DISTANCE);
 }
 
 int main(int argc, char *argv[])

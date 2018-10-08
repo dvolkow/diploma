@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <math.h>
 
 #include "graph.h"
@@ -118,7 +119,70 @@ void dump_rotation_curve(iteration_storage_t *storage, opt_t *solution)
         fclose(fout);
 }
 
+static double *get_sorted_r(const iteration_storage_t *sorted_st, const size_t size)
+{
+        double * sorted_r = dv_alloc(sizeof(double) * size);
+        unsigned int i = 0;
+        for (i = 0; i < size; ++i) {
+                sorted_r[i] = sorted_st[i].r;
+        }
+
+        return sorted_r;
+}
+
+
 void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mode) 
 {
+        average_res_t *a;
+
         sort_iteration_storage_by_r(st, solution->size);
+        double *sorted_r = get_sorted_r(st, solution->size);
+
+        FILE *aout = fopen(AVERAGE_R_FILE_NAME, "w");
+        if (aout == NULL) {
+                PRINT_IO_OPEN_ERROR(AVERAGE_R_FILE_NAME);
+                return;
+        }
+
+        double r = st[0].r;
+        int estimate_counter = solution->size;
+        int left_bound = 0;
+        int i_counter = 1; 
+
+        bool r_into_middle(const double v) {
+                return (v < AVERAGE_COUNT_EDGE_R_BOUND) &&
+                        (v > AVERAGE_COUNT_EDGE_L_BOUND);
+        }
+
+        bool is_last_step(const int c, const int s) {
+                return (c - s) <= 0;
+        }
+
+        while (estimate_counter > 0) {
+                /* Setting for size */
+                int size = r_into_middle(r) ? AVERAGE_COUNT_BASE 
+                                            : AVERAGE_COUNT_EDGE;
+
+                if (is_last_step(estimate_counter, size)) {
+                        size = estimate_counter; 
+                }
+
+                /* Get & print */
+                a = get_average_theta(&st[left_bound], solution, size);
+                double median_r = get_median(&sorted_r[left_bound], size);
+                fprintf(aout, "%d %d %lf %lf %lf %lf %lf\n",
+                                ++i_counter, size, 
+                                median_r, 
+                                fabs(median_r - sorted_r[left_bound]), 
+                                fabs(median_r - sorted_r[left_bound + size - 1]),
+                                a->theta, a->err
+                                );
+
+                /*  Next step prepare */
+                r = sorted_r[left_bound + size - 1];
+                left_bound += size;
+                estimate_counter -= size;
+        }
+
+        fclose(aout);
 }

@@ -19,6 +19,13 @@
 #define SUN_POINT_FILE_NAME     \
         "sun.txt"
 
+#define AVERAGE_R_FILE_NAME     \
+        "averages.txt"
+
+#define AVERAGE_COUNT_BASE              500
+#define AVERAGE_COUNT_EDGE              (AVERAGE_COUNT_BASE / EDGE_SPARCE_DIVISOR)
+#define AVERAGE_COUNT_EDGE_L_BOUND      5
+#define AVERAGE_COUNT_EDGE_R_BOUND      12
 
 typedef enum {
         COUNTER,
@@ -26,5 +33,6 @@ typedef enum {
 } averages_mode_t;
 
 void dump_result(opt_t *, apogee_rc_table_t *, prec_t *);
+void dump_averages(iteration_storage_t *, opt_t *, averages_mode_t);
 
 #endif // GRAPH_H

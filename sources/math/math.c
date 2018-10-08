@@ -4,6 +4,8 @@
 #include "mem.h"
 #include <stdio.h>
 #include <gsl/gsl_linalg.h>
+#include <gsl/gsl_statistics.h>
+
 #ifdef DEBUG
 #include "debug.h"
 #endif
@@ -52,6 +54,10 @@ static void gsl_vector_copy_to(linear_eq_solve_t *x, const gsl_vector *src)
         }
 }
 
+
+/*
+ * Ax = B linear systems solver
+ */
 void solve(linear_equation_t *eq, linear_eq_solve_t *x)
 {
         gsl_vector *gx = gsl_vector_alloc(eq->size);
@@ -69,6 +75,7 @@ void solve(linear_equation_t *eq, linear_eq_solve_t *x)
         gsl_vector_free(gx);
 }
 
+
 static void copy_diagonal(linear_equation_t *dst, 
                                 const gsl_matrix *src)
 {
@@ -79,6 +86,11 @@ static void copy_diagonal(linear_equation_t *dst,
         }
 }
 
+
+/*
+ * Get inverse matrix for @eq->data, and get only
+ * diagonal elems. 
+ */
 void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res)
 {
         gsl_matrix_view m = to_gsl_matrix(eq);
@@ -94,8 +106,13 @@ void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res)
         gsl_permutation_free(p);
 }
 
+
+/*
+ * Use precalculated values
+ */
 int dv_factorial(const int n)
 {
+        assert(n < PRECACHED_FACTORIAL_LEN);
         return __factorial_storage[n];
 }
 
@@ -113,4 +130,21 @@ double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const
                                 const double sd)
 {
         return sqrt(p * sd);
+}
+
+
+/* Statistics: */
+double get_median(const double *data, const size_t size)
+{
+        return gsl_stats_median_from_sorted_data(data, 1, size);
+}
+
+double get_mean(const double *data, const size_t size)
+{
+        return gsl_stats_mean(data, 1, size); 
+}
+
+double get_sd(const double *data, const size_t size)
+{
+        return gsl_stats_variance(data, 1, size);
 }
