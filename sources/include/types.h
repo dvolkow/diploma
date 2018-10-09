@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include "core.h"
 
+#define MAX_ORDER_SOLUTION      42
+
 /**
  * TODO: description for fields
  *

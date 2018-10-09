@@ -62,6 +62,28 @@ static void fill_estimated_vector(const apogee_rc_table_t *table,
         }
 }
 
+static inline void step_forward(apogee_rc_table_t *table,
+                                const double step, bound_t type)
+{
+        switch (type) {
+                case LOWER:
+                        table->r_0 -= step;
+                        break;
+                case UPPER:
+                        table->r_0 += step;
+                        break;
+                default:
+                        printf("%s: error bound type!\n",
+                                        __func__);
+        }
+}
+
+static inline void step_backward(apogee_rc_table_t *table,
+                                const double step, bound_t type)
+{
+        step_forward(table, step, type == LOWER ? UPPER 
+                                                : LOWER);
+}
 
 static double __bound_parameter(linear_equation_t *eq, 
                                         apogee_rc_table_t *table,
@@ -72,7 +94,7 @@ static double __bound_parameter(linear_equation_t *eq,
                 .size = eq->size
         };
 
-        double step = SEARCH_PRECISION / 2;
+        double step = (UPPER_BOUND_R0 - LOWER_BOUND_R0) / 16;
         table->r_0 = r_0;
 
         fill_mnk_matrix_vr(eq, table);
@@ -80,34 +102,26 @@ static double __bound_parameter(linear_equation_t *eq,
         double sq = residuals_summary(eq, &s, table);
         double thr_sq = sq * (1.0 + 1.0 / (table->size + eq->size + 1.0));
 
-        while (1) {
-                switch(type) {
-                        case LOWER:
-                                table->r_0 -= step;
-                                break;
-                        case UPPER:
-                                table->r_0 += step;
-                                break;
-                        default:
-                                printf("%s: error bound type!\n",
-                                        __func__);
-                                return 0;
-                }
-
-                fill_mnk_matrix_vr(eq, table);
-                solve(eq, &s);
-        #ifdef DEBUG
-                print_vector(s.data, s.size);
-        #endif
-                sq = residuals_summary(eq, &s, table);
-#ifdef DEBUG
-                printf("%s: r_0 = %lf, sq = %lf, need >= %lf\n",
+        while (step >= SEARCH_PRECISION) {
+                step /= STEP_DIVISOR;
+                while (1) {
+                        step_forward(table, step, type);
+                        fill_mnk_matrix_vr(eq, table);
+                        solve(eq, &s);
+                #ifdef DEBUG
+                        print_vector(s.data, s.size);
+                #endif
+                        sq = residuals_summary(eq, &s, table);
+                #ifdef DEBUG
+                        printf("%s: r_0 = %lf, sq = %lf, need >= %lf\n",
                                 __func__, table->r_0, sq, thr_sq);
-#endif
-                if (sq >= thr_sq)
-                        break;
-
+                #endif
+                        if (sq >= thr_sq)
+                                break;
+                }
+                step_backward(table, step, type);
         }
+
         return table->r_0;
 }
 

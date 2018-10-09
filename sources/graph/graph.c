@@ -49,12 +49,12 @@ void dump_result(opt_t *opt, apogee_rc_table_t *table,
 #ifdef DEBUG
         printf("%s: opt->s.size = %u\n",
                         __func__, opt->s.size);
-        for (i = 0; i < opt->s.size; ++i) {
+        for (i = 0; i < g_ptable[i].name != NULL; ++i) {
                 printf("%s: [%u] = %lf\n", __func__, 
                                 i, opt->s.data[i]);
         }
 #endif
-        for (i = 0; i < opt->s.size; ++i) {
+        for (i = 0; g_ptable[i].name != NULL; ++i) {
                 fprintf(fout, "%s: %f (pm %f) \n",
                         g_ptable[i].name,
                         opt->s.data[i],

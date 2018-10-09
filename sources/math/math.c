@@ -17,13 +17,7 @@
 #define to_gsl_vector(a)        \
         gsl_vector_view_array((a)->right, (a)->size)
 
-static double __factorial_storage[PRECACHED_FACTORIAL_LEN] = {
-        1, 1, 2, 6, 24, 
-        120, 720, 5040,
-        40320, 362880
-};
-
-
+static double __factorial_storage[PRECACHED_FACTORIAL_LEN];
 
 void *make_linear_struct(double *data, int size, 
                                 linear_type_t type)
@@ -110,7 +104,7 @@ void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res)
 /*
  * Use precalculated values
  */
-int dv_factorial(const int n)
+double dv_factorial(const int n)
 {
         assert(n < PRECACHED_FACTORIAL_LEN);
         return __factorial_storage[n];
@@ -148,3 +142,14 @@ double get_sd(const double *data, const size_t size)
 {
         return gsl_stats_variance(data, 1, size);
 }
+
+
+void math_init(void) 
+{
+        __factorial_storage[0] = 1;
+        int i;
+        for (i = 1; i < PRECACHED_FACTORIAL_LEN; ++i) {
+                __factorial_storage[i] = __factorial_storage[i - 1] * i;
+        }
+}
+

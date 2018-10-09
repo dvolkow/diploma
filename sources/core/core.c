@@ -14,6 +14,8 @@
 #include "graph.h"
 #include "utils.h"
 
+static matrix_line_t g_matrix_line;
+
 double get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 {
         switch (type) {
@@ -45,7 +47,9 @@ double get_alpha_n(const apogee_rc_t *line,
                    const double r_0,
                    const int n)
 {
+#ifdef DEBUG
         assert(n > 0);
+#endif
         
         double R = get_R_distance(line, r_0);
         return s_alpha_n(R, sin(line->l), cos(line->b), r_0, n);
@@ -56,7 +60,10 @@ void fill_mnk_matrix_vr(linear_equation_t *eq,
 {
         unsigned int i, j, k;
         unsigned int len = eq->size;
-        matrix_line_t *line = (matrix_line_t *)dv_alloc(sizeof(double) * len);
+        matrix_line_t *line = &g_matrix_line;
+#ifdef DEBUG
+        assert(len <= BETA_QTY + MAX_ORDER_SOLUTION);
+#endif
 
         memset(eq->data, 0, sizeof(double) * eq->size * eq->size);
         memset(eq->right, 0, sizeof(double) * eq->size);
@@ -175,7 +182,10 @@ void get_solution(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+        math_init();
+#ifdef DEBUG
         run_all_jtests();
+#endif
         get_solution(argc, argv);
         return 0;
 }

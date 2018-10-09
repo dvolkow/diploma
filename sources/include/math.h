@@ -4,8 +4,6 @@
 #include "types.h"
 #include <stdlib.h>
 
-#define MAX_EQUATION_SIZE       10
-
 #define M_PI 3.14159265358979323846
 
 
@@ -82,10 +80,12 @@ point_t *get_point(const apogee_rc_t *line, const double r_0);
 
 double get_median(const double *data, const size_t size);
 
-#define PRECACHED_FACTORIAL_LEN         12
-int dv_factorial(const int n);
+#define PRECACHED_FACTORIAL_LEN         25
+double dv_factorial(const int n);
 
 double dot_prod(double *a, double *b, int size);
+
+void math_init(void);
 
 #endif // MATH_H
 
