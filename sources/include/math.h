@@ -85,7 +85,8 @@ double dv_factorial(const int n);
 
 double dot_prod(double *a, double *b, int size);
 
-void math_init(void);
+int math_init(void);
+void math_exit(void);
 
 #endif // MATH_H
 

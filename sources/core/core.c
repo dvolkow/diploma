@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
+
 #include "core.h"
 #include "jtest.h"
 #include "types.h"
@@ -13,6 +14,7 @@
 #include "opt.h"
 #include "graph.h"
 #include "utils.h"
+#include "generators.h"
 
 static matrix_line_t g_matrix_line;
 
@@ -118,6 +120,7 @@ void run_all_jtests()
         UTEST_LINE_PRINT();
 }
 
+
 void get_solution(int argc, char *argv[])
 {
         parser_t *cfg = parse_args(argc, argv);
@@ -182,10 +185,11 @@ void get_solution(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-        math_init();
+        initialization_process();
 #ifdef DEBUG
         run_all_jtests();
 #endif
-        get_solution(argc, argv);
+        //get_solution(argc, argv);
+        deinitialization_process();
         return 0;
 }

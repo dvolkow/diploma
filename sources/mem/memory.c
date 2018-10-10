@@ -23,3 +23,7 @@ void *dv_alloc(const size_t size)
         return ret;
 }
 
+void *dv_mm_get_current_top(void)
+{
+        return (void *)&__g_memory_buffer[current_usage];
+}

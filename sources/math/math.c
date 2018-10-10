@@ -144,12 +144,15 @@ double get_sd(const double *data, const size_t size)
 }
 
 
-void math_init(void) 
+int math_init(void) 
 {
         __factorial_storage[0] = 1;
         int i;
         for (i = 1; i < PRECACHED_FACTORIAL_LEN; ++i) {
                 __factorial_storage[i] = __factorial_storage[i - 1] * i;
         }
+
+        return 0;
 }
 
+void math_exit() {}
