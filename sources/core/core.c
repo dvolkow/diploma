@@ -5,7 +5,6 @@
 
 
 #include "core.h"
-#include "jtest.h"
 #include "types.h"
 #include "io.h"
 #include "mem.h"
@@ -107,20 +106,6 @@ void fill_mnk_matrix(linear_equation_t *eq,
 
 
 
-void run_all_jtests()
-{
-        UTEST_LINE_PRINT();
-        printf("%s: start unit tests...\n", __func__);
-
-        unsigned int i;
-        FORALL_JTEST_TABLE(jtest_table, i) {
-                TRY_TEST(&jtest_table[i]);
-        }
-        printf("%s: unit test completed!\n", __func__);
-        UTEST_LINE_PRINT();
-}
-
-
 void get_solution(int argc, char *argv[])
 {
         parser_t *cfg = parse_args(argc, argv);
@@ -183,13 +168,3 @@ void get_solution(int argc, char *argv[])
         dump_averages(st, solution, DISTANCE);
 }
 
-int main(int argc, char *argv[])
-{
-        initialization_process();
-#ifdef DEBUG
-        run_all_jtests();
-#endif
-        //get_solution(argc, argv);
-        deinitialization_process();
-        return 0;
-}

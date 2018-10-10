@@ -23,7 +23,10 @@ void *dv_alloc(const size_t size)
         return ret;
 }
 
+#define G_START_SHIFT 8
 void *dv_mm_get_current_top(void)
 {
-        return (void *)&__g_memory_buffer[current_usage];
+        return (void *)&__g_memory_buffer[current_usage > G_START_SHIFT 
+                        ? current_usage - G_START_SHIFT 
+                        : current_usage];
 }

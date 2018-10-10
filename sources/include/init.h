@@ -7,6 +7,4 @@ typedef struct {
         void (*exit)(void);
 } init_t;
 
-int initialization_process();
-void deinitialization_process();
 #endif // INIT_H

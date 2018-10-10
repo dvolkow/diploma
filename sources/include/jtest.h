@@ -23,17 +23,6 @@ int jtrigonometry(void);
 int jcore(void);
 
 
-static jtest_table_t jtest_table[] = {
-        { .test = jmemory, .name = "memory test" }
-      , { .test = jmath, .name = "math test" }
-      , { .test = jio, .name = "input/output test" }
-      , { .test = jtrigonometry, .name = "trigonometry test" }
-      , { .test = jcore, .name = "core test" }
-      // MUST BE LAST:
-      , { .test = NULL, .name = NULL }
-      
-};
-
 #define FORALL_JTEST_TABLE(table, i)                            \
         for (i = 0; table[i].test != NULL; ++i)
 
@@ -48,4 +37,7 @@ static jtest_table_t jtest_table[] = {
                                         __func__,               \
                                         (table_line)->name);    \
         } while (0)
+
+int jtest_init();
+void jtest_exit();
 #endif // JTESTS_H
