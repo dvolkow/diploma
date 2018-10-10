@@ -4,9 +4,10 @@
 #include "generators.h"
 
 static init_t g_init_deinit_table[] = {
-        { "math sybsystem",  math_init, math_exit }
-      , { "random generators sybsystem",  random_seed_init, random_seed_exit }
-      , { "unit test sybsystem",  jtest_init, jtest_exit }
+        { "math subsystem",  math_init, math_exit }
+      , { "random generators subsystem",  random_seed_init, random_seed_exit }
+      , { "unit test subsystem",  jtest_init, jtest_exit }
+
         // MUST BE LAST:
       , { NULL, NULL, NULL }
 };
@@ -27,6 +28,9 @@ static int initialization_process()
         }
         return 0;
 fail:
+        printf("%s: failure for [%s] (#%d)!\n",
+                        __func__, g_init_deinit_table[i].name,
+                        i);
         for (; i >= 0; --i)
                 g_init_deinit_table[i].exit();
 
