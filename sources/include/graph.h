@@ -35,4 +35,9 @@ typedef enum {
 void dump_result(opt_t *, apogee_rc_table_t *, prec_t *);
 void dump_averages(iteration_storage_t *, opt_t *, averages_mode_t);
 
+#define DEFAULT_BACKGROUND_COUNT        42
+
+void dump_background(const iteration_storage_t *, 
+                     const opt_t *, 
+                     const int);
 #endif // GRAPH_H

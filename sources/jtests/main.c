@@ -1,13 +1,13 @@
 #include "jtest.h"
 
 static jtest_table_t jtest_table[] = {
-        { .test = jmemory, .name = "memory test" }
-      , { .test = jmath, .name = "math test" }
-      , { .test = jio, .name = "input/output test" }
+        { .test = jmemory,      .name = "memory test" }
+      , { .test = jmath,        .name = "math test" }
+      , { .test = jio,          .name = "input/output test" }
       , { .test = jtrigonometry, .name = "trigonometry test" }
-      , { .test = jcore, .name = "core test" }
+      , { .test = jcore,        .name = "core test" }
       // MUST BE LAST:
-      , { .test = NULL, .name = NULL }
+      , { .test = NULL,         .name = NULL }
       
 };
 

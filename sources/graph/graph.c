@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
 
@@ -12,23 +13,33 @@
 #define OUTPUT_RESULT_FILENAME  \
         "result.txt"
 
+#define OUTPUT_RESULT_LINE      \
+        "+---------------------------------------------+"
+
+#define PRINT_OUTPUT_LINE(f)    \
+        fprintf((f), "%s\n", OUTPUT_RESULT_LINE)
+
+
 parameter_t g_ptable[] = {
         { "u" }
       , { "v" }
       , { "w" }
       , { "A" }
-      , { "th2" }
-      , { "th3" }
-      , { "th4" }
-      , { "th5" }
-      , { "th6" }
-      , { "th7" }
-      , { "th8" }
-      , { "th9" }
-      , { "th10" }
         // MUST BE LAST:
       , { NULL }
 };
+
+#define MAX_G_GRAPH_LEN         8
+static char __g_graph_buffer[MAX_G_GRAPH_LEN];
+
+static char *__get_name_by_idx(const int idx) 
+{
+        const int known = BETA_QTY + 1;
+        if (idx < known) return g_ptable[idx].name;
+
+        sprintf(__g_graph_buffer, "th[%d]", idx - known + 2);
+        return __g_graph_buffer;
+}
 
 void dump_result(opt_t *opt, apogee_rc_table_t *table,
                   prec_t *p) 
@@ -39,12 +50,16 @@ void dump_result(opt_t *opt, apogee_rc_table_t *table,
                 return;
         }
 
+        PRINT_OUTPUT_LINE(fout);
         fprintf(fout, "Result for APOGEE-RC dataset by %lu obj:\n",
                         table->size);
-        fprintf(fout, "Optimal R_0: %lf (+%lf -%lf)\n",
-                        opt->r_0, p->h - opt->r_0, opt->r_0 - p->l);
-        fprintf(fout, "SD V_R: %lf kmps\n",
+        PRINT_OUTPUT_LINE(fout);
+        fprintf(fout, "R_0: \t%lf \t+%lf\n",
+                        opt->r_0, p->h - opt->r_0);
+        fprintf(fout, "\t\t    \t-%lf\n", opt->r_0 - p->l);
+        fprintf(fout, "SD: \t%lf\n",
                         sqrt(opt->sq / (table->size + opt->s.size + 1)));
+        PRINT_OUTPUT_LINE(fout);
         unsigned int i;
 #ifdef DEBUG
         printf("%s: opt->s.size = %u\n",
@@ -54,9 +69,9 @@ void dump_result(opt_t *opt, apogee_rc_table_t *table,
                                 i, opt->s.data[i]);
         }
 #endif
-        for (i = 0; g_ptable[i].name != NULL; ++i) {
-                fprintf(fout, "%s: %f (pm %f) \n",
-                        g_ptable[i].name,
+        for (i = 0; i < opt->s.size; ++i) {
+                fprintf(fout, "%s: \t%f \t(pm %f) \n",
+                        __get_name_by_idx(i),
                         opt->s.data[i],
                         opt->bounds[i].l);
         }
@@ -91,7 +106,9 @@ void dump_rotation_curve(iteration_storage_t *storage, opt_t *solution)
                 return;
         }
 
+#ifdef DEBUG
         printf("%s: enrty\n", __func__);
+#endif
         unsigned int i;
         double r;
         for (i = 0; i < solution->size; ++i) {
@@ -158,6 +175,7 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
                 return (c - s) <= 0;
         }
 
+
         while (estimate_counter > 0) {
                 /* Setting for size */
                 int size = r_into_middle(r) ? AVERAGE_COUNT_BASE 
@@ -178,6 +196,7 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
                                 a->theta, a->err
                                 );
 
+
                 /*  Next step prepare */
                 r = sorted_r[left_bound + size - 1];
                 left_bound += size;
@@ -185,4 +204,65 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
         }
 
         fclose(aout);
+}
+
+void dump_background(const iteration_storage_t *st, 
+                     const opt_t *solution, 
+                     const int b_count)
+{       
+        FILE *dout = fopen("background.txt", "w");
+        if (dout == NULL) {
+                PRINT_IO_OPEN_ERROR("background.txt");
+                return;
+        }
+
+        average_res_t *a;
+        double *sorted_r = get_sorted_r(st, solution->size);
+
+        double r = st[0].r;
+        int estimate_counter = solution->size;
+        int left_bound = 0;
+        int i_counter = 1; 
+
+        bool is_last_step(const int c, const int s) {
+                return (c - s) <= 0;
+        }
+
+        double sd_sd = 0;
+        const double sd_total = sqrt(solution->sq / (solution->size + solution->s.size + 1));
+        int size = solution->size / b_count; 
+
+        while (estimate_counter > 0) {
+                /* Setting for size */
+
+                if (is_last_step(estimate_counter, size)) {
+                        size = estimate_counter; 
+                }
+
+                /* Get & print */
+                a = get_average_theta(&st[left_bound], solution, size);
+                sd_sd += pow_double(a->sd - sd_total, 2);
+
+                fprintf(dout, "%lf %lf %lf %lf %d\n",
+                               get_median(&sorted_r[left_bound], size),
+                               a->err,
+                               a->sd,
+                               sd_total,
+                               size);
+
+                /*  Next step prepare */
+                r = sorted_r[left_bound + size - 1];
+                left_bound += size;
+                estimate_counter -= size;
+        }
+
+        FILE *fout = fopen("bk_sd.txt", "w");
+        if (dout == NULL) {
+                PRINT_IO_OPEN_ERROR("bk_sd.txt");
+                return;
+        }
+        fprintf(fout, "%lf\n", sqrt(sd_sd / (b_count + 1)));
+
+        fclose(fout);
+        fclose(dout);
 }

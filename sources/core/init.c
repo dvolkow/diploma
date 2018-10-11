@@ -6,7 +6,9 @@
 static init_t g_init_deinit_table[] = {
         { "math subsystem",  math_init, math_exit }
       , { "random generators subsystem",  random_seed_init, random_seed_exit }
+#ifdef DEBUG
       , { "unit test subsystem",  jtest_init, jtest_exit }
+#endif
 
         // MUST BE LAST:
       , { NULL, NULL, NULL }
@@ -23,8 +25,10 @@ static int initialization_process()
                 res = g_init_deinit_table[i].init();
                 if (res)
                         goto fail;
+#ifdef DEBUG
                 printf("%s: initialization for %s success!\n",
                                 __func__, g_init_deinit_table[i].name);
+#endif
         }
         return 0;
 fail:
@@ -42,8 +46,10 @@ static void deinitialization_process()
         int i = g_init_deinit_table_size - 1;
         for (; i >= 0; --i) {
                 g_init_deinit_table[i].exit();
+#ifdef DEBUG
                 printf("%s: deinitialization for %s success!\n",
                                 __func__, g_init_deinit_table[i].name);
+#endif
         }
 }
 
@@ -51,10 +57,7 @@ static void deinitialization_process()
 int main(int argc, char *argv[])
 {
         initialization_process();
-#ifdef DEBUG
-        run_all_jtests();
-#endif
-        //get_solution(argc, argv);
+        get_solution(argc, argv);
         deinitialization_process();
         return 0;
 }

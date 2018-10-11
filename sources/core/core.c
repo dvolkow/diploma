@@ -166,5 +166,6 @@ void get_solution(int argc, char *argv[])
         iteration_storage_t *st = iteration_storage_create(table, solution);
         dump_rotation_curve(st, solution);
         dump_averages(st, solution, DISTANCE);
+        dump_background(st, solution, DEFAULT_BACKGROUND_COUNT);
 }
 

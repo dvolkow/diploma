@@ -8,6 +8,7 @@
 typedef struct {
         double theta;
         double err;
+        double sd;
         unsigned int size;
 } average_res_t;
 

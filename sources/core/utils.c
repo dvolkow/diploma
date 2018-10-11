@@ -93,7 +93,8 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
                                 __get_a(&st_part[i], solution) * res->theta;
                 res->err += pow_double(d, 2);
         }
-        res->err /= size;
+        res->sd = sqrt(res->err / (size + solution->s.size + 1));
+        res->err /= size + solution->s.size + 1;
         res->err = sqrt((1.0 / fabs(a)) * res->err);
 
         res->size = size;
