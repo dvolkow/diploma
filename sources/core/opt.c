@@ -24,7 +24,7 @@ void fill_mnk_matrix(linear_equation_t *eq,
  */
 static double residuals_line(const linear_equation_t *eq,
                              const linear_eq_solve_t *v,
-                             const apogee_rc_t *line,
+                             apogee_rc_t *line,
                              const double r_0)
 {
         double mod_v = 0;
@@ -36,6 +36,7 @@ static double residuals_line(const linear_equation_t *eq,
                 mod_v += get_alpha_n(line, r_0, i - BETA_QTY + 1) * v->data[i];
         }
 
+        line->eps = fabs(line->v_helio - mod_v);
         return pow_double(line->v_helio - mod_v, 2);
 }
 

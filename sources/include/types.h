@@ -2,23 +2,54 @@
 #define TYPES_H  1
 
 #include <stdlib.h>
+#include <stddef.h>
+
 #include "core.h"
 
 #define MAX_ORDER_SOLUTION      42
 
 /**
  * TODO: description for fields
+ * @l:          longtitude, give by degress and transform 
+ *              to radians for using into dipmloma project
  *
+ * @b:          latitude, as l also read and make radins 
+ *
+ * @v_helio:    average velocity (kmps) 
+ * @dist:       distance (pc)
+ * @pm_ra:      proper motion to right ascention
+ * @pm_dec:     proper motion to declination
+ *
+ * @eps:        error for solution parameter for this line
  */
 typedef struct {
-        double l;
+        // readable data:
+        double l; 
+#define __mem_1 offsetof(apogee_rc_t, l)
         double b;
+#define __mem_2 offsetof(apogee_rc_t, b)
         double v_helio;
+#define __mem_3 offsetof(apogee_rc_t, v_helio)
         double dist;
+#define __mem_4 offsetof(apogee_rc_t, dist)
         double pm_ra;
+#define __mem_5 offsetof(apogee_rc_t, pm_ra)
         double pm_dec;
+#define __mem_6 offsetof(apogee_rc_t, pm_dec)
+        // solution data:
+        double eps;
+#define __mem_7 offsetof(apogee_rc_t, eps)
 } apogee_rc_t;
 
+
+#define get_param(n, addr)         \
+        (*(double *)(addr + __mem_##n))
+
+
+/**
+ * TODO: Special container structure needed for it 
+ * TEMPORARY SOLUTION?
+ */
 typedef struct {
         apogee_rc_t *data;
         double r_0; 

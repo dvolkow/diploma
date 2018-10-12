@@ -2,9 +2,11 @@
 #include "math.h"
 #include "jtest.h"
 #include "generators.h"
+#include "core.h"
 
 static init_t g_init_deinit_table[] = {
         { "math subsystem",  math_init, math_exit }
+      , { "parser subsystem",  parser_init, parser_exit }
       , { "random generators subsystem",  random_seed_init, random_seed_exit }
 #ifdef DEBUG
       , { "unit test subsystem",  jtest_init, jtest_exit }
@@ -57,7 +59,15 @@ static void deinitialization_process()
 int main(int argc, char *argv[])
 {
         initialization_process();
-        get_solution(argc, argv);
+        parse_args(argc, argv);
+        if (get_parser() == NULL || !parser_t_is_valid(get_parser())) {
+                printf("%s: invalid parameters!\n",
+                                __func__);
+                return -1;
+        }
+
+        get_solution();
         deinitialization_process();
+
         return 0;
 }

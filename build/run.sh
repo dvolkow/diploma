@@ -7,7 +7,8 @@ H=$3
 ./diploma -f ${IN_FILE} --ord ${ORD} --filter L ${L} ${H}
 gnuplot ../sources/scripts/main.gnu
 gnuplot ../sources/scripts/background.gnu
-NEW_DIR=$(echo "result_${ORD}_${L}_${H}_${IN_FILE}")
+
+NEW_DIR=$(echo "result_${ORD}_${L}_${H}_$(echo ${IN_FILE} | sed 's/.txt//')")
 mkdir ${NEW_DIR}
 
 mv ./sun.txt ${NEW_DIR}

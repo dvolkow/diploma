@@ -41,7 +41,7 @@ static char *__get_name_by_idx(const int idx)
         return __g_graph_buffer;
 }
 
-void dump_result(opt_t *opt, apogee_rc_table_t *table,
+void dump_result(opt_t *opt, 
                   prec_t *p) 
 {
         FILE *fout = fopen(OUTPUT_RESULT_FILENAME, "w"); 
@@ -52,13 +52,13 @@ void dump_result(opt_t *opt, apogee_rc_table_t *table,
 
         PRINT_OUTPUT_LINE(fout);
         fprintf(fout, "Result for APOGEE-RC dataset by %lu obj:\n",
-                        table->size);
+                        opt->size);
         PRINT_OUTPUT_LINE(fout);
         fprintf(fout, "R_0: \t%lf \t+%lf\n",
                         opt->r_0, p->h - opt->r_0);
         fprintf(fout, "\t\t    \t-%lf\n", opt->r_0 - p->l);
         fprintf(fout, "SD: \t%lf\n",
-                        sqrt(opt->sq / (table->size + opt->s.size + 1)));
+                        sqrt(opt->sq / (opt->size + opt->s.size + 1)));
         PRINT_OUTPUT_LINE(fout);
         unsigned int i;
 #ifdef DEBUG
@@ -75,16 +75,10 @@ void dump_result(opt_t *opt, apogee_rc_table_t *table,
                         opt->s.data[i],
                         opt->bounds[i].l);
         }
+        PRINT_OUTPUT_LINE(fout);
         fclose(fout);
 }
 
-
-/*
-static double get_sun_shift(const apogee_rc_table_t *table, 
-                                const opt_t *solution, const int idx)
-{
-}
-*/
 
 void dump_rotation_curve(iteration_storage_t *storage, opt_t *solution)
 {
@@ -265,4 +259,13 @@ void dump_background(const iteration_storage_t *st,
 
         fclose(fout);
         fclose(dout);
+}
+
+
+void dump_all(opt_t *solution, prec_t *p, iteration_storage_t *st)
+{
+        dump_result(solution, p);
+        dump_averages(st, solution, DISTANCE);
+        dump_rotation_curve(st, solution);
+        dump_background(st, solution, DEFAULT_BACKGROUND_COUNT);
 }

@@ -105,16 +105,13 @@ void fill_mnk_matrix(linear_equation_t *eq,
 }
 
 
-
-void get_solution(int argc, char *argv[])
+void get_solution_iterate(iteration_storage_t *st)
 {
-        parser_t *cfg = parse_args(argc, argv);
-        if (cfg == NULL || !parser_t_is_valid(cfg)) {
-                printf("%s: invalid parameters!\n",
-                                __func__);
-                return;
-        }
+}
 
+void get_solution()
+{
+        parser_t *cfg = get_parser();
         int size = cfg->ord;
         double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) * 
                                                    (size + BETA_QTY));
@@ -128,7 +125,7 @@ void get_solution(int argc, char *argv[])
         assert(table->size != 0);
 
         /* TODO: Filter assigner: */
-        if (cfg->filter != NULL) {
+        if (cfg->filter != BAD_FILTER) {
                 filter_t *f = filter_factory(cfg);
                 table = get_limited_generic(table, f, L_FILTER);
         }
@@ -140,32 +137,25 @@ void get_solution(int argc, char *argv[])
                 .size = size + BETA_QTY,
                 .ord = size
         };
-#ifdef DEBUG
-        printf("%s: ord = %d\n", __func__, eq.ord);
-#endif
         opt_t *solution = opt_linear(&eq, table);
+#ifdef DEBUG
         printf("%s: solution: R_0 = %lf\n",
                         __func__, solution->r_0);
-
+#endif
 
         prec_t p = {
                 .l = lower_bound_search(&eq, table, solution->r_0),
                 .h = upper_bound_search(&eq, table, solution->r_0)
         };
+#ifdef DEBUG
         printf("%s: solution: -R_0 = %lf\n", 
                         __func__, p.l);
         printf("%s: solution: +R_0 = %lf\n", 
                         __func__, p.h);
-#ifdef DEBUG
-        print_vector(solution->s.data, solution->s.size);
 #endif
 
         get_errors(solution, table);
-        dump_result(solution, table, &p);
-
         iteration_storage_t *st = iteration_storage_create(table, solution);
-        dump_rotation_curve(st, solution);
-        dump_averages(st, solution, DISTANCE);
-        dump_background(st, solution, DEFAULT_BACKGROUND_COUNT);
+        dump_all(solution, &p, st);
 }
 

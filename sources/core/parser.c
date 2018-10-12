@@ -6,12 +6,19 @@
 #include "core.h"
 #include "mem.h"
 #include "debug.h"
+#include "filter.h"
 
 #define NEXT_ARG(args, argv)    (argv++, args--)
 #define CHECK_ARGS(args)        ((args) - 1 > 0)
 
 #define __VERSION               "0.0"
 
+static parser_t *__cfg;
+
+parser_t *get_parser(void)
+{
+        return __cfg;
+}
 
 static void show_usage()
 {
@@ -32,24 +39,29 @@ bool parser_t_is_valid(const parser_t *cfg)
                cfg->ord > 0;
 }
 
-parser_t *parse_args(int argc, 
+static void filter_assigner(const char *argv)
+{
+        inline int matches(const char *arg) {
+                return !strcmp(argv, arg);
+        }
+
+        if (matches("L")) {
+                __cfg->filter = L_FILTER;
+        } else if (matches("ERR")){
+                __cfg->filter = ERR_FILTER;
+        } else {
+                __cfg->filter = BAD_FILTER;
+        }
+}
+
+void parse_args(int argc, 
                 const char *argv[])
 {
         inline int matches(const char *arg) {
                 return !strcmp(*argv, arg);
         }
 
-        parser_t *res = dv_alloc(sizeof(parser_t));
-        /*
-        *res = {
-                .ord             = DEFAULT_ORD,
-                .input_file_name = DEFAULT_INF_NAME,
-                .l               = DEFAULT_L,
-                .h               = DEFAULT_H,
-                .filter          = DEFAULT_FILTER,
-        };
-        */
-
+        parser_t *res = get_parser();
         double readbuff;
 
         while (CHECK_ARGS(argc)) {
@@ -72,7 +84,7 @@ parser_t *parse_args(int argc,
                 } else if (matches("--filter")) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
-                                res->filter = *argv;
+                                filter_assigner(*argv);
                                 if (CHECK_ARGS(argc)) {
                                         NEXT_ARG(argc, argv);
                                         sscanf(*argv, "%lf", &readbuff);
@@ -89,8 +101,22 @@ parser_t *parse_args(int argc,
                 } 
         }
 
-        return res;
+        return;
 usage_ret:
         show_usage();
-        return NULL;
 }
+
+
+
+int parser_init(void)
+{
+        __cfg = dv_alloc(sizeof(parser_t));
+        // TODO: default initializer?
+        return 0;
+}
+
+
+
+
+
+void parser_exit() {}

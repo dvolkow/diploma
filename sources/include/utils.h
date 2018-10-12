@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "types.h"
 #include "math.h"
+#include "filter.h"
 
 typedef struct {
         double theta;
@@ -11,25 +12,6 @@ typedef struct {
         double sd;
         unsigned int size;
 } average_res_t;
-
-typedef enum {
-        L_FILTER
-      , B_FILTER
-      , ERR_FILTER
-} filter_mode_t;
-
-
-/**
- * @l: lower bound for parameter
- * @h: upper bound for parameter
- * @f: oracle for line of table that 
- *     const void* parameter
- */
-typedef struct {
-        double l;
-        double h;
-        bool (*f)(const void *, const double, const double);
-} filter_t;
 
 void sort_iteration_storage_by_r(iteration_storage_t *storage, const size_t size);
 

@@ -104,15 +104,37 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
 
 
 /**
- * Filters for dataset
+ * ------ Filters for dataset --------
  */
+
+/**
+ * Before call must be set __cfg->h (high global limit)
+ * as sd by sample
+ */
+bool __limited_by_eps(const void *line, 
+                      __attribute__((__unused__)) const double l, 
+                      const double h)
+{
+        apogee_rc_t *_l = line;
+        return _l->eps < h;
+}
+
+
 filter_t *filter_factory(const parser_t *cfg)
 {
         filter_t *filter = dv_alloc(sizeof(filter));
-        if (!strcmp(cfg->filter, "L")) {
-                filter->l = deg_to_rad(cfg->l);
-                filter->h = deg_to_rad(cfg->h);
-                filter->f = __limited_by_l;
+        filter->l = cfg->l;
+        filter->h = cfg->h;
+
+        switch (cfg->filter) {
+                case L_FILTER:
+                        filter->f = __limited_by_l;
+                        break;
+                case ERR_FILTER:
+                        filter->f = __limited_by_eps;
+                        break;
+                default:
+                        filter->f = NULL;
         }
 
         return filter;
@@ -120,8 +142,7 @@ filter_t *filter_factory(const parser_t *cfg)
 
 bool __limited_by_l(const void *line, const double l, const double h)
 {
-        apogee_rc_t *_l = line;
-        return _l->l < h && _l->l >= l;
+        return get_param(1, line) < deg_to_rad(h) && get_param(1, line) >= deg_to_rad(l);
 }
 
 /**
@@ -132,6 +153,10 @@ apogee_rc_table_t *get_limited_replace(const void *table, const filter_t *filter
         apogee_rc_table_t *src = table;
         unsigned int i;
         unsigned int count = 0;
+        // no filter check:
+        if (filter->f == NULL)
+                return src;
+
         for (i = 0; i < src->size; ++i) {
                 if (filter->f(&src->data[i], filter->l, filter->h)) {
                         src->data[count++] = src->data[i];

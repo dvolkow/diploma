@@ -2,6 +2,7 @@
 #define CORE_H  1
 
 #include <stdbool.h>
+#include "filter.h"
 
 #define LOWER_BOUND_R0          3.0
 #define UPPER_BOUND_R0          17.0
@@ -45,10 +46,14 @@ typedef struct {
 #define DEFAULT_H               0
         double h;
 #define DEFAULT_FILTER          NULL
-        char *filter;
+        filter_mode_t filter;
 } parser_t;
 
-parser_t *parse_args(int, const char **);
+void parse_args(int, const char **);
 bool parser_t_is_valid(const parser_t *cfg);
+parser_t *get_parser(void);
 
+void get_solution(void);
+int parser_init(void);
+void parser_exit(void);
 #endif // CORE_H
