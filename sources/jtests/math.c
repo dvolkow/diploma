@@ -59,6 +59,9 @@ int jmath()
         }
 
         int f;
+        printf("%s: kappa(5000) = %0.7lf\n", 
+                        __func__,
+                        get_limit_by_eps(5000));
         assert(dv_factorial(0) == 1);
         assert(dv_factorial(1) == 1);
         assert(dv_factorial(2) == 2);

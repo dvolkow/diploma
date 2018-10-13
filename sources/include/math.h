@@ -80,6 +80,8 @@ point_t *get_point(const apogee_rc_t *line, const double r_0);
 
 double get_median(const double *data, const size_t size);
 
+double get_limit_by_eps(const unsigned int size);
+
 #define PRECACHED_FACTORIAL_LEN         25
 double dv_factorial(const int n);
 

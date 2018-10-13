@@ -27,14 +27,9 @@ typedef enum {
 } eq_mode_t;
 
 typedef enum {
-        NAME_PROGRAM_ARG = 0,
-        ORD_ARG,
-        INPUT_FILE_ARG,
-
-        // MUST BE LAST:
-        CMD_ARGS_QTY
-} cmd_line_arg_t;
-
+        SIMPLE_MODE,
+        ITERATE_MODE
+} g_mode_t;
 
 typedef struct {
 #define DEFAULT_ORD             1
@@ -45,8 +40,10 @@ typedef struct {
         double l;
 #define DEFAULT_H               0
         double h;
-#define DEFAULT_FILTER          NULL
+#define DEFAULT_FILTER          BAD_FILTER
         filter_mode_t filter;
+#define DEFAULT_MODE            SIMPLE_MODE
+        g_mode_t mode;
 } parser_t;
 
 void parse_args(int, const char **);

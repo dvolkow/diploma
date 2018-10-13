@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_statistics.h>
+#include <gsl/gsl_sf_erf.h>
 
 #ifdef DEBUG
 #include "debug.h"
@@ -143,6 +144,22 @@ double get_sd(const double *data, const size_t size)
         return gsl_stats_variance(data, 1, size);
 }
 
+/* Error functions: */
+static double __psi(const double kappa)
+{
+        return 1 - 2 * gsl_sf_erf_Q(kappa);
+}
+
+double get_limit_by_eps(const unsigned int size)
+{
+        const double left = 1 -  1. / size; 
+        const double step = 1e-4;
+        double kappa = 2;
+        while (__psi(kappa) < left) {
+                kappa += step;
+        }
+        return kappa - step;
+}
 
 int math_init(void) 
 {

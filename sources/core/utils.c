@@ -112,13 +112,17 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
  * as sd by sample
  */
 bool __limited_by_eps(const void *line, 
-                      __attribute__((__unused__)) const double l, 
+                      const double l, 
                       const double h)
 {
-        apogee_rc_t *_l = line;
-        return _l->eps < h;
+        return get_param(7, line) / l < h;
 }
 
+
+bool __limited_by_l(const void *line, const double l, const double h)
+{
+        return get_param(1, line) < deg_to_rad(h) && get_param(1, line) >= deg_to_rad(l);
+}
 
 filter_t *filter_factory(const parser_t *cfg)
 {
@@ -138,11 +142,6 @@ filter_t *filter_factory(const parser_t *cfg)
         }
 
         return filter;
-}
-
-bool __limited_by_l(const void *line, const double l, const double h)
-{
-        return get_param(1, line) < deg_to_rad(h) && get_param(1, line) >= deg_to_rad(l);
 }
 
 /**

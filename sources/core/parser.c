@@ -20,6 +20,21 @@ parser_t *get_parser(void)
         return __cfg;
 }
 
+int parser_init(void)
+{
+        __cfg = dv_alloc(sizeof(parser_t));
+        // TODO: default initializer?
+        __cfg->ord              = DEFAULT_ORD;
+        __cfg->input_file_name  = DEFAULT_INF_NAME;
+        __cfg->l                = DEFAULT_L;
+        __cfg->h                = DEFAULT_H;
+        __cfg->filter           = DEFAULT_FILTER;
+        __cfg->mode             = DEFAULT_MODE;
+
+        return 0;
+}
+
+
 static void show_usage()
 {
         printf("\e[1mSYNOPSIS\e[0m\n");
@@ -54,6 +69,16 @@ static void filter_assigner(const char *argv)
         }
 }
 
+static void mode_assigner(const char *argv)
+{
+        inline int matches(const char *arg) {
+                return !strcmp(argv, arg);
+        }
+
+        if (matches("I")) 
+                __cfg->mode = ITERATE_MODE;
+}
+
 void parse_args(int argc, 
                 const char *argv[])
 {
@@ -78,6 +103,13 @@ void parse_args(int argc,
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 res->ord = atoi(*argv);
+                        } else {
+                                goto usage_ret;
+                        }
+                } else if (matches("--mode")) {
+                        if (CHECK_ARGS(argc)) {
+                                NEXT_ARG(argc, argv);
+                                mode_assigner(*argv);
                         } else {
                                 goto usage_ret;
                         }
@@ -106,14 +138,6 @@ usage_ret:
         show_usage();
 }
 
-
-
-int parser_init(void)
-{
-        __cfg = dv_alloc(sizeof(parser_t));
-        // TODO: default initializer?
-        return 0;
-}
 
 
 

@@ -104,10 +104,38 @@ void fill_mnk_matrix(linear_equation_t *eq,
         }
 }
 
-
-void get_solution_iterate(iteration_storage_t *st)
+static void filter_get_and_apply(apogee_rc_table_t *table)
 {
+        /* TODO: Filter assigner: */
+        parser_t *cfg = get_parser();
+
+        if (cfg->filter != BAD_FILTER) {
+                filter_t *f = filter_factory(cfg);
+                table = get_limited_generic(table, f, L_FILTER);
+        }
 }
+
+static opt_t *__get_solution_iterate(apogee_rc_table_t *table, 
+                                        linear_equation_t *eq)
+{
+        parser_t *cfg = get_parser();
+        const int size = cfg->ord;
+        assert(table->size != 0);
+
+        filter_get_and_apply(table);
+        opt_t *solution = opt_linear(eq, table);
+
+        prec_t p = {
+                .l = lower_bound_search(eq, table, solution->r_0),
+                .h = upper_bound_search(eq, table, solution->r_0)
+        };
+
+        get_errors(solution, table);
+        iteration_storage_t *st = iteration_storage_create(table, solution);
+        dump_all(solution, &p, st);
+        return solution;
+}
+
 
 void get_solution()
 {
@@ -123,13 +151,8 @@ void get_solution()
                 return;
         }
         assert(table->size != 0);
-
-        /* TODO: Filter assigner: */
-        if (cfg->filter != BAD_FILTER) {
-                filter_t *f = filter_factory(cfg);
-                table = get_limited_generic(table, f, L_FILTER);
-        }
         
+        filter_get_and_apply(table);
 
         linear_equation_t eq = {
                 .data = matrix,
@@ -157,5 +180,31 @@ void get_solution()
         get_errors(solution, table);
         iteration_storage_t *st = iteration_storage_create(table, solution);
         dump_all(solution, &p, st);
+
+        // TODO: function's interface need improve
+        printf("_______%s_______\n", "First_stage_complete");
+        cfg->filter = ERR_FILTER;
+        cfg->h = get_limit_by_eps(table->size);
+        cfg->l = sqrt(solution->sq / (solution->size + solution->s.size + 1));
+#ifdef DEBUG
+        printf("%s: kappa(%d) = %0.7lf\n", 
+                        __func__,
+                        table->size,
+                        get_limit_by_eps(table->size));
+#endif
+
+        unsigned int j = 1;
+        unsigned int old_size = table->size;
+        while (cfg->mode == ITERATE_MODE) {
+#ifdef DEBUG
+                printf("%s: iter %d", __func__, j++);
+#endif
+                solution = __get_solution_iterate(table, &eq);
+                cfg->h = get_limit_by_eps(table->size);
+                cfg->l = sqrt(solution->sq / (solution->size + solution->s.size + 1));
+                if (table->size == old_size)
+                        break;
+                old_size = table->size;
+        }
 }
 
