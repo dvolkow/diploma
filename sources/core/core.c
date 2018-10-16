@@ -145,8 +145,6 @@ void get_solution()
                                                    (size + BETA_QTY));
         apogee_rc_table_t *table = read_table(cfg->input_file_name);
 
-        dump_objects_xyz(table, table->size);
-        dump_table(table);
 
         if (table == NULL) {
                 printf("%s: fail to open %s!\n",
@@ -156,6 +154,9 @@ void get_solution()
         assert(table->size != 0);
         
         filter_get_and_apply(table);
+
+        dump_objects_xyz(table, table->size);
+        dump_table(table);
 
         linear_equation_t eq = {
                 .data = matrix,

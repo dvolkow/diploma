@@ -26,6 +26,7 @@ int parser_init(void)
         // TODO: default initializer?
         __cfg->ord              = DEFAULT_ORD;
         __cfg->input_file_name  = DEFAULT_INF_NAME;
+        __cfg->dump_file_name  =  DEFAULT_DUMP_FILE_NAME;
         __cfg->l                = DEFAULT_L;
         __cfg->h                = DEFAULT_H;
         __cfg->filter           = DEFAULT_FILTER;
@@ -105,6 +106,13 @@ void parse_args(int argc,
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 res->ord = atoi(*argv);
+                        } else {
+                                goto usage_ret;
+                        }
+                } else if (matches("-d") || matches("--dump")) {
+                        if (CHECK_ARGS(argc)) {
+                                NEXT_ARG(argc, argv);
+                                res->dump_file_name = *argv;
                         } else {
                                 goto usage_ret;
                         }

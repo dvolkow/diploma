@@ -302,8 +302,15 @@ void dump_objects_xyz(const apogee_rc_table_t *table, const dsize_t size)
 
 void dump_table(const apogee_rc_table_t *table)
 {
-        FILE *fout = fopen("dump_table.txt", "w");
-        CHECK_FILE_AND_RET(fout, "dump_table.txt");
+        parser_t *cfg = get_parser();
+        const char *fname = cfg->dump_file_name;
+        if (!strcmp(fname, cfg->input_file_name)) {
+                printf("%s: [warning] input and dump files are equals!\n",
+                                __func__);
+        }
+
+        FILE *fout = fopen(fname, "w");
+        CHECK_FILE_AND_RET(fout, fname);
 
         dsize_t i;
         for (i = 0; i < table->size; ++i) {

@@ -37,6 +37,8 @@ typedef struct {
         int ord;
 #define DEFAULT_INF_NAME        "apogee_rc.txt"
         char *input_file_name;
+#define DEFAULT_DUMP_FILE_NAME  "dump_table.txt"
+        char *dump_file_name;
 #define DEFAULT_L               0
         double l;
 #define DEFAULT_H               0

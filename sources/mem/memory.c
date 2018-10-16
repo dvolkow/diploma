@@ -31,3 +31,10 @@ void *dv_mm_get_current_top(void)
                         ? current_usage - G_START_SHIFT 
                         : current_usage];
 }
+
+void dump_memory_usage(void)
+{
+        printf("%s: [debug]: Total usage %u byte, of %u (%0.3lf%)\n",
+                        __func__, current_usage, MAX_MEMORY_USAGE,
+                                current_usage / MAX_MEMORY_USAGE * 100);
+}

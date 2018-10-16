@@ -24,7 +24,7 @@ mkdir ${NEW_DIR}
 
 mv ./sun.txt ${NEW_DIR}
 mv ./averages.txt ${NEW_DIR}
-mv ./dump_table.txt ${NEW_DIR}
+cp ./dump_table.txt ${NEW_DIR}
 mv ./rotc.eps ${NEW_DIR}/${IN_FILE}_${ORD}_${L}_${H}$4.eps
 mv ./rotc.txt ${NEW_DIR}
 mv ./result.txt ${NEW_DIR}

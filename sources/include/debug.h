@@ -52,4 +52,7 @@ static inline void print_solution(const opt_t *opts)
         printf("%s: opt r_0 = %lf, sd = %lf\n", __func__, 
                                 opts->r_0, opts->sq);
 }
+
+void dump_memory_usage(void);
+
 #endif // DEBUG_H

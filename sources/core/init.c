@@ -1,5 +1,6 @@
 #include "init.h"
 #include "math.h"
+#include "debug.h"
 #include "jtest.h"
 #include "generators.h"
 #include "core.h"
@@ -81,6 +82,6 @@ int main(int argc, char *argv[])
         }
 
         deinitialization_process();
-
+        dump_memory_usage();
         return 0;
 }
