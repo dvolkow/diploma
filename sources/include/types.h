@@ -8,6 +8,8 @@
 
 #define MAX_ORDER_SOLUTION      42
 
+typedef unsigned int dsize_t;
+
 /**
  * TODO: description for fields
  * @l:          longtitude, give by degress and transform 
@@ -24,21 +26,22 @@
  */
 typedef struct {
         // readable data:
-        double l; 
+        double  l; 
 #define __mem_1 offsetof(apogee_rc_t, l)
-        double b;
+        double  b;
 #define __mem_2 offsetof(apogee_rc_t, b)
-        double v_helio;
+        double  v_helio;
 #define __mem_3 offsetof(apogee_rc_t, v_helio)
-        double dist;
+        double  dist;
 #define __mem_4 offsetof(apogee_rc_t, dist)
-        double pm_ra;
+        double  pm_ra;
 #define __mem_5 offsetof(apogee_rc_t, pm_ra)
-        double pm_dec;
+        double  pm_dec;
 #define __mem_6 offsetof(apogee_rc_t, pm_dec)
         // solution data:
-        double eps;
+        double  eps;
 #define __mem_7 offsetof(apogee_rc_t, eps)
+        dsize_t id;
 } apogee_rc_t;
 
 
@@ -58,12 +61,12 @@ typedef struct {
 
 
 typedef struct {
+        // may be idx ? that about performance?
+        apogee_rc_t     data;
+
         double  err; 
         double  r; // R 
         double  theta;
-
-        apogee_rc_t     data;
-        // may be idx ? that about performance?
 } iteration_storage_t;
 
 typedef struct {

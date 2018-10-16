@@ -76,7 +76,7 @@ void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res);
 double get_R_distance(const apogee_rc_t *line, double r_0);
 double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const int nfree,
                                 const double sd);
-point_t *get_point(const apogee_rc_t *line, const double r_0); 
+point_t *get_point(const apogee_rc_t *line); 
 
 double get_median(const double *data, const size_t size);
 

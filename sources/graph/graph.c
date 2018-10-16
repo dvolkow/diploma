@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -19,6 +20,14 @@
 #define PRINT_OUTPUT_LINE(f)    \
         fprintf((f), "%s\n", OUTPUT_RESULT_LINE)
 
+
+#define CHECK_FILE_AND_RET(fdesc, name)                 \
+        do {                                            \
+                if ((fdesc) == NULL) {                  \
+                        PRINT_IO_OPEN_ERROR(name);      \
+                        return;                         \
+                }                                       \
+        } while (0)
 
 parameter_t g_ptable[] = {
         { "u" }
@@ -45,10 +54,7 @@ void dump_result(opt_t *opt,
                   prec_t *p) 
 {
         FILE *fout = fopen(OUTPUT_RESULT_FILENAME, "w"); 
-        if (fout == NULL) {
-                PRINT_IO_OPEN_ERROR(OUTPUT_RESULT_FILENAME);
-                return;
-        }
+        CHECK_FILE_AND_RET(fout, OUTPUT_RESULT_FILENAME);
 
         PRINT_OUTPUT_LINE(fout);
         fprintf(fout, "Result for APOGEE-RC dataset by %lu obj:\n",
@@ -83,22 +89,13 @@ void dump_result(opt_t *opt,
 void dump_rotation_curve(iteration_storage_t *storage, opt_t *solution)
 {
         FILE *fout = fopen(RC_OUT_FILE_NAME, "w");
-        if (fout == NULL) {
-                PRINT_IO_OPEN_ERROR(RC_OUT_FILE_NAME);
-                return;
-        }
+        CHECK_FILE_AND_RET(fout, RC_OUT_FILE_NAME);
 
         FILE *oout = fopen(DF_OUT_FILE_NAME, "w");
-        if (oout == NULL) {
-                PRINT_IO_OPEN_ERROR(RC_OUT_FILE_NAME);
-                return;
-        }
+        CHECK_FILE_AND_RET(oout, DF_OUT_FILE_NAME);
 
         FILE *sout = fopen(SUN_POINT_FILE_NAME, "w");
-        if (sout == NULL) {
-                PRINT_IO_OPEN_ERROR(SUN_POINT_FILE_NAME);
-                return;
-        }
+        CHECK_FILE_AND_RET(sout, SUN_POINT_FILE_NAME);
 
 #ifdef DEBUG
         printf("%s: enrty\n", __func__);
@@ -150,10 +147,7 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
         double *sorted_r = get_sorted_r(st, solution->size);
 
         FILE *aout = fopen(AVERAGE_R_FILE_NAME, "w");
-        if (aout == NULL) {
-                PRINT_IO_OPEN_ERROR(AVERAGE_R_FILE_NAME);
-                return;
-        }
+        CHECK_FILE_AND_RET(aout, AVERAGE_R_FILE_NAME);
 
         double r = st[0].r;
         int estimate_counter = solution->size;
@@ -205,10 +199,7 @@ void dump_background(const iteration_storage_t *st,
                      const int b_count)
 {       
         FILE *dout = fopen("background.txt", "w");
-        if (dout == NULL) {
-                PRINT_IO_OPEN_ERROR("background.txt");
-                return;
-        }
+        CHECK_FILE_AND_RET(dout, "background.txt");
 
         average_res_t *a;
         double *sorted_r = get_sorted_r(st, solution->size);
@@ -251,10 +242,7 @@ void dump_background(const iteration_storage_t *st,
         }
 
         FILE *fout = fopen("bk_sd.txt", "w");
-        if (dout == NULL) {
-                PRINT_IO_OPEN_ERROR("bk_sd.txt");
-                return;
-        }
+        CHECK_FILE_AND_RET(fout, "bk_sd.txt");
         fprintf(fout, "%lf\n", sqrt(sd_sd / (b_count + 1)));
 
         fclose(fout);
@@ -268,4 +256,66 @@ void dump_all(opt_t *solution, prec_t *p, iteration_storage_t *st)
         dump_averages(st, solution, DISTANCE);
         dump_rotation_curve(st, solution);
         dump_background(st, solution, DEFAULT_BACKGROUND_COUNT);
+}
+
+void dump_rand_test(const double *array, 
+                    const dsize_t size)
+{
+        FILE *fout = fopen("rand.txt", "w");
+        CHECK_FILE_AND_RET(fout, "rand.txt");
+
+        dsize_t i;
+        for (i = 0; i < size; i += 2) {
+                fprintf(fout, "%0.7lf \t%0.7lf\n", 
+                                array[i], array[i + 1]);
+
+        }
+
+        fclose(fout);
+}
+
+void dump_line_xyz(const apogee_rc_t *line)
+{
+}
+
+
+void dump_objects_xyz_is(const iteration_storage_t *storage)
+{
+}
+
+
+void dump_objects_xyz(const apogee_rc_table_t *table, const dsize_t size)
+{
+        FILE *fout = fopen("xyz_obj.txt", "w");
+        CHECK_FILE_AND_RET(fout, "xyz_obj.txt");
+
+        assert(table-size >= size);
+        dsize_t i;
+        for (i = 0; i < size; ++i) {
+                point_t *p = get_point(&table->data[i]);
+                fprintf(fout, "%0.7lf %0.7lf %0.7lf\n",
+                                p->x, p->y, p->z);
+        }
+
+        fclose(fout);
+}
+
+void dump_table(const apogee_rc_table_t *table)
+{
+        FILE *fout = fopen("dump_table.txt", "w");
+        CHECK_FILE_AND_RET(fout, "dump_table.txt");
+
+        dsize_t i;
+        for (i = 0; i < table->size; ++i) {
+
+                fprintf(fout, "%0.7lf %0.7lf %0.7lf %0.7lf %0.7lf %0.7lf\n",
+                                rad_to_deg(table->data[i].l),
+                                rad_to_deg(table->data[i].b),
+                                table->data[i].v_helio,
+                                table->data[i].dist,
+                                table->data[i].dist,
+                                table->data[i].dist);
+        }
+
+        fclose(fout);
 }

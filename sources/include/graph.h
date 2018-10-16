@@ -34,6 +34,10 @@ typedef enum {
 
 
 #define DEFAULT_BACKGROUND_COUNT        42
+void dump_rand_test(const double *array, 
+                    const dsize_t size);
 
+void dump_table(const apogee_rc_table_t *table);
+void dump_objects_xyz(const apogee_rc_table_t *table, const dsize_t size);
 void dump_all(opt_t *solution, prec_t *p, iteration_storage_t *st);
 #endif // GRAPH_H

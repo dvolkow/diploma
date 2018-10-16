@@ -60,13 +60,26 @@ int main(int argc, char *argv[])
 {
         initialization_process();
         parse_args(argc, argv);
-        if (get_parser() == NULL || !parser_t_is_valid(get_parser())) {
+        parser_t *cfg = get_parser();
+        if (cfg == NULL || !parser_t_is_valid(cfg)) {
                 printf("%s: invalid parameters!\n",
                                 __func__);
                 return -1;
         }
 
-        get_solution();
+        g_mode_t mode = GET_MODE(cfg);
+        switch(mode) {
+                case SIMPLE_MODE:
+                case ITERATE_MODE:
+                        get_solution();
+                        break;
+                case GENERATION_MODE:
+                        generate();
+                default:
+                        break;
+
+        }
+
         deinitialization_process();
 
         return 0;

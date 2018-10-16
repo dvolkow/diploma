@@ -22,8 +22,7 @@ void fill_mnk_matrix(linear_equation_t *eq,
 /**
  * TODO: generic
  */
-static double residuals_line(const linear_equation_t *eq,
-                             const linear_eq_solve_t *v,
+static double residuals_line(const linear_eq_solve_t *v,
                              apogee_rc_t *line,
                              const double r_0)
 {
@@ -40,6 +39,24 @@ static double residuals_line(const linear_equation_t *eq,
         return pow_double(line->v_helio - mod_v, 2);
 }
 
+double get_mod_vr(const opt_t *solution, 
+                  const apogee_rc_t *line)
+{
+        const double r_0 = solution->r_0;
+        double mod_v = 0;
+        unsigned int i;
+        for (i = 0; i < BETA_QTY; ++i) {
+                mod_v += solution->s.data[i] * get_beta_n(line, i);
+        }
+        for (i = BETA_QTY; i < solution->s.size; ++i) {
+                mod_v += get_alpha_n(line, r_0, i - BETA_QTY + 1) * 
+                                solution->s.data[i];
+        }
+
+        return mod_v;
+
+}
+
 static double residuals_summary(const linear_equation_t *eq, 
                                 const linear_eq_solve_t *v, 
                                 const apogee_rc_table_t *table)
@@ -47,7 +64,7 @@ static double residuals_summary(const linear_equation_t *eq,
         double sum = 0;
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                sum += residuals_line(eq, v, &table->data[i], table->r_0);
+                sum += residuals_line(v, &table->data[i], table->r_0);
         }
         assert(sum > 0);
         return sum;

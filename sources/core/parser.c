@@ -77,6 +77,8 @@ static void mode_assigner(const char *argv)
 
         if (matches("I")) 
                 __cfg->mode = ITERATE_MODE;
+        if (matches("G"))
+                __cfg->mode = GENERATION_MODE;
 }
 
 void parse_args(int argc, 
@@ -92,7 +94,7 @@ void parse_args(int argc,
         while (CHECK_ARGS(argc)) {
 
                 NEXT_ARG(argc, argv);
-                if (matches("-f")) {
+                if (matches("-f") || matches("--file")) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 res->input_file_name = *argv;
@@ -106,7 +108,7 @@ void parse_args(int argc,
                         } else {
                                 goto usage_ret;
                         }
-                } else if (matches("--mode")) {
+                } else if (matches("-m") || matches("--mode")) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 mode_assigner(*argv);

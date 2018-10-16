@@ -27,8 +27,9 @@ typedef enum {
 } eq_mode_t;
 
 typedef enum {
-        SIMPLE_MODE,
-        ITERATE_MODE
+        SIMPLE_MODE
+      , ITERATE_MODE
+      , GENERATION_MODE
 } g_mode_t;
 
 typedef struct {
@@ -45,6 +46,8 @@ typedef struct {
 #define DEFAULT_MODE            SIMPLE_MODE
         g_mode_t mode;
 } parser_t;
+#define GET_MODE(p_parser)      \
+        ((p_parser)->mode)
 
 void parse_args(int, const char **);
 bool parser_t_is_valid(const parser_t *cfg);
