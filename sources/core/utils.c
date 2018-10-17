@@ -170,7 +170,6 @@ apogee_rc_table_t *get_limited_generic(const void *table,
                                        const filter_t *filter,
                                        filter_mode_t mode) 
 {
-        unsigned int new_size = 0;
         if (filter == NULL)
                 return (apogee_rc_table_t *)table;
 

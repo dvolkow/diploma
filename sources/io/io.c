@@ -86,7 +86,7 @@ opt_t *read_solution(const char *input_file_name)
 
         opt_t *solution = dv_alloc(sizeof(opt_t));
 
-        fscanf(fin, "%u", &solution->s.size); // 3 + ord!
+        fscanf(fin, "%d", &solution->s.size); // 3 + ord!
         solution->s.data = dv_alloc(sizeof(double) * solution->s.size);
 
         fscanf(fin, "%lf", &solution->r_0); 
@@ -96,7 +96,7 @@ opt_t *read_solution(const char *input_file_name)
                 fscanf(fin, "%lf", &solution->s.data[i]); 
         }
 
-        fscanf(fin, "%u", &solution->size); // size of sample
+        fscanf(fin, "%lu", &solution->size); // size of sample
         return solution;
 }
 

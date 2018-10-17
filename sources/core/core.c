@@ -118,8 +118,6 @@ static void filter_get_and_apply(apogee_rc_table_t *table)
 static opt_t *__get_solution_iterate(apogee_rc_table_t *table, 
                                         linear_equation_t *eq)
 {
-        parser_t *cfg = get_parser();
-        const int size = cfg->ord;
         assert(table->size != 0);
 
         filter_get_and_apply(table);
@@ -197,7 +195,6 @@ void get_solution()
                         get_limit_by_eps(table->size));
 #endif
 
-        unsigned int j = 1;
         unsigned int old_size = table->size;
         while (cfg->mode == ITERATE_MODE) {
 #ifdef DEBUG
