@@ -27,9 +27,10 @@ mv ./averages.txt ${NEW_DIR}
 cp ./dump_table.txt ${NEW_DIR}
 mv ./rotc.eps ${NEW_DIR}/${IN_FILE}_${ORD}_${L}_${H}$4.eps
 mv ./rotc.txt ${NEW_DIR}
+mv ./background.txt ${NEW_DIR}
 mv ./result.txt ${NEW_DIR}
 mv ./objs.txt ${NEW_DIR}
-mv ./bk_sd.txt ${NEW_DIR}
+#mv ./bk_sd.txt ${NEW_DIR}
 mv ./xyz_obj.txt ${NEW_DIR}
 mv ./back.eps ${NEW_DIR}/${IN_FILE}_${ORD}_${L}_${H}$4_back.eps
 mv ./xy.eps ${NEW_DIR}/${IN_FILE}_${ORD}_${L}_${H}$4_xy.eps

@@ -109,9 +109,16 @@ static void filter_get_and_apply(apogee_rc_table_t *table)
         /* TODO: Filter assigner: */
         parser_t *cfg = get_parser();
 
-        if (cfg->filter != BAD_FILTER) {
-                filter_t *f = filter_factory(cfg);
-                table = get_limited_generic(table, f, L_FILTER);
+        switch (cfg->filter) {
+                case L_FILTER:
+                case B_FILTER:
+                case ERR_FILTER:
+                        table = get_limited_generic(table, 
+                                                    filter_factory(cfg), 
+                                                    L_FILTER);
+                        break;
+                default:
+                        return;
         }
 }
 

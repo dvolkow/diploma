@@ -86,16 +86,16 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
 
         average_res_t *res = dv_alloc(sizeof(average_res_t));
         res->theta = c / a;
-        res->err = 0;
+        res->sd = 0;
 
         for (i = 0; i < size; ++i) {
                 double d = __get_c(&st_part[i], solution) - 
                                 __get_a(&st_part[i], solution) * res->theta;
-                res->err += pow_double(d, 2);
+                res->sd += pow_double(d, 2);
         }
-        res->sd = sqrt(res->err / (size + solution->s.size + 1));
-        res->err /= size + solution->s.size + 1;
-        res->err = sqrt((1.0 / fabs(a)) * res->err);
+
+        res->sd = sqrt(res->sd / (size - 1));
+        res->err = res->sd / sqrt(2. * (size - 1)); 
 
         res->size = size;
 
@@ -124,6 +124,11 @@ bool __limited_by_l(const void *line, const double l, const double h)
         return get_param(1, line) < deg_to_rad(h) && get_param(1, line) >= deg_to_rad(l);
 }
 
+bool __limited_by_b(const void *line, const double l, const double h)
+{
+        return get_param(2, line) < deg_to_rad(h) && get_param(2, line) >= deg_to_rad(l);
+}
+
 filter_t *filter_factory(const parser_t *cfg)
 {
         filter_t *filter = dv_alloc(sizeof(filter));
@@ -133,6 +138,9 @@ filter_t *filter_factory(const parser_t *cfg)
         switch (cfg->filter) {
                 case L_FILTER:
                         filter->f = __limited_by_l;
+                        break;
+                case B_FILTER:
+                        filter->f = __limited_by_b;
                         break;
                 case ERR_FILTER:
                         filter->f = __limited_by_eps;

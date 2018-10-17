@@ -63,6 +63,8 @@ static void filter_assigner(const char *argv)
 
         if (matches("L")) {
                 __cfg->filter = L_FILTER;
+        } else if (matches("B")){
+                __cfg->filter = B_FILTER;
         } else if (matches("ERR")){
                 __cfg->filter = ERR_FILTER;
         } else {

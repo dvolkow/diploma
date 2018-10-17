@@ -213,8 +213,6 @@ void dump_background(const iteration_storage_t *st,
                 return (c - s) <= 0;
         }
 
-        double sd_sd = 0;
-        const double sd_total = sqrt(solution->sq / (solution->size + solution->s.size + 1));
         int size = solution->size / b_count; 
 
         while (estimate_counter > 0) {
@@ -226,13 +224,13 @@ void dump_background(const iteration_storage_t *st,
 
                 /* Get & print */
                 a = get_average_theta(&st[left_bound], solution, size);
-                sd_sd += pow_double(a->sd - sd_total, 2);
 
-                fprintf(dout, "%lf %lf %lf %lf %d\n",
+                fprintf(dout, "%lf %lf %lf %lf %lf %d\n",
                                get_median(&sorted_r[left_bound], size),
-                               a->err,
+                               sorted_r[left_bound],
+                               sorted_r[left_bound + size - 1],
                                a->sd,
-                               sd_total,
+                               a->err,
                                size);
 
                 /*  Next step prepare */
@@ -241,11 +239,13 @@ void dump_background(const iteration_storage_t *st,
                 estimate_counter -= size;
         }
 
+#if 0 // dummy now:
         FILE *fout = fopen("bk_sd.txt", "w");
         CHECK_FILE_AND_RET(fout, "bk_sd.txt");
-        fprintf(fout, "%lf\n", sqrt(sd_sd / (b_count + 1)));
+        fprintf(fout, "%lf\n", 0);
 
         fclose(fout);
+#endif
         fclose(dout);
 }
 
