@@ -14,6 +14,9 @@
 #define OUTPUT_RESULT_FILENAME  \
         "result.txt"
 
+#define OUTPUT_UNFRESULT_FILENAME  \
+        "unfresult.txt"
+
 #define OUTPUT_RESULT_LINE      \
         "+---------------------------------------------+"
 
@@ -50,6 +53,30 @@ static char *__get_name_by_idx(const int idx)
         return __g_graph_buffer;
 }
 
+static void dump_unfriendly_result(const opt_t *opt, 
+                                   const prec_t *p)
+{
+        FILE *fout = fopen(OUTPUT_UNFRESULT_FILENAME, "w"); 
+        CHECK_FILE_AND_RET(fout, OUTPUT_UNFRESULT_FILENAME);
+
+        fprintf(fout, "%0.3lf %0.3lf %0.3lf\n",
+                        opt->r_0, 
+                        p->h - opt->r_0,
+                        opt->r_0 - p->l);
+        fprintf(fout, "%0.3lf\n",
+                        sqrt(opt->sq / (opt->size + opt->s.size + 1)));
+
+        fprintf(fout, "%d\n", opt->s.size - BETA_QTY);
+        unsigned int i;
+        for (i = 0; i < opt->s.size; ++i) {
+                fprintf(fout, "%0.3f %0.3f %0.2lf\n",
+                        opt->s.data[i],
+                        opt->bounds[i].l, 
+                        fabs(opt->bounds[i].l / opt->s.data[i]));
+        }
+        fclose(fout);
+}
+
 void dump_result(opt_t *opt, 
                   prec_t *p) 
 {
@@ -60,10 +87,10 @@ void dump_result(opt_t *opt,
         fprintf(fout, "Result for APOGEE-RC dataset by %lu obj:\n",
                         opt->size);
         PRINT_OUTPUT_LINE(fout);
-        fprintf(fout, "R_0: \t%lf \t+%lf\n",
+        fprintf(fout, "R_0: \t%0.3lf \t+%0.3lf\n",
                         opt->r_0, p->h - opt->r_0);
-        fprintf(fout, "\t\t    \t-%lf\n", opt->r_0 - p->l);
-        fprintf(fout, "SD: \t%lf\n",
+        fprintf(fout, "\t\t-%0.3lf\n", opt->r_0 - p->l);
+        fprintf(fout, "SD: \t%0.3lf\n",
                         sqrt(opt->sq / (opt->size + opt->s.size + 1)));
         PRINT_OUTPUT_LINE(fout);
         unsigned int i;
@@ -76,13 +103,16 @@ void dump_result(opt_t *opt,
         }
 #endif
         for (i = 0; i < opt->s.size; ++i) {
-                fprintf(fout, "%s: \t%f \t(pm %f) \n",
+                fprintf(fout, "%s:\t%6.3f\t(pm %0.3f)\t%0.2lf\n",
                         __get_name_by_idx(i),
                         opt->s.data[i],
-                        opt->bounds[i].l);
+                        opt->bounds[i].l, 
+                        fabs(opt->bounds[i].l / opt->s.data[i]));
         }
         PRINT_OUTPUT_LINE(fout);
         fclose(fout);
+
+        dump_unfriendly_result(opt, p);
 }
 
 
@@ -225,13 +255,14 @@ void dump_background(const iteration_storage_t *st,
                 /* Get & print */
                 a = get_average_theta(&st[left_bound], solution, size);
 
-                fprintf(dout, "%lf %lf %lf %lf %lf %d\n",
+                fprintf(dout, "%lf %lf %lf %lf %lf %d %lf\n",
                                get_median(&sorted_r[left_bound], size),
                                sorted_r[left_bound],
                                sorted_r[left_bound + size - 1],
                                a->sd,
                                a->err,
-                               size);
+                               size, 
+                               sqrt(solution->sq / (solution->size + solution->s.size + 1)));
 
                 /*  Next step prepare */
                 r = sorted_r[left_bound + size - 1];

@@ -191,7 +191,8 @@ void get_solution()
         dump_all(solution, &p, st);
 
         // TODO: function's interface need improve
-        printf("_______%s_______\n", "First_stage_complete");
+        if (cfg->mode == ITERATE_MODE)
+                printf("_______%s_______\n", "First_stage_complete");
         cfg->filter = ERR_FILTER;
         cfg->h = get_limit_by_eps(table->size);
         cfg->l = sqrt(solution->sq / (solution->size + solution->s.size + 1));
@@ -213,6 +214,12 @@ void get_solution()
                 if (table->size == old_size)
                         break;
                 old_size = table->size;
+        }
+
+        if (cfg->mode == ITERATE_MODE) {
+                dump_objects_xyz(table, table->size);
+                dump_table(table);
+                dump_all(solution, &p, st);
         }
 }
 

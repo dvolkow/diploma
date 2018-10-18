@@ -82,6 +82,8 @@ int main(int argc, char *argv[])
         }
 
         deinitialization_process();
+#ifdef DEBUG
         dump_memory_usage();
+#endif
         return 0;
 }

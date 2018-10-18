@@ -134,8 +134,10 @@ gsl_rng *dv_rand_acquire(gen_mode_t mode)
 {
 #define get_random_double_by_memory()  \
         (*(double *)dv_mm_get_current_top())
+#ifdef DEBUG
         printf("%s: get_random_double_by_memory = %lf\n",
                         __func__, get_random_double_by_memory());
+#endif
         return __dv_rand_acquire((unsigned long int)(gsl_rng_uniform(g_gauss_rg_p) 
                                         * 1000 + get_random_double_by_memory()), mode);
 }

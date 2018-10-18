@@ -33,7 +33,7 @@ typedef enum {
 } averages_mode_t;
 
 
-#define DEFAULT_BACKGROUND_COUNT        103
+#define DEFAULT_BACKGROUND_COUNT        127
 void dump_rand_test(const double *array, 
                     const dsize_t size);
 
