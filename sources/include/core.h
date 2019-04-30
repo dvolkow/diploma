@@ -10,6 +10,8 @@
 #define SEARCH_PRECISION        0.001
 #define STEP_DIVISOR            4
 
+#define K_PM                    4.7406
+
 typedef enum {
         FIRST = 0,
         SECOND,
