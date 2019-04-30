@@ -122,7 +122,7 @@ static void filter_get_and_apply(apogee_rc_table_t *table)
         }
 }
 
-static opt_t *__get_solution_iterate(apogee_rc_table_t *table, 
+static opt_t *__get_solution_iterate(apogee_rc_table_t *table,
                                         linear_equation_t *eq)
 {
         assert(table->size != 0);
@@ -146,7 +146,7 @@ void get_solution()
 {
         parser_t *cfg = get_parser();
         int size = cfg->ord;
-        double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) * 
+        double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) *
                                                    (size + BETA_QTY));
         apogee_rc_table_t *table = read_table(cfg->input_file_name);
 
@@ -157,7 +157,7 @@ void get_solution()
                 return;
         }
         assert(table->size != 0);
-        
+
         filter_get_and_apply(table);
 
         dump_objects_xyz(table, table->size);
@@ -190,6 +190,7 @@ void get_solution()
         iteration_storage_t *st = iteration_storage_create(table, solution);
         dump_all(solution, &p, st);
 
+#if 0
         // TODO: function's interface need improve
         if (cfg->mode == ITERATE_MODE)
                 printf("_______%s_______\n", "First_stage_complete");
@@ -221,5 +222,6 @@ void get_solution()
                 dump_table(table);
                 dump_all(solution, &p, st);
         }
+#endif
 }
 

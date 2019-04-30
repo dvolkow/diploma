@@ -9,7 +9,7 @@ static size_t current_usage = 0;
 
 
 
-void *dv_alloc(const size_t size) 
+void *dv_alloc(const size_t size)
 {
         MEMORY_LIMIT_ASSERT(current_usage + size);
         MEMORY_ALLOC_ASSERT(size);
@@ -23,12 +23,16 @@ void *dv_alloc(const size_t size)
         return ret;
 }
 
+void *dv_dalloc(const size_t size, const size_t num)
+{
+	return malloc(num * size);
+}
 
 #define G_START_SHIFT 8
 void *dv_mm_get_current_top(void)
 {
-        return (void *)&__g_memory_buffer[current_usage > G_START_SHIFT 
-                        ? current_usage - G_START_SHIFT 
+        return (void *)&__g_memory_buffer[current_usage > G_START_SHIFT
+                        ? current_usage - G_START_SHIFT
                         : current_usage];
 }
 

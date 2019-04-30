@@ -11,13 +11,13 @@
 
 
 double get_beta_n(const apogee_rc_t *line, beta_ord_t type);
-double get_alpha_n(const apogee_rc_t *line, 
+double get_alpha_n(const apogee_rc_t *line,
                    const double r_0,
                    const int n);
 
 void fill_mnk_matrix_vr(linear_equation_t *eq,
                          apogee_rc_table_t *table);
-void fill_mnk_matrix(linear_equation_t *eq, 
+void fill_mnk_matrix(linear_equation_t *eq,
                         apogee_rc_table_t *table, eq_mode_t mode);
 /**
  * TODO: generic
@@ -39,7 +39,7 @@ static double residuals_line(const linear_eq_solve_t *v,
         return pow_double(line->v_helio - mod_v, 2);
 }
 
-double get_mod_vr(const opt_t *solution, 
+double get_mod_vr(const opt_t *solution,
                   const apogee_rc_t *line)
 {
         const double r_0 = solution->r_0;
@@ -150,15 +150,15 @@ double lower_bound_search(linear_equation_t *eq,
         return __bound_parameter(eq, table, r_0, LOWER);
 }
 
-double upper_bound_search(linear_equation_t *eq, 
+double upper_bound_search(linear_equation_t *eq,
                                 apogee_rc_table_t *table,
                                 double r_0)
 {
         return __bound_parameter(eq, table, r_0, UPPER);
 }
 
-opt_t *opt_linear(linear_equation_t *eq, 
-                                apogee_rc_table_t *table) 
+opt_t *opt_linear(linear_equation_t *eq,
+                                apogee_rc_table_t *table)
 {
         linear_eq_solve_t s = {
                 .data = dv_alloc(sizeof(double) * eq->size),
@@ -172,7 +172,7 @@ opt_t *opt_linear(linear_equation_t *eq,
         table->r_0 = low_r;
 
         fill_mnk_matrix_vr(eq, table);
-        solve(eq, &s); 
+        solve(eq, &s);
 #ifdef DEBUG
         print_vector(s.data, s.size);
 #endif
@@ -197,7 +197,7 @@ opt_t *opt_linear(linear_equation_t *eq,
         #endif
                         double sq_tmp = residuals_summary(eq, &s, table);
         #ifdef DEBUG
-                        printf("%s: sd = %lf, r_0 = %lf\n", 
+                        printf("%s: sd = %lf, r_0 = %lf\n",
                                         __func__, sq_tmp, table->r_0);
         #endif
                         if (sq_tmp < opt_params.sq) {
@@ -221,7 +221,7 @@ opt_t *opt_linear(linear_equation_t *eq,
         return ret;
 }
 
-void get_errors(opt_t *solution, apogee_rc_table_t *table) 
+void get_errors(opt_t *solution, apogee_rc_table_t *table)
 {
         linear_equation_t m, invm;
         m.data = dv_alloc(sizeof(double) * solution->s.size * solution->s.size);
@@ -236,7 +236,7 @@ void get_errors(opt_t *solution, apogee_rc_table_t *table)
         solution->bounds = dv_alloc(sizeof(prec_t) * solution->s.size);
         unsigned int i;
         for (i = 0; i < solution->s.size; ++i) {
-                solution->bounds[i].l = 
+                solution->bounds[i].l =
                         get_error_mnk_estimated(invm.data[i * invm.size + i], invm.size + table->size + 1, solution->sq / (table->size + 1));
         }
 }
