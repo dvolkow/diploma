@@ -190,7 +190,6 @@ void get_solution()
         iteration_storage_t *st = iteration_storage_create(table, solution);
         dump_all(solution, &p, st);
 
-#if 0
         // TODO: function's interface need improve
         if (cfg->mode == ITERATE_MODE)
                 printf("_______%s_______\n", "First_stage_complete");
@@ -222,6 +221,5 @@ void get_solution()
                 dump_table(table);
                 dump_all(solution, &p, st);
         }
-#endif
 }
 

@@ -12,7 +12,6 @@ static init_t g_init_deinit_table[] = {
 #ifdef DEBUG
       , { "unit test subsystem",  jtest_init, jtest_exit }
 #endif
-
         // MUST BE LAST:
       , { NULL, NULL, NULL }
 };

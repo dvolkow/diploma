@@ -4,6 +4,7 @@
 #include "types.h"
 #include "math.h"
 #include "mem.h"
+#include "trigonometry.h"
 
 #ifdef DEBUG
 #include "debug.h"
@@ -44,4 +45,33 @@ point_t *get_point(const apogee_rc_t *line)
         p->z = get_z(line);
 
         return p;
+}
+
+static double get_sin_phi(const apogee_rc_t *line)
+{
+        return cos(deg_to_rad(DELTA_N)) * sin(line->ra - deg_to_rad(ALPHA_N)) / cos(line->b);
+}
+
+static double get_cos_phi(const apogee_rc_t *line)
+{
+        return (sin(deg_to_rad(DELTA_N)) - sin(line->b) * sin(line->dec)) / (cos(line->b) * cos(line->dec));
+}
+
+/*
+ * Conversion between galactical and ecliptical velocities:
+ */
+double mu_l_from_pa_dec_pm(const apogee_rc_t *line)
+{
+        const double sin_phi = get_sin_phi(line);
+        const double cos_phi = get_cos_phi(line);
+
+        return line->pm_ra * cos_phi + line->pm_dec * sin_phi;
+}
+
+double mu_b_from_pa_dec_pm(const apogee_rc_t *line)
+{
+        const double sin_phi = get_sin_phi(line);
+        const double cos_phi = get_cos_phi(line);
+
+        return line->pm_dec * cos_phi - line->pm_ra * sin_phi;
 }

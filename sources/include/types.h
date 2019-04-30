@@ -38,7 +38,14 @@ typedef struct {
 #define __mem_5 offsetof(apogee_rc_t, pm_ra)
         double  pm_dec;
 #define __mem_6 offsetof(apogee_rc_t, pm_dec)
+        double  ra;
+        double  dec;
+        int     nvis;
+
+        double  pm_l;
+        double  pm_b;
         // solution data:
+        
         double  eps;
 #define __mem_7 offsetof(apogee_rc_t, eps)
         dsize_t id;

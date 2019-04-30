@@ -54,7 +54,6 @@ double get_mod_vr(const opt_t *solution,
         }
 
         return mod_v;
-
 }
 
 static double residuals_summary(const linear_equation_t *eq, 
@@ -158,7 +157,7 @@ double upper_bound_search(linear_equation_t *eq,
 }
 
 opt_t *opt_linear(linear_equation_t *eq,
-                                apogee_rc_table_t *table)
+                  apogee_rc_table_t *table)
 {
         linear_eq_solve_t s = {
                 .data = dv_alloc(sizeof(double) * eq->size),

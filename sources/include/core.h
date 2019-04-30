@@ -10,8 +10,6 @@
 #define SEARCH_PRECISION        0.001
 #define STEP_DIVISOR            4
 
-#define K_PM                    4.7406
-
 typedef enum {
         FIRST = 0,
         SECOND,
@@ -24,8 +22,8 @@ typedef enum {
 
 typedef enum {
         VR_MODE,
-        PM_RA_MODE,
-        PM_DEC_MODE,
+        L_MODE,
+        B_MODE,
 } eq_mode_t;
 
 typedef enum {

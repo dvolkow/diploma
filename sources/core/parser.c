@@ -11,7 +11,7 @@
 #define NEXT_ARG(args, argv)    (argv++, args--)
 #define CHECK_ARGS(args)        ((args) - 1 > 0)
 
-#define __VERSION               "0.0"
+#define __VERSION               "0.1"
 
 static parser_t *__cfg;
 
