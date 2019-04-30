@@ -19,19 +19,22 @@ int r_comparator(const void *p1, const void *p2)
                 return -1;
         else if (i1->r > i2->r)
                 return 1;
-        else 
+        else
                 return 0;
 }
 
-void sort_iteration_storage_by_r(iteration_storage_t *storage, const size_t size) 
+void sort_iteration_storage_by_r(iteration_storage_t *storage, const size_t size)
 {
         qsort(storage, size, sizeof(iteration_storage_t), r_comparator);
 }
 
 
-iteration_storage_t *iteration_storage_create(const apogee_rc_table_t *table, 
+iteration_storage_t *iteration_storage_create(const apogee_rc_table_t *table,
                                                 const opt_t *solution)
 {
+#ifdef DEBUG
+	printf("%s: size = %u\n", __func__, table->size);
+#endif
         iteration_storage_t *storage = dv_alloc(sizeof(iteration_storage_t) *
                                         table->size);
         unsigned int i;
@@ -39,7 +42,7 @@ iteration_storage_t *iteration_storage_create(const apogee_rc_table_t *table,
                 double r = get_R_distance(&table->data[i], solution->r_0);
                 storage[i].data = table->data[i];
                 storage[i].r = r;
-                storage[i].theta = r * ((table->data[i].v_helio - 
+                storage[i].theta = r * ((table->data[i].v_helio -
                                      solution->s.data[U_P] * get_beta_n(&table->data[i], FIRST) 
                                     + solution->s.data[W_P] * sin(table->data[i].b)) / 
                                         (solution->r_0 * sin(table->data[i].l) *
@@ -51,13 +54,13 @@ iteration_storage_t *iteration_storage_create(const apogee_rc_table_t *table,
 
 
 /**
- * Average theta by R for graphic plotting. Use 
+ * Average theta by R for graphic plotting. Use
  * LSE by each interval. More details into text.
  */
 static inline double __get_c(const iteration_storage_t *st_part,
                                  const opt_t *solution)
 {
-        return st_part->data.v_helio + 
+        return st_part->data.v_helio +
                         solution->s.data[U_P] * cos(st_part->data.l) * cos(st_part->data.b)
                         + solution->s.data[W_P] * sin(st_part->data.b) +
                                         OMEGA_SUN * solution->r_0 * sin(st_part->data.l) *

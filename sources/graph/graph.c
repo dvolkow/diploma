@@ -44,7 +44,7 @@ parameter_t g_ptable[] = {
 #define MAX_G_GRAPH_LEN         8
 static char __g_graph_buffer[MAX_G_GRAPH_LEN];
 
-static char *__get_name_by_idx(const int idx) 
+static char *__get_name_by_idx(const int idx)
 {
         const int known = BETA_QTY + 1;
         if (idx < known) return g_ptable[idx].name;
@@ -53,14 +53,14 @@ static char *__get_name_by_idx(const int idx)
         return __g_graph_buffer;
 }
 
-static void dump_unfriendly_result(const opt_t *opt, 
+static void dump_unfriendly_result(const opt_t *opt,
                                    const prec_t *p)
 {
-        FILE *fout = fopen(OUTPUT_UNFRESULT_FILENAME, "w"); 
+        FILE *fout = fopen(OUTPUT_UNFRESULT_FILENAME, "w");
         CHECK_FILE_AND_RET(fout, OUTPUT_UNFRESULT_FILENAME);
 
         fprintf(fout, "%0.3lf %0.3lf %0.3lf\n",
-                        opt->r_0, 
+                        opt->r_0,
                         p->h - opt->r_0,
                         opt->r_0 - p->l);
         fprintf(fout, "%0.3lf\n",
@@ -71,16 +71,16 @@ static void dump_unfriendly_result(const opt_t *opt,
         for (i = 0; i < opt->s.size; ++i) {
                 fprintf(fout, "%0.3f %0.3f %0.2lf\n",
                         opt->s.data[i],
-                        opt->bounds[i].l, 
+                        opt->bounds[i].l,
                         fabs(opt->bounds[i].l / opt->s.data[i]));
         }
         fclose(fout);
 }
 
-void dump_result(opt_t *opt, 
-                  prec_t *p) 
+void dump_result(opt_t *opt,
+                  prec_t *p)
 {
-        FILE *fout = fopen(OUTPUT_RESULT_FILENAME, "w"); 
+        FILE *fout = fopen(OUTPUT_RESULT_FILENAME, "w");
         CHECK_FILE_AND_RET(fout, OUTPUT_RESULT_FILENAME);
 
         PRINT_OUTPUT_LINE(fout);
@@ -98,7 +98,7 @@ void dump_result(opt_t *opt,
         printf("%s: opt->s.size = %u\n",
                         __func__, opt->s.size);
         for (i = 0; i < g_ptable[i].name != NULL; ++i) {
-                printf("%s: [%u] = %lf\n", __func__, 
+                printf("%s: [%u] = %lf\n", __func__,
                                 i, opt->s.data[i]);
         }
 #endif
@@ -106,7 +106,7 @@ void dump_result(opt_t *opt,
                 fprintf(fout, "%s:\t%6.3f\t(pm %0.3f)\t%0.2lf\n",
                         __get_name_by_idx(i),
                         opt->s.data[i],
-                        opt->bounds[i].l, 
+                        opt->bounds[i].l,
                         fabs(opt->bounds[i].l / opt->s.data[i]));
         }
         PRINT_OUTPUT_LINE(fout);
@@ -133,7 +133,7 @@ void dump_rotation_curve(iteration_storage_t *storage, opt_t *solution)
         unsigned int i;
         double r;
         for (i = 0; i < solution->size; ++i) {
-                fprintf(oout, "%lf %lf\n", 
+                fprintf(oout, "%lf %lf\n",
                                 storage[i].r, storage[i].theta);
         }
 
@@ -144,7 +144,7 @@ void dump_rotation_curve(iteration_storage_t *storage, opt_t *solution)
                 for (i = BETA_QTY + 1; i < solution->s.size; ++i) {
                         theta += solution->s.data[i] / dv_factorial(i - BETA_QTY + 1) * 
                                         pow_double(r - solution->r_0, i - BETA_QTY + 1);
-                } 
+                }
 
                 fprintf(fout, "%lf %lf\n", r, theta);
                 r += ROTC_STEP_R;
@@ -157,19 +157,25 @@ void dump_rotation_curve(iteration_storage_t *storage, opt_t *solution)
         fclose(fout);
 }
 
+
 static double *get_sorted_r(const iteration_storage_t *sorted_st, const size_t size)
 {
-        double * sorted_r = dv_alloc(sizeof(double) * size);
+        /**
+	 * BUG: double *sorted_r = (double *)dv_dalloc(sizeof(double), size);
+	 *
+	 * Not valid code: causes crash by access memory failure.
+	 */
+        double *sorted_r = (double *)calloc(size, sizeof(double));
         unsigned int i = 0;
         for (i = 0; i < size; ++i) {
-                sorted_r[i] = sorted_st[i].r;
+		sorted_r[i] = sorted_st[i].r;
         }
 
         return sorted_r;
 }
 
 
-void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mode) 
+void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mode)
 {
         average_res_t *a;
 
@@ -182,7 +188,7 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
         double r = st[0].r;
         int estimate_counter = solution->size;
         int left_bound = 0;
-        int i_counter = 1; 
+        int i_counter = 1;
 
         bool r_into_middle(const double v) {
                 return (v < AVERAGE_COUNT_EDGE_R_BOUND) &&
@@ -196,20 +202,20 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
 
         while (estimate_counter > 0) {
                 /* Setting for size */
-                int size = r_into_middle(r) ? AVERAGE_COUNT_BASE 
+                int size = r_into_middle(r) ? AVERAGE_COUNT_BASE
                                             : AVERAGE_COUNT_EDGE;
 
                 if (is_last_step(estimate_counter, size)) {
-                        size = estimate_counter; 
+                        size = estimate_counter;
                 }
 
                 /* Get & print */
                 a = get_average_theta(&st[left_bound], solution, size);
                 double median_r = get_median(&sorted_r[left_bound], size);
                 fprintf(aout, "%d %d %lf %lf %lf %lf %lf\n",
-                                ++i_counter, size, 
-                                median_r, 
-                                fabs(median_r - sorted_r[left_bound]), 
+                                ++i_counter, size,
+                                median_r,
+                                fabs(median_r - sorted_r[left_bound]),
                                 fabs(median_r - sorted_r[left_bound + size - 1]),
                                 a->theta, a->err
                                 );
@@ -224,10 +230,10 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
         fclose(aout);
 }
 
-void dump_background(const iteration_storage_t *st, 
-                     const opt_t *solution, 
+void dump_background(const iteration_storage_t *st,
+                     const opt_t *solution,
                      const int b_count)
-{       
+{
         FILE *dout = fopen("background.txt", "w");
         CHECK_FILE_AND_RET(dout, "background.txt");
 
@@ -237,19 +243,19 @@ void dump_background(const iteration_storage_t *st,
         double r = st[0].r;
         int estimate_counter = solution->size;
         int left_bound = 0;
-        int i_counter = 1; 
+        int i_counter = 1;
 
         bool is_last_step(const int c, const int s) {
                 return (c - s) <= 0;
         }
 
-        int size = solution->size / b_count; 
+        int size = solution->size / b_count;
 
         while (estimate_counter > 0) {
                 /* Setting for size */
 
                 if (is_last_step(estimate_counter, size)) {
-                        size = estimate_counter; 
+                        size = estimate_counter;
                 }
 
                 /* Get & print */
@@ -261,7 +267,7 @@ void dump_background(const iteration_storage_t *st,
                                sorted_r[left_bound + size - 1],
                                a->sd,
                                a->err,
-                               size, 
+                               size,
                                sqrt(solution->sq / (solution->size + solution->s.size + 1)));
 
                 /*  Next step prepare */
@@ -284,12 +290,12 @@ void dump_background(const iteration_storage_t *st,
 void dump_all(opt_t *solution, prec_t *p, iteration_storage_t *st)
 {
         dump_result(solution, p);
-        dump_averages(st, solution, DISTANCE);
+	dump_averages(st, solution, DISTANCE);
         dump_rotation_curve(st, solution);
-        dump_background(st, solution, DEFAULT_BACKGROUND_COUNT);
+//      dump_background(st, solution, DEFAULT_BACKGROUND_COUNT);
 }
 
-void dump_rand_test(const double *array, 
+void dump_rand_test(const double *array,
                     const dsize_t size)
 {
         FILE *fout = fopen("rand.txt", "w");
@@ -297,7 +303,7 @@ void dump_rand_test(const double *array,
 
         dsize_t i;
         for (i = 0; i < size; i += 2) {
-                fprintf(fout, "%0.7lf \t%0.7lf\n", 
+                fprintf(fout, "%0.7lf \t%0.7lf\n",
                                 array[i], array[i + 1]);
 
         }
