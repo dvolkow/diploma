@@ -161,8 +161,8 @@ opt_t *core_l_get_linear_solution(linear_equation_t *eq,
 void core_l_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
-        cfg->filter = MATCH_FILTER;
-        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+//       cfg->filter = MATCH_FILTER;
+//       table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
 
         int size = cfg->ord;
         double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) *
@@ -175,5 +175,5 @@ void core_l_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_l_get_linear_solution(&eq, table);
-        //dump_core_l_solution(opt);
+        dump_core_l_solution(opt);
 }

@@ -131,7 +131,7 @@ static double __bound_parameter(linear_equation_t *eq,
                         fill_mnk_matrix_vr(eq, table);
                         solve(eq, &s);
                 #ifdef DEBUG
-                        print_vector(s.data, s.size);
+                //        print_vector(s.data, s.size);
                 #endif
                         sq = residuals_summary(&s, table);
                 #ifdef DEBUG

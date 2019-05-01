@@ -51,10 +51,8 @@ double get_alpha_n(const apogee_rc_t *line,
                    const double r_0,
                    const int n)
 {
-#ifdef DEBUG
         assert(n > 0);
-#endif
-        
+
         double R = get_R_distance(line, r_0);
         return s_alpha_n(R, sin(line->l), cos(line->b), r_0, n);
 }
@@ -65,9 +63,8 @@ void fill_mnk_matrix_vr(linear_equation_t *eq,
         unsigned int i, j, k;
         unsigned int len = eq->size;
         matrix_line_t *line = &g_matrix_line;
-#ifdef DEBUG
+
         assert(len <= BETA_QTY + MAX_ORDER_SOLUTION);
-#endif
 
         memset(eq->data, 0, sizeof(double) * eq->size * eq->size);
         memset(eq->right, 0, sizeof(double) * eq->size);
@@ -246,7 +243,7 @@ void get_iterate_solution(apogee_rc_table_t *table,
                        const double r_1,
                        const double r_2)
         {
-                const double prec = 1e-4;
+                const double prec = 1e-5;
                 return fabs(w_1 - w_2) > prec ||
                        fabs(r_1 - r_2) > prec;
         }
@@ -286,4 +283,5 @@ void get_iterate_solution(apogee_rc_table_t *table,
                         __func__, r_new, w_new);
 #endif
         }
+        core_l_entry(table);
 }

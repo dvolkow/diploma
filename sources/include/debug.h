@@ -28,15 +28,18 @@ static inline void print_table(const apogee_rc_table_t *table)
 static inline void print_vector(const double *data, 
                                 const unsigned int size)
 {
+#if 0
         unsigned int i;
         for (i = 0; i < size; ++i) {
                 printf("%s: [debug] %lf\n", __func__, 
                                         data[i]);
         }
+#endif
 }
 
 static inline void print_matrix(const double *matrix, const int size)
 {
+#if 0
         int i, j;
         for (i = 0; i < size; ++i) {
                 printf("%s: line %d: ", __func__, i);
@@ -45,6 +48,7 @@ static inline void print_matrix(const double *matrix, const int size)
                 }
                 printf("\n");
         }
+#endif
 }
 
 static inline void print_solution(const opt_t *opts)

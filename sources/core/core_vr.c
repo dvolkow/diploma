@@ -43,7 +43,7 @@ static void core_vr_fill_mnk_matrix(linear_equation_t *eq,
 
         for (j = 0; j < table->size; ++j) {
                 for (i = 0; i < BETA_QTY_FIX; ++i) {
-                        line->_[i] = get_beta_n(&table->data[j], i);
+                        line->_[i] = core_vr_get_beta_n(&table->data[j], i);
                 }
 
                 for (i = BETA_QTY_FIX; i < eq->size; ++i) {
@@ -115,7 +115,7 @@ opt_t *core_vr_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
         int size = cfg->ord;
-        double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY_FIX) *
+        double *matrix = (double *)dv_alloc(sizeof(double) * (size + BETA_QTY_FIX) *
                                                    (size + BETA_QTY_FIX));
 
         // fixed parameter:
@@ -123,7 +123,7 @@ opt_t *core_vr_entry(apogee_rc_table_t *table)
 
         linear_equation_t eq = {
                 .data = matrix,
-                .right = dv_alloc(sizeof(double) * size + BETA_QTY_FIX),
+                .right = (double *)dv_alloc(sizeof(double) * size + BETA_QTY_FIX),
                 .size = size + BETA_QTY_FIX,
                 .ord = size
         };

@@ -1,5 +1,7 @@
 #include <math.h>
+#include <string.h>
 #include <assert.h>
+
 #include "types.h"
 #include "mem.h"
 #include "core.h"
@@ -162,8 +164,8 @@ opt_t *core_b_get_linear_solution(linear_equation_t *eq,
 opt_t *core_b_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
-        cfg->filter = MATCH_FILTER;
-        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+//        cfg->filter = MATCH_FILTER;
+//        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
         printf("%s: entry with R_0  %lf\n",
                         __func__, table->r_0);
 

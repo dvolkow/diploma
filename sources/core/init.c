@@ -10,7 +10,7 @@ static init_t g_init_deinit_table[] = {
       , { "parser subsystem",  parser_init, parser_exit }
       , { "random generators subsystem",  random_seed_init, random_seed_exit }
 #ifdef DEBUG
-      , { "unit test subsystem",  jtest_init, jtest_exit }
+//      , { "unit test subsystem",  jtest_init, jtest_exit }
 #endif
         // MUST BE LAST:
       , { NULL, NULL, NULL }

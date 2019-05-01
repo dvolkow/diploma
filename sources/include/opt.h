@@ -11,7 +11,7 @@ typedef enum {
 
 
 typedef struct {
-        double (*residuals_summary)(const opt_t *, 
+        double (*residuals_summary)(const linear_eq_solve_t *, 
                                     const apogee_rc_table_t *);
         void (*fill_mnk_matrix)(linear_equation_t *,
                                 apogee_rc_table_t *);
