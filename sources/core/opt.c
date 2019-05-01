@@ -56,8 +56,7 @@ double get_mod_vr(const opt_t *solution,
         return mod_v;
 }
 
-static double residuals_summary(const linear_equation_t *eq, 
-                                const linear_eq_solve_t *v, 
+static double residuals_summary(const linear_eq_solve_t *v, 
                                 const apogee_rc_table_t *table)
 {
         double sum = 0;
@@ -67,6 +66,12 @@ static double residuals_summary(const linear_equation_t *eq,
         }
         assert(sum > 0);
         return sum;
+}
+
+double opt_residuals_summary(const linear_eq_solve_t *v, 
+                             const apogee_rc_table_t *table)
+{
+        return residuals_summary(v, table);
 }
 
 static void fill_estimated_vector(const apogee_rc_table_t *table,
@@ -116,7 +121,7 @@ static double __bound_parameter(linear_equation_t *eq,
 
         fill_mnk_matrix_vr(eq, table);
         solve(eq, &s); 
-        double sq = residuals_summary(eq, &s, table);
+        double sq = residuals_summary(&s, table);
         double thr_sq = sq * (1.0 + 1.0 / (table->size + eq->size + 1.0));
 
         while (step >= SEARCH_PRECISION) {
@@ -128,7 +133,7 @@ static double __bound_parameter(linear_equation_t *eq,
                 #ifdef DEBUG
                         print_vector(s.data, s.size);
                 #endif
-                        sq = residuals_summary(eq, &s, table);
+                        sq = residuals_summary(&s, table);
                 #ifdef DEBUG
                         printf("%s: r_0 = %lf, sq = %lf, need >= %lf\n",
                                 __func__, table->r_0, sq, thr_sq);
@@ -157,12 +162,17 @@ double upper_bound_search(linear_equation_t *eq,
 }
 
 opt_t *opt_linear(linear_equation_t *eq,
-                  apogee_rc_table_t *table)
+                  apogee_rc_table_t *table,
+                  opt_params_t *params)
 {
         linear_eq_solve_t s = {
                 .data = dv_alloc(sizeof(double) * eq->size),
                 .size = eq->size
         };
+
+        assert(params != NULL);
+        assert(params->residuals_summary != NULL);
+        assert(params->fill_mnk_matrix != NULL);
 
         double low_r = LOWER_BOUND_R0;
         double high_r = UPPER_BOUND_R0;
@@ -170,12 +180,13 @@ opt_t *opt_linear(linear_equation_t *eq,
 
         table->r_0 = low_r;
 
-        fill_mnk_matrix_vr(eq, table);
+        params->fill_mnk_matrix(eq, table);
         solve(eq, &s);
 #ifdef DEBUG
         print_vector(s.data, s.size);
 #endif
-        double sq = residuals_summary(eq, &s, table);
+
+        double sq = params->residuals_summary(&s, table);
 
         opt_t opt_params = {
                 .s = dv_alloc(sizeof(linear_eq_solve_t)),
@@ -188,13 +199,13 @@ opt_t *opt_linear(linear_equation_t *eq,
         while (step > SEARCH_PRECISION) {
                 while (table->r_0 < high_r) {
                         table->r_0 += step;
-                        fill_mnk_matrix_vr(eq, table);
+                        params->fill_mnk_matrix(eq, table);
                         solve(eq, &s);
 
         #ifdef DEBUG
                         print_vector(s.data, s.size);
         #endif
-                        double sq_tmp = residuals_summary(eq, &s, table);
+                        double sq_tmp = params->residuals_summary(&s, table);
         #ifdef DEBUG
                         printf("%s: sd = %lf, r_0 = %lf\n",
                                         __func__, sq_tmp, table->r_0);

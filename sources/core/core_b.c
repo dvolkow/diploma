@@ -159,11 +159,13 @@ opt_t *core_b_get_linear_solution(linear_equation_t *eq,
         return ret;
 }
 
-void core_b_entry(apogee_rc_table_t *table)
+opt_t *core_b_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
         cfg->filter = MATCH_FILTER;
         table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+        printf("%s: entry with R_0  %lf\n",
+                        __func__, table->r_0);
 
         int size = cfg->ord;
         double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) *
@@ -176,5 +178,9 @@ void core_b_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_b_get_linear_solution(&eq, table);
-        dump_core_b_solution(opt);
+        // dump_core_b_solution(opt);
+        table->w_sun = opt->s.data[2];
+        printf("%s: get w_0 = %lf\n",
+                        __func__, table->w_sun);
+        return opt;
 }

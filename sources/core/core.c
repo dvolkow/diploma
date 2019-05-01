@@ -7,6 +7,7 @@
 #include "core.h"
 #include "core_b.h"
 #include "core_l.h"
+#include "core_vr.h"
 #include "types.h"
 #include "io.h"
 #include "mem.h"
@@ -59,7 +60,7 @@ double get_alpha_n(const apogee_rc_t *line,
 }
 
 void fill_mnk_matrix_vr(linear_equation_t *eq,
-                         apogee_rc_table_t *table)
+                        apogee_rc_table_t *table)
 {
         unsigned int i, j, k;
         unsigned int len = eq->size;
@@ -131,7 +132,13 @@ static opt_t *__get_solution_iterate(apogee_rc_table_t *table,
         assert(table->size != 0);
 
         filter_get_and_apply(table);
-        opt_t *solution = opt_linear(eq, table);
+
+        opt_params_t params = {
+                .residuals_summary = opt_residuals_summary,
+                .fill_mnk_matrix = fill_mnk_matrix_vr,
+        };
+
+        opt_t *solution = opt_linear(eq, table, &params);
 
         prec_t p = {
                 .l = lower_bound_search(eq, table, solution->r_0),
@@ -172,7 +179,12 @@ void get_solution()
                 .size = size + BETA_QTY,
                 .ord = size
         };
-        opt_t *solution = opt_linear(&eq, table);
+
+        opt_params_t params = {
+                .residuals_summary = opt_residuals_summary,
+                .fill_mnk_matrix = fill_mnk_matrix_vr,
+        };
+        opt_t *solution = opt_linear(&eq, table, &params);
 #ifdef DEBUG
         printf("%s: solution: R_0 = %lf\n",
                         __func__, solution->r_0);
@@ -208,9 +220,6 @@ void get_solution()
 
         unsigned int old_size = table->size;
         while (cfg->mode == ITERATE_MODE) {
-#ifdef DEBUG
-                printf("%s: iter %d", __func__, j++);
-#endif
                 solution = __get_solution_iterate(table, &eq);
                 cfg->h = get_limit_by_eps(table->size);
                 cfg->l = sqrt(solution->sq / (solution->size + solution->s.size + 1));
@@ -225,7 +234,56 @@ void get_solution()
                 dump_all(solution, &p, st);
         }
 
-        core_b_entry(table);
-        core_l_entry(table);
+        get_iterate_solution(table, solution);
 }
 
+
+void get_iterate_solution(apogee_rc_table_t *table,
+                          opt_t *solution)
+{
+        bool condition(const double w_1,
+                       const double w_2,
+                       const double r_1,
+                       const double r_2)
+        {
+                const double prec = 1e-4;
+                return fabs(w_1 - w_2) > prec ||
+                       fabs(r_1 - r_2) > prec;
+        }
+
+        parser_t *cfg = get_parser();
+        cfg->filter = MATCH_FILTER;
+        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+
+        table->w_sun = 7;
+        double w_old = 7;
+        double r_old = table->r_0;
+#ifdef DEBUG
+        printf("%s: r_old %lf, w_old %lf\n",
+                        __func__, r_old, w_old);
+#endif
+
+        solution = core_vr_entry(table);
+        double r_new = solution->r_0;
+        solution = core_b_entry(table);
+        double w_new = table->w_sun;
+
+#ifdef DEBUG
+        printf("%s: r_new %lf, w_new %lf\n",
+                        __func__, r_new, w_new);
+#endif
+        int i = 1;
+        while (condition(w_old, w_new, r_old, r_new)) {
+                r_old = r_new;
+                w_old = w_new;
+                solution = core_vr_entry(table);
+                r_new = table->r_0;
+                solution = core_b_entry(table);
+                w_new = table->w_sun;
+                printf("%s: #%d completed.\n", __func__, i++);
+#ifdef DEBUG
+                printf("%s: r_new %lf, w_new %lf\n",
+                        __func__, r_new, w_new);
+#endif
+        }
+}

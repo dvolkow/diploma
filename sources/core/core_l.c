@@ -175,5 +175,5 @@ void core_l_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_l_get_linear_solution(&eq, table);
-        dump_core_l_solution(opt);
+        //dump_core_l_solution(opt);
 }

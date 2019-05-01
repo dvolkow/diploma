@@ -64,6 +64,7 @@ typedef struct {
 typedef struct {
         apogee_rc_t *data;
         double r_0; 
+        double w_sun; 
         size_t size;
 } apogee_rc_table_t;
 
