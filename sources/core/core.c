@@ -5,6 +5,8 @@
 
 
 #include "core.h"
+#include "core_b.h"
+#include "core_l.h"
 #include "types.h"
 #include "io.h"
 #include "mem.h"
@@ -113,6 +115,7 @@ static void filter_get_and_apply(apogee_rc_table_t *table)
                 case L_FILTER:
                 case B_FILTER:
                 case ERR_FILTER:
+                case MATCH_FILTER:
                         table = get_limited_generic(table, 
                                                     filter_factory(cfg), 
                                                     L_FILTER);
@@ -221,5 +224,8 @@ void get_solution()
                 dump_table(table);
                 dump_all(solution, &p, st);
         }
+
+        core_b_entry(table);
+        core_l_entry(table);
 }
 

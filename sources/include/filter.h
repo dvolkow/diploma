@@ -5,6 +5,7 @@ typedef enum {
         L_FILTER
       , B_FILTER
       , ERR_FILTER
+      , MATCH_FILTER
 
       // must be last filter:
       , BAD_FILTER 

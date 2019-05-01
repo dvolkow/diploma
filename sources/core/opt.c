@@ -200,7 +200,7 @@ opt_t *opt_linear(linear_equation_t *eq,
                                         __func__, sq_tmp, table->r_0);
         #endif
                         if (sq_tmp < opt_params.sq) {
-                                opt_params.s = s,
+                                opt_params.s = s;
                                 opt_params.r_0 = table->r_0;
                                 opt_params.sq = sq_tmp;
                                 opt_params.s.data = dv_alloc(sizeof(double) * s.size);

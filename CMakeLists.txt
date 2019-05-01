@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(diploma)
-set(SRC_LIST sources/generators/names.c sources/jtests/main.c sources/core/init.c sources/generators/samples.c sources/core/parser.c sources/graph/graph.c sources/core/utils.c sources/jtests/core.c sources/core/opt.c sources/math/trigonometry.c sources/jtests/io.c sources/jtests/memory.c sources/jtests/math.c sources/core/core.c sources/io/io.c sources/debug/debug.c sources/math/math.c sources/mem/memory.c)
+set(SRC_LIST sources/generators/names.c sources/jtests/main.c sources/core/init.c sources/generators/samples.c sources/core/parser.c sources/graph/graph.c sources/core/utils.c sources/jtests/core.c sources/core/core_b.c sources/core/core_l.c sources/core/opt.c sources/math/trigonometry.c sources/jtests/io.c sources/jtests/memory.c sources/jtests/math.c sources/core/core.c sources/io/io.c sources/debug/debug.c sources/math/math.c sources/mem/memory.c)
 set(LIBS ${LIBS} ${GSL_LIBRARIES})
 add_definitions(-Wall -Wno-implicit-function-declaration -Wno-unused-function -pedantic -g2)
 find_package(GSL REQUIRED)

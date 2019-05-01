@@ -40,4 +40,7 @@ void dump_rand_test(const double *array,
 void dump_table(const apogee_rc_table_t *table);
 void dump_objects_xyz(const apogee_rc_table_t *table, const dsize_t size);
 void dump_all(opt_t *solution, prec_t *p, iteration_storage_t *st);
+
+void dump_core_l_solution(const opt_t *);
+void dump_core_b_solution(const opt_t *);
 #endif // GRAPH_H

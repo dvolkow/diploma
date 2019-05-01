@@ -41,6 +41,7 @@ typedef struct {
         double  ra;
         double  dec;
         int     nvis;
+        int     pm_match;
 
         double  pm_l;
         double  pm_b;

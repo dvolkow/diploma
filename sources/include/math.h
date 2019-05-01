@@ -4,13 +4,20 @@
 #include "types.h"
 #include <stdlib.h>
 
-#define M_PI 3.14159265358979323846
+#define M_PI            3.14159265358979323846
+#define YR_TO_SEC       3.154e7
 
 
 static inline double deg_to_rad(const double deg)
 {
         return deg * M_PI / 180;
 }
+
+static inline double mas_to_rad(const double mas)
+{
+        return mas * 0.001 * M_PI / (180 * 60 * 60);
+}
+
 
 static inline double rad_to_deg(const double rad)
 {

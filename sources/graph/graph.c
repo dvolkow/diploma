@@ -230,6 +230,34 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
         fclose(aout);
 }
 
+void dump_core_l_solution(const opt_t *solution)
+{
+        printf("L Core Solution:\n");
+        printf("omega_0: %lf pm %lf\n", solution->s.data[0],
+                                      solution->bounds[0].l);
+        printf("u_sun: %lf pm %lf\n", solution->s.data[1],
+                                      solution->bounds[1].l);
+        printf("v_sun: %lf pm %lf\n", solution->s.data[2],
+                                      solution->bounds[2].l);
+        printf("pm_l SD: %lf\n", solution->sq);
+        printf("size: %d\n", solution->size);
+        printf("---------------\n");
+}
+
+void dump_core_b_solution(const opt_t *solution)
+{
+        printf("B Core Solution:\n");
+        printf("u_sun: %lf pm %lf\n", solution->s.data[0], 
+                                      solution->bounds[0].l);
+        printf("v_sun: %lf pm %lf\n", solution->s.data[1],
+                                      solution->bounds[1].l);
+        printf("w_sun: %lf pm %lf\n", solution->s.data[2],
+                                      solution->bounds[2].l);
+        printf("pm_b SD: %lf\n", solution->sq);
+        printf("size: %d\n", solution->size);
+        printf("---------------\n");
+}
+
 void dump_background(const iteration_storage_t *st,
                      const opt_t *solution,
                      const int b_count)

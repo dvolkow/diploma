@@ -121,6 +121,11 @@ bool __limited_by_eps(const void *line,
         return get_param(7, line) / l < h;
 }
 
+bool __matching(const void *line, const double l, const double h)
+{
+        apogee_rc_t *la = line;
+        return la->pm_match > 0;
+}
 
 bool __limited_by_l(const void *line, const double l, const double h)
 {
@@ -147,6 +152,9 @@ filter_t *filter_factory(const parser_t *cfg)
                         break;
                 case ERR_FILTER:
                         filter->f = __limited_by_eps;
+                        break;
+                case MATCH_FILTER:
+                        filter->f = __matching;
                         break;
                 default:
                         filter->f = NULL;
@@ -185,7 +193,6 @@ apogee_rc_table_t *get_limited_generic(const void *table,
                 return (apogee_rc_table_t *)table;
 
         switch (mode) {
-                case L_FILTER:
                 default:
                         return get_limited_replace(table, filter);
                         // TODO: mode supporting
