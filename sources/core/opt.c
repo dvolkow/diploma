@@ -5,15 +5,10 @@
 #include "types.h"
 #include "math.h"
 #include "opt.h"
+#include "unicore.h"
 #ifdef DEBUG
 #include "debug.h"
 #endif // DEBUG
-
-
-double get_beta_n(const apogee_rc_t *line, beta_ord_t type);
-double get_alpha_n(const apogee_rc_t *line,
-                   const double r_0,
-                   const int n);
 
 void fill_mnk_matrix_vr(linear_equation_t *eq,
                          apogee_rc_table_t *table);
@@ -29,10 +24,10 @@ static double residuals_line(const linear_eq_solve_t *v,
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i) {
-                mod_v += v->data[i] * get_beta_n(line, i);
+                mod_v += v->data[i] * core_vr_get_beta_n(line, i);
         }
         for (i = BETA_QTY; i < v->size; ++i) {
-                mod_v += get_alpha_n(line, r_0, i - BETA_QTY + 1) * v->data[i];
+                mod_v += core_vr_get_alpha_n(line, i - BETA_QTY + 1, r_0) * v->data[i];
         }
 
         line->eps = fabs(line->v_helio - mod_v);
@@ -46,10 +41,10 @@ double get_mod_vr(const opt_t *solution,
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i) {
-                mod_v += solution->s.data[i] * get_beta_n(line, i);
+                mod_v += solution->s.data[i] * core_vr_get_beta_n(line, i);
         }
         for (i = BETA_QTY; i < solution->s.size; ++i) {
-                mod_v += get_alpha_n(line, r_0, i - BETA_QTY + 1) * 
+                mod_v += core_vr_get_alpha_n(line, i - BETA_QTY + 1, r_0) * 
                                 solution->s.data[i];
         }
 

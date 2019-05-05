@@ -43,4 +43,6 @@ void dump_all(opt_t *solution, prec_t *p, iteration_storage_t *st);
 
 void dump_core_l_solution(const opt_t *);
 void dump_core_b_solution(const opt_t *);
+void dump_core_vr_solution(const opt_t *);
+void dump_united_solution(const opt_t *);
 #endif // GRAPH_H

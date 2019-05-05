@@ -81,6 +81,22 @@ static void copy_diagonal(linear_equation_t *dst,
         }
 }
 
+void add_matrix_to_matrix(const linear_equation_t *src,
+                          linear_equation_t *dst)
+{
+        unsigned int i, j;
+        assert(src->size == dst->size);
+        const unsigned int len = dst->size;
+
+        for (i = 0; i < len; ++i) {
+                for (j = 0; j < len; ++j) {
+                        dst->data[i * len + j] +=
+                                src->data[i * len + j];
+                }
+
+                dst->right[i] += src->right[i];
+        }
+}
 
 /*
  * Get inverse matrix for @eq->data, and get only

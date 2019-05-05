@@ -94,6 +94,8 @@ double dv_factorial(const int n);
 
 double dot_prod(double *a, double *b, int size);
 
+void add_matrix_to_matrix(const linear_equation_t *src,
+                          linear_equation_t *dst);
 int math_init(void);
 void math_exit(void);
 

@@ -7,25 +7,26 @@
 
 static matrix_line_t g_matrix_line;
 
-static double core_l_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
+double core_l_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 {
         switch (type) {
                 case FIRST:
-                        return -cos(line->b);
-                case SECOND:
                         return sin(line->l) / (line->dist);
-                case THIRD:
+                case SECOND:
                         return -cos(line->l) / (line->dist);
+                case THIRD:
+                        return -cos(line->b);
                 default:
+#ifdef DEBUG
                         printf("%s: type error!\n", __func__);
+#endif
+                        return 0;
         }
-
-        return 0;
 }
 
-static double core_l_get_alpha_n(const apogee_rc_t *line,
-                                 const unsigned int n,
-                                 const double r0)
+double core_l_get_alpha_n(const apogee_rc_t *line,
+                          const unsigned int n,
+                          const double r0)
 {
         const double R = get_R_distance(line, r0);
         const double r = line->dist;
@@ -158,7 +159,7 @@ opt_t *core_l_get_linear_solution(linear_equation_t *eq,
         return ret;
 }
 
-void core_l_entry(apogee_rc_table_t *table)
+opt_t *core_l_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
 //       cfg->filter = MATCH_FILTER;
@@ -169,11 +170,12 @@ void core_l_entry(apogee_rc_table_t *table)
                                                    (size + BETA_QTY));
         linear_equation_t eq = {
                 .data = matrix,
-                .right = dv_alloc(sizeof(double) * size + BETA_QTY),
+                .right = dv_alloc(sizeof(double) * (size + BETA_QTY)),
                 .size = size + BETA_QTY,
                 .ord = size
         };
 
         opt_t *opt = core_l_get_linear_solution(&eq, table);
         dump_core_l_solution(opt);
+        return opt;
 }

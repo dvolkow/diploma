@@ -16,11 +16,12 @@
 #include "opt.h"
 #include "graph.h"
 #include "utils.h"
+#include "unicore.h"
 #include "generators.h"
 
 static matrix_line_t g_matrix_line;
 
-double get_beta_n(const apogee_rc_t *line, beta_ord_t type)
+double core_vr_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 {
         switch (type) {
                 case FIRST:
@@ -30,10 +31,11 @@ double get_beta_n(const apogee_rc_t *line, beta_ord_t type)
                 case THIRD:
                         return -sin(line->b);
                 default:
+#ifdef DEBUG
                         printf("%s: type error!\n", __func__);
+#endif
+                        return 0;
         }
-
-        return 0;
 }
 
 static double s_alpha_n(const double R, 
@@ -47,9 +49,9 @@ static double s_alpha_n(const double R,
                 return r_0 * pow_double(R - r_0, n) * sinl * cosb / (R * dv_factorial(n));
 }
 
-double get_alpha_n(const apogee_rc_t *line, 
-                   const double r_0,
-                   const int n)
+double core_vr_get_alpha_n(const apogee_rc_t *line,
+                           const unsigned int n,
+                           const double r_0)
 {
         assert(n > 0);
 
@@ -71,11 +73,11 @@ void fill_mnk_matrix_vr(linear_equation_t *eq,
 
         for (j = 0; j < table->size; ++j) {
                 for (i = 0; i < BETA_QTY; ++i) {
-                        line->_[i] = get_beta_n(&table->data[j], i);
+                        line->_[i] = core_vr_get_beta_n(&table->data[j], i);
                 }
 
                 for (i = BETA_QTY; i < eq->size; ++i) {
-                        line->_[i] = get_alpha_n(&table->data[j], table->r_0, i - BETA_QTY + 1);
+                        line->_[i] = core_vr_get_alpha_n(&table->data[j], i - BETA_QTY + 1, table->r_0);
                 }
 
                 for (i = 0; i < len; ++i) {
@@ -148,6 +150,8 @@ static opt_t *__get_solution_iterate(apogee_rc_table_t *table,
         return solution;
 }
 
+void get_iterate_solution(apogee_rc_table_t *table,
+                          opt_t *solution);
 
 void get_solution()
 {
@@ -172,7 +176,7 @@ void get_solution()
 
         linear_equation_t eq = {
                 .data = matrix,
-                .right = dv_alloc(sizeof(double) * size + BETA_QTY),
+                .right = dv_alloc(sizeof(double) * (size + BETA_QTY)),
                 .size = size + BETA_QTY,
                 .ord = size
         };
@@ -248,6 +252,8 @@ void get_iterate_solution(apogee_rc_table_t *table,
                        fabs(r_1 - r_2) > prec;
         }
 
+        double sd[TOTAL_QTY];
+
         parser_t *cfg = get_parser();
         cfg->filter = MATCH_FILTER;
         table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
@@ -275,7 +281,9 @@ void get_iterate_solution(apogee_rc_table_t *table,
                 w_old = w_new;
                 solution = core_vr_entry(table);
                 r_new = table->r_0;
+                sd[VR_PART] = pow_double(solution->sq, 2);
                 solution = core_b_entry(table);
+                sd[B_PART] = pow_double(solution->sq, 2);
                 w_new = table->w_sun;
                 printf("%s: #%d completed.\n", __func__, i++);
 #ifdef DEBUG
@@ -283,5 +291,10 @@ void get_iterate_solution(apogee_rc_table_t *table,
                         __func__, r_new, w_new);
 #endif
         }
-        core_l_entry(table);
+        solution = core_l_entry(table);
+        sd[L_PART] = pow_double(solution->sq, 2);
+
+        uni_g_sd_init(sd);
+        solution = united_entry(table);
+        dump_united_solution(solution);
 }

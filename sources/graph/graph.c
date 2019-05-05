@@ -233,14 +233,46 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
 void dump_core_l_solution(const opt_t *solution)
 {
         printf("L Core Solution:\n");
-        printf("omega_0: %lf pm %lf\n", solution->s.data[0],
+        printf("u_sun: %lf pm %lf\n", solution->s.data[0],
                                       solution->bounds[0].l);
-        printf("u_sun: %lf pm %lf\n", solution->s.data[1],
+        printf("v_sun: %lf pm %lf\n", solution->s.data[1],
                                       solution->bounds[1].l);
-        printf("v_sun: %lf pm %lf\n", solution->s.data[2],
+        printf("omega_0: %lf pm %lf\n", solution->s.data[2],
                                       solution->bounds[2].l);
+        printf("A: %lf pm %lf\n", solution->s.data[3],
+                                      solution->bounds[3].l);
         printf("pm_l SD: %lf\n", solution->sq);
         printf("size: %d\n", solution->size);
+        printf("---------------\n");
+}
+
+void dump_core_vr_solution(const opt_t *solution)
+{
+        printf("Vr Core Solution:\n");
+        printf("R_0: %lf \n", solution->r_0);
+        printf("u_sun: %lf \n", solution->s.data[0]);
+        printf("v_sun: %lf \n", solution->s.data[1]);
+        printf("w_sun: %lf \n", solution->s.data[2]);
+        printf("A: %lf \n", solution->s.data[3]);
+        printf("SD: %lf\n", solution->sq);
+        printf("size: %d\n", solution->size);
+        printf("---------------\n");
+}
+
+void dump_united_solution(const opt_t *solution)
+{
+        printf("United Solution:\n");
+        printf("R_0: %lf\n", solution->r_0);
+        printf("u_sun: %lf pm %lf\n", solution->s.data[0],
+                                      solution->bounds[0].l);
+        printf("v_sun: %lf pm %lf\n", solution->s.data[1],
+                                      solution->bounds[1].l);
+        printf("w_sun: %lf pm %lf\n", solution->s.data[2],
+                                      solution->bounds[2].l);
+        printf("omega_0: %lf pm %lf\n", solution->s.data[3],
+                                      solution->bounds[3].l);
+        printf("A: %lf pm %lf\n", solution->s.data[4],
+                                      solution->bounds[4].l);
         printf("---------------\n");
 }
 
@@ -253,6 +285,8 @@ void dump_core_b_solution(const opt_t *solution)
                                       solution->bounds[1].l);
         printf("w_sun: %lf pm %lf\n", solution->s.data[2],
                                       solution->bounds[2].l);
+        printf("A: %lf pm %lf\n", solution->s.data[3],
+                                      solution->bounds[3].l);
         printf("pm_b SD: %lf\n", solution->sq);
         printf("size: %d\n", solution->size);
         printf("---------------\n");

@@ -10,7 +10,7 @@
 
 static matrix_line_t g_matrix_line;
 
-static double core_b_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
+double core_b_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 {
         switch (type) {
                 case FIRST:
@@ -20,15 +20,16 @@ static double core_b_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
                 case THIRD:
                         return -cos(line->b) / (line->dist);
                 default:
+#ifdef DEBUG
                         printf("%s: type error!\n", __func__);
+#endif
+                        return 0;
         }
-
-        return 0;
 }
 
-static double core_b_get_alpha_n(const apogee_rc_t *line,
-                                 const unsigned int n,
-                                 const double r0)
+double core_b_get_alpha_n(const apogee_rc_t *line,
+                          const unsigned int n,
+                          const double r0)
 {
         const double R = get_R_distance(line, r0);
         const double r = line->dist;
@@ -166,23 +167,27 @@ opt_t *core_b_entry(apogee_rc_table_t *table)
         parser_t *cfg = get_parser();
 //        cfg->filter = MATCH_FILTER;
 //        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+#ifdef DEBUG
         printf("%s: entry with R_0  %lf\n",
                         __func__, table->r_0);
+#endif
 
         int size = cfg->ord;
         double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) *
                                                    (size + BETA_QTY));
         linear_equation_t eq = {
                 .data = matrix,
-                .right = dv_alloc(sizeof(double) * size + BETA_QTY),
+                .right = dv_alloc(sizeof(double) * (size + BETA_QTY)),
                 .size = size + BETA_QTY,
                 .ord = size
         };
 
         opt_t *opt = core_b_get_linear_solution(&eq, table);
-        // dump_core_b_solution(opt);
+        dump_core_b_solution(opt);
         table->w_sun = opt->s.data[2];
+#ifdef DEBUG
         printf("%s: get w_0 = %lf\n",
                         __func__, table->w_sun);
+#endif
         return opt;
 }

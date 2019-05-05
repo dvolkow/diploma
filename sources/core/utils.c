@@ -7,6 +7,7 @@
 #include "graph.h"
 #include "math.h"
 #include "utils.h"
+#include "unicore.h"
 
 double get_beta_n(const apogee_rc_t *line, beta_ord_t type);
 
@@ -43,7 +44,7 @@ iteration_storage_t *iteration_storage_create(const apogee_rc_table_t *table,
                 storage[i].data = table->data[i];
                 storage[i].r = r;
                 storage[i].theta = r * ((table->data[i].v_helio -
-                                     solution->s.data[U_P] * get_beta_n(&table->data[i], FIRST) 
+                                     solution->s.data[U_P] * core_vr_get_beta_n(&table->data[i], FIRST) 
                                     + solution->s.data[W_P] * sin(table->data[i].b)) / 
                                         (solution->r_0 * sin(table->data[i].l) *
                                                              cos(table->data[i].b)) + OMEGA_SUN);
