@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "graph.h"
+#include "trigonometry.h"
 #include "io.h"
 #include "opt.h"
 #include "math.h"
@@ -115,6 +116,32 @@ void dump_result(opt_t *opt,
         dump_unfriendly_result(opt, p);
 }
 
+double get_point_by_uni_solution(const opt_t *solution, const double r)
+{
+        double theta = r * solution->s.data[BETA_QTY] -
+                                        2 * solution->s.data[BETA_QTY + 1] * (r - solution->r_0);
+        unsigned int i;
+        for (i = BETA_QTY + 2; i < solution->s.size; ++i) {
+                theta += solution->s.data[i] / dv_factorial(i - BETA_QTY) * 
+                                        pow_double(r - solution->r_0, i - BETA_QTY);
+        }
+
+        return theta;
+}
+
+void dump_uni_rotation_curve(const rot_curve_t *curve, const unsigned int size)
+{
+        unsigned int i;
+
+        FILE *fout = fopen(RC_OUT_FILE_NAME, "w");
+        CHECK_FILE_AND_RET(fout, RC_OUT_FILE_NAME);
+
+        for (i = 0; i < size; ++i) {
+                fprintf(fout, "%lf %lf %lf %lf\n",
+                                curve[i].r, curve[i].theta, curve[i].theta_max, curve[i].theta_min);
+        }
+        fclose(fout);
+}
 
 void dump_rotation_curve(iteration_storage_t *storage, opt_t *solution)
 {
@@ -374,13 +401,82 @@ void dump_rand_test(const double *array,
         fclose(fout);
 }
 
+static double cos_beta_uni(const apogee_rc_t *line,
+                           const double r_0)
+{
+        return (r_0 - line->dist * cos(line->b) * cos(line->l)) / get_R_distance(line, r_0);
+}
+
+static double sin_beta_uni(const apogee_rc_t *line,
+                           const double r_0)
+{
+        return line->dist * cos_beta_uni(line, r_0) * sin(line->l) / get_R_distance(line, r_0);
+}
+
+static double get_v_l(const apogee_rc_t *line)
+{
+        return K_PM * line->dist * line->pm_l * cos(line->b);
+}
+
+static double get_v_b(const apogee_rc_t *line)
+{
+        return K_PM * line->dist * line->pm_b;
+}
+
+static double get_u_g(const apogee_rc_t *line,
+                      const opt_t *solution)
+{
+        return solution->s.data[0] + cos(line->l) * (line->v_helio * cos(line->b) - 
+                        get_v_b(line) * sin(line->b)) - get_v_l(line) * sin(line->l);
+}
+
+static double get_v_g(const apogee_rc_t *line,
+                      const opt_t *solution)
+{
+        return solution->s.data[BETA_QTY] * solution->r_0 + solution->s.data[1] + sin(line->l) * (line->v_helio * cos(line->b) - 
+                        get_v_b(line) * sin(line->b)) + get_v_l(line) * cos(line->l);
+}
+
+static double get_theta_uni_obj(const apogee_rc_t *line,
+                                const opt_t *solution)
+{
+        return get_v_g(line, solution) * cos_beta_uni(line, solution->r_0) +
+                get_u_g(line, solution) * sin_beta_uni(line, solution->r_0);
+}
+
+void dump_uni_rotation_objs(const apogee_rc_table_t *table,
+                            const opt_t *solution)
+{
+        FILE *oout = fopen(DF_OUT_FILE_NAME, "w");
+        CHECK_FILE_AND_RET(oout, DF_OUT_FILE_NAME);
+
+        FILE *sout = fopen(SUN_POINT_FILE_NAME, "w");
+        CHECK_FILE_AND_RET(sout, SUN_POINT_FILE_NAME);
+
+        unsigned int i;
+        for (i = 0; i < table->size; ++i) {
+                fprintf(oout, "%lf %lf\n",
+                                get_R_distance(&table->data[i], solution->r_0),
+                                get_theta_uni_obj(&table->data[i], solution));
+        }
+
+        fprintf(sout, "%lf %lf\n", solution->r_0, solution->r_0 * solution->s.data[BETA_QTY] + solution->s.data[1]);
+
+        fclose(sout);
+        fclose(oout);
+}
+
 void dump_line_xyz(const apogee_rc_t *line)
 {
+        // TODO: implement
+        return;
 }
 
 
 void dump_objects_xyz_is(const iteration_storage_t *storage)
 {
+        // TODO: implement
+        return;
 }
 
 

@@ -256,7 +256,7 @@ void get_iterate_solution_nerr(apogee_rc_table_t *table,
         unsigned int old_size = table->size;
         unsigned int i = 1;
         while (true) {
-                printf("%s: iteration #%d, size %d\n", __func__, i++, table->size);
+                printf("%s: iteration #%u, size %lu\n", __func__, i++, table->size);
                 filter_get_and_apply(table);
                 if (table->size == old_size)
                         break;
@@ -265,7 +265,9 @@ void get_iterate_solution_nerr(apogee_rc_table_t *table,
                 cfg->l = sqrt(solution->sq / (solution->size + solution->s.size + 1));
                 old_size = table->size;
         }
-        dump_united_solution(solution);
+        
+        opt_t *mk_sol = monte_carlo_entry(solution, table, cfg->mksize);
+        dump_united_solution(mk_sol);
 }
 
 void get_iterate_solution(apogee_rc_table_t *table,

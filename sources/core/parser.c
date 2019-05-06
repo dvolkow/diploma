@@ -31,6 +31,7 @@ int parser_init(void)
         __cfg->h                = DEFAULT_H;
         __cfg->filter           = DEFAULT_FILTER;
         __cfg->mode             = DEFAULT_MODE;
+        __cfg->mksize           = DEFAULT_MKSIZE;
 
         return 0;
 }
@@ -108,6 +109,13 @@ void parse_args(int argc,
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 res->ord = atoi(*argv);
+                        } else {
+                                goto usage_ret;
+                        }
+                } else if (matches("--mksize")) {
+                        if (CHECK_ARGS(argc)) {
+                                NEXT_ARG(argc, argv);
+                                res->mksize = atoi(*argv);
                         } else {
                                 goto usage_ret;
                         }

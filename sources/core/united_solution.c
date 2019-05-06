@@ -397,8 +397,9 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_with_nerr_solution(&eq, table);
-        uni_nerr_get_errors(opt, table);
+        //uni_nerr_get_errors(opt, table);
         table->r_0 = opt->r_0;
 
+        //dump_united_solution(opt);
         return opt;
 }

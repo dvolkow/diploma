@@ -86,6 +86,8 @@ double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const
 point_t *get_point(const apogee_rc_t *line); 
 
 double get_median(const double *data, const size_t size);
+double get_sd(const double *data, const size_t size);
+double get_mean(const double *data, const size_t size);
 
 double get_limit_by_eps(const unsigned int size);
 

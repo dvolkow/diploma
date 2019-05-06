@@ -33,6 +33,14 @@ typedef enum {
 } averages_mode_t;
 
 
+typedef struct {
+        double r;
+        double theta;
+        // bounds from Monte-Karlo:
+        double theta_min;
+        double theta_max;
+} rot_curve_t;
+
 #define DEFAULT_BACKGROUND_COUNT        127
 void dump_rand_test(const double *array, 
                     const dsize_t size);
@@ -45,4 +53,10 @@ void dump_core_l_solution(const opt_t *);
 void dump_core_b_solution(const opt_t *);
 void dump_core_vr_solution(const opt_t *);
 void dump_united_solution(const opt_t *);
+
+void dump_uni_rotation_curve(const rot_curve_t *, const unsigned int);
+void dump_uni_rotation_objs(const apogee_rc_table_t *,
+                            const opt_t *);
+
+double get_point_by_uni_solution(const opt_t *, const double);
 #endif // GRAPH_H

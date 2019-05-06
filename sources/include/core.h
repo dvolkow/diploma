@@ -44,6 +44,8 @@ typedef struct {
 #define DEFAULT_H               0
         double h;
         double n_err;
+#define DEFAULT_MKSIZE          10
+        unsigned int mksize;
 #define DEFAULT_FILTER          BAD_FILTER
         filter_mode_t filter;
 #define DEFAULT_MODE            SIMPLE_MODE

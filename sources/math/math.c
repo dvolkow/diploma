@@ -157,7 +157,7 @@ double get_mean(const double *data, const size_t size)
 
 double get_sd(const double *data, const size_t size)
 {
-        return gsl_stats_variance(data, 1, size);
+        return gsl_stats_sd(data, 1, size);
 }
 
 /* Error functions: */
