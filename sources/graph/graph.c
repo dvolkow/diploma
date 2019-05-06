@@ -252,8 +252,7 @@ void dump_core_vr_solution(const opt_t *solution)
         printf("R_0: %lf \n", solution->r_0);
         printf("u_sun: %lf \n", solution->s.data[0]);
         printf("v_sun: %lf \n", solution->s.data[1]);
-        printf("w_sun: %lf \n", solution->s.data[2]);
-        printf("A: %lf \n", solution->s.data[3]);
+        printf("A: %lf \n", solution->s.data[2]);
         printf("SD: %lf\n", solution->sq);
         printf("size: %d\n", solution->size);
         printf("---------------\n");
@@ -273,6 +272,8 @@ void dump_united_solution(const opt_t *solution)
                                       solution->bounds[3].l);
         printf("A: %lf pm %lf\n", solution->s.data[4],
                                       solution->bounds[4].l);
+        printf("khi_sq: %lf\n", solution->sq);
+        printf("N_free: %d\n", 3 * solution->size - solution->s.size);
         printf("---------------\n");
 }
 

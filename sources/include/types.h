@@ -40,11 +40,16 @@ typedef struct {
 #define __mem_6 offsetof(apogee_rc_t, pm_dec)
         double  ra;
         double  dec;
+        double  v_err;
+        double  pm_ra_err;
+        double  pm_dec_err;
         int     nvis;
         int     pm_match;
 
         double  pm_l;
         double  pm_b;
+        double  pm_l_err;
+        double  pm_b_err;
         // solution data:
         
         double  eps;
@@ -65,6 +70,7 @@ typedef struct {
         apogee_rc_t *data;
         double r_0; 
         double w_sun; 
+        double n_err; // natural errors ^ 2 
         size_t size;
 } apogee_rc_table_t;
 

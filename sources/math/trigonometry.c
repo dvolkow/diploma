@@ -75,3 +75,14 @@ double mu_b_from_pa_dec_pm(const apogee_rc_t *line)
 
         return line->pm_dec * cos_phi - line->pm_ra * sin_phi;
 }
+
+/*
+ * Error estimated translation
+ */
+double errors_ecliptic_to_gal(const apogee_rc_t *line)
+{
+        const double ra_imp = pow_double(cos(deg_to_rad(DELTA_N)) * cos(line->ra - deg_to_rad(ALPHA_N)) / cos(line->b), 2);
+        const double dec_imp = pow_double((sin(deg_to_rad(DELTA_N)) * sin(line->dec) / (cos(line->b) * cos(line->b)) - tan(line->b)) / (cos(line->dec) * cos(line->dec)), 2);
+
+        return sqrt(ra_imp * pow_double(line->pm_ra_err, 2) + dec_imp * pow_double(line->pm_dec_err, 2));
+}

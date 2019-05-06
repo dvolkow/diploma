@@ -31,16 +31,19 @@ apogee_rc_table_t *read_table(const char *input_file_name)
 
         unsigned int i;
         for (i = 0; i < size; ++i) {
-                fscanf(inp_f, "%lf %lf %lf %lf %d %lf %lf %lf %lf %d",
+                fscanf(inp_f, "%lf %lf %lf %lf %d %lf %lf %lf %lf %lf %lf %lf %d",
                                 &(apogee_rc[i].ra),
                                 &(apogee_rc[i].dec),
                                 &(apogee_rc[i].l),
                                 &(apogee_rc[i].b),
                                 &(apogee_rc[i].nvis),
                                 &(apogee_rc[i].v_helio),
+                                &(apogee_rc[i].v_err),
                                 &(apogee_rc[i].dist),
                                 &(apogee_rc[i].pm_ra),
                                 &(apogee_rc[i].pm_dec),
+                                &(apogee_rc[i].pm_ra_err),
+                                &(apogee_rc[i].pm_dec_err),
                                 &(apogee_rc[i].pm_match)
                                 );
                 apogee_rc[i].l = deg_to_rad(apogee_rc[i].l);
@@ -52,6 +55,8 @@ apogee_rc_table_t *read_table(const char *input_file_name)
                 apogee_rc[i].id = i;
                 apogee_rc[i].pm_l = K_PM * mu_l_from_pa_dec_pm(apogee_rc + i);
                 apogee_rc[i].pm_b = K_PM * mu_b_from_pa_dec_pm(apogee_rc + i);
+                apogee_rc[i].pm_l_err = errors_ecliptic_to_gal(apogee_rc + i);
+                apogee_rc[i].pm_b_err = errors_ecliptic_to_gal(apogee_rc + i);
         }
 
 #ifdef DEBUG

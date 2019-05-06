@@ -118,6 +118,14 @@ void parse_args(int argc,
                         } else {
                                 goto usage_ret;
                         }
+                } else if (matches("-e") || matches("--err")) {
+                        if (CHECK_ARGS(argc)) {
+                                NEXT_ARG(argc, argv);
+                                sscanf(*argv, "%lf", &readbuff);
+                                res->n_err = readbuff;
+                        } else {
+                                goto usage_ret;
+                        }
                 } else if (matches("-m") || matches("--mode")) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);

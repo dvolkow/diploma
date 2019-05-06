@@ -152,6 +152,8 @@ static opt_t *__get_solution_iterate(apogee_rc_table_t *table,
 
 void get_iterate_solution(apogee_rc_table_t *table,
                           opt_t *solution);
+void get_iterate_solution_nerr(apogee_rc_table_t *table,
+                               opt_t *solution);
 
 void get_solution()
 {
@@ -235,9 +237,36 @@ void get_solution()
                 dump_all(solution, &p, st);
         }
 
-        get_iterate_solution(table, solution);
+        //get_iterate_solution(table, solution);
+        get_iterate_solution_nerr(table, solution);
 }
 
+void get_iterate_solution_nerr(apogee_rc_table_t *table,
+                               opt_t *solution)
+{
+        parser_t *cfg = get_parser();
+        cfg->filter = MATCH_FILTER;
+        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+
+        solution = united_with_nature_errs_entry(table);
+
+        cfg->filter = ERR_FILTER;
+        cfg->h = get_limit_by_eps(table->size);
+        cfg->l = sqrt(solution->sq / (solution->size + solution->s.size + 1));
+        unsigned int old_size = table->size;
+        unsigned int i = 1;
+        while (true) {
+                printf("%s: iteration #%d, size %d\n", __func__, i++, table->size);
+                filter_get_and_apply(table);
+                if (table->size == old_size)
+                        break;
+                solution = united_with_nature_errs_entry(table);
+                cfg->h = get_limit_by_eps(table->size);
+                cfg->l = sqrt(solution->sq / (solution->size + solution->s.size + 1));
+                old_size = table->size;
+        }
+        dump_united_solution(solution);
+}
 
 void get_iterate_solution(apogee_rc_table_t *table,
                           opt_t *solution)
@@ -297,4 +326,11 @@ void get_iterate_solution(apogee_rc_table_t *table,
         uni_g_sd_init(sd);
         solution = united_entry(table);
         dump_united_solution(solution);
+
+        /**
+        cfg->filter = ERR_FILTER;
+        cfg->h = get_limit_by_eps(table->size);
+        cfg->l = sqrt(solution->sq / (solution->size + solution->s.size + 1));
+        unsigned int old_size = table->size;
+        */
 }
