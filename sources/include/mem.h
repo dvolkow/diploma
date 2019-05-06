@@ -1,6 +1,7 @@
 #ifndef MEM_H
 #define MEM_H   1
 #include <stdlib.h>
+#include <string.h>
 
 #define MAX_MEMORY_USAGE        150000000
 

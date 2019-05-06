@@ -74,9 +74,9 @@ static inline double __get_a(const iteration_storage_t *st_part,
         return sin(st_part->data.l) * cos(st_part->data.b) * solution->r_0 / st_part->r;
 }
 
-average_res_t *get_average_theta(const iteration_storage_t *st_part, 
+average_res_t *get_average_theta(const iteration_storage_t *st_part,
                                  const opt_t *solution,
-                                 const size_t size) 
+                                 const size_t size)
 {
         assert(size != 0);
 

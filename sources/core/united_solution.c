@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "core.h"
+#include "mem.h"
 #include "core_l.h"
 #include "core_b.h"
 #include "unicore.h"
@@ -13,7 +14,7 @@ static double g_sq[TOTAL_QTY];
 
 
 static double united_l_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
-{        
+{
         switch (type) {
                 case FIRST:
                 case SECOND:

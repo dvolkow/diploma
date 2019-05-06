@@ -9,6 +9,7 @@
 #include "opt.h"
 #include "generators.h"
 #include "graph.h"
+#include "unicore.h"
 
 static gsl_rng *g_gauss_rg_p;
 
@@ -117,7 +118,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
         tmp_table->r_0 = solution->r_0;
 
         opt_t main_res = {
-                .s = dv_alloc(sizeof(linear_eq_solve_t)),
+                .s = { 0 },
                 .sq = solution->sq,
                 .size = data->size
         };

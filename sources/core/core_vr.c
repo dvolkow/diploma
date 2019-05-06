@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
+#include <string.h>
 #include "math.h"
 #include "types.h"
 #include "core.h"
@@ -73,7 +75,7 @@ static double core_vr_get_mod_v(const opt_t *solution,
         }
 
         for (i = BETA_QTY_FIX; i < solution->s.size; ++i) {
-                mod_v += core_vr_get_alpha_n(line, i - BETA_QTY_FIX + 1, r_0) * 
+                mod_v += core_vr_get_alpha_n(line, i - BETA_QTY_FIX + 1, r_0) *
                                 solution->s.data[i];
         }
 
