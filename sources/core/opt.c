@@ -1,5 +1,6 @@
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 #include "asserts.h"
 
 #include "types.h"
@@ -184,7 +185,7 @@ opt_t *opt_linear(linear_equation_t *eq,
         double sq = params->residuals_summary(&s, table);
 
         opt_t opt_params = {
-                .s = dv_alloc(sizeof(linear_eq_solve_t)),
+                .s = { 0 },
                 .r_0 = table->r_0,
                 .sq = sq,
                 .size = table->size

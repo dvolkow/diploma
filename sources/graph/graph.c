@@ -485,7 +485,7 @@ void dump_objects_xyz(const apogee_rc_table_t *table, const dsize_t size)
         FILE *fout = fopen("xyz_obj.txt", "w");
         CHECK_FILE_AND_RET(fout, "xyz_obj.txt");
 
-        assert(table-size >= size);
+        assert(table->size >= size);
         dsize_t i;
         for (i = 0; i < size; ++i) {
                 point_t *p = get_point(&table->data[i]);
@@ -510,7 +510,6 @@ void dump_table(const apogee_rc_table_t *table)
 
         dsize_t i;
         for (i = 0; i < table->size; ++i) {
-
                 fprintf(fout, "%0.7lf %0.7lf %0.7lf %0.7lf %0.7lf %0.7lf\n",
                                 rad_to_deg(table->data[i].l),
                                 rad_to_deg(table->data[i].b),

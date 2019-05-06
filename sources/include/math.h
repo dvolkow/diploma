@@ -1,8 +1,9 @@
-#ifndef MATH_H  
+#ifndef MATH_H
 #define MATH_H  1
 
 #include "types.h"
 #include <stdlib.h>
+#include <math.h>
 
 #define M_PI            3.14159265358979323846
 #define YR_TO_SEC       3.154e7
@@ -50,7 +51,7 @@ typedef struct {
 
 
 typedef struct {
-        double  *data;        
+        double  *data;
         int     size;
 } linear_eq_solve_t;
 
@@ -83,7 +84,7 @@ void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res);
 double get_R_distance(const apogee_rc_t *line, double r_0);
 double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const int nfree,
                                 const double sd);
-point_t *get_point(const apogee_rc_t *line); 
+point_t *get_point(const apogee_rc_t *line);
 
 double get_median(const double *data, const size_t size);
 double get_sd(const double *data, const size_t size);
