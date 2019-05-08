@@ -59,4 +59,6 @@ void dump_uni_rotation_objs(const apogee_rc_table_t *,
                             const opt_t *);
 
 double get_point_by_uni_solution(const opt_t *, const double);
+void dump_table_parameters(const apogee_rc_table_t *,
+                           const opt_t *);
 #endif // GRAPH_H

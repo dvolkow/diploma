@@ -53,6 +53,7 @@ typedef struct {
         // solution data:
         
         double  eps;
+        double  vsd[3];
 #define __mem_7 offsetof(apogee_rc_t, eps)
         dsize_t id;
 } apogee_rc_t;
@@ -71,6 +72,7 @@ typedef struct {
         double r_0; 
         double w_sun; 
         double n_err; // natural errors ^ 2 
+        double sigma[3];
         size_t size;
 } apogee_rc_table_t;
 

@@ -12,7 +12,7 @@ typedef enum {
 
 typedef struct {
         double (*residuals_summary)(const linear_eq_solve_t *, 
-                                    const apogee_rc_table_t *);
+                                    apogee_rc_table_t *);
         void (*fill_mnk_matrix)(linear_equation_t *,
                                 apogee_rc_table_t *);
 } opt_params_t;
@@ -29,7 +29,7 @@ double upper_bound_search(linear_equation_t *eq,
                                 double r_0);
 void get_errors(opt_t *, apogee_rc_table_t *table);
 double opt_residuals_summary(const linear_eq_solve_t *, 
-                             const apogee_rc_table_t *);
+                             apogee_rc_table_t *);
 
 double get_beta_n(const apogee_rc_t *line, beta_ord_t type);
 double get_mod_vr(const opt_t *solution, 

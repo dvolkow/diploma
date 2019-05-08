@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "math.h"
+#include "mem.h"
 #include "types.h"
 #include "core.h"
 #include "opt.h"
@@ -23,7 +24,7 @@ static double __core_vr_get_beta_n(const apogee_rc_t *line,
                         return -sin(line->l) * cos(line->b);
                 case THIRD:
                         // fixed parameter:
-                        return 0; //w_0 * (-sin(line->b));
+                        return w_0 * (-sin(line->b));
                 default:
 #ifdef DEBUG
                         printf("%s: type error!\n", __func__);
@@ -102,7 +103,7 @@ static double _residuals_line(const linear_eq_solve_t *v,
 
 
 static double residuals_summary(const linear_eq_solve_t *solution, 
-                                const apogee_rc_table_t *table)
+                                apogee_rc_table_t *table)
 {
         double sum = 0;
         unsigned int i;
@@ -143,7 +144,7 @@ opt_t *core_vr_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_vr_get_solution(&eq, table);
-        opt->sq = sqrt(opt->sq / (table->size + eq.size - 1));
+        opt->sq = sqrt(opt->sq / (table->size - eq.size - 1));
         table->r_0 = opt->r_0;
 
         dump_core_vr_solution(opt);

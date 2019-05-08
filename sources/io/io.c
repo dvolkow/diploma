@@ -54,6 +54,7 @@ apogee_rc_table_t *read_table(const char *input_file_name)
 //                apogee_rc[i].pm_dec = YR_TO_SEC * mas_to_rad(apogee_rc[i].pm_dec);
                 apogee_rc[i].id = i;
                 apogee_rc[i].pm_l = K_PM * mu_l_from_pa_dec_pm(apogee_rc + i);
+//                apogee_rc[i].pm_l *= cos(apogee_rc[i].b);
                 apogee_rc[i].pm_b = K_PM * mu_b_from_pa_dec_pm(apogee_rc + i);
                 apogee_rc[i].pm_l_err = errors_ecliptic_to_gal(apogee_rc + i);
                 apogee_rc[i].pm_b_err = errors_ecliptic_to_gal(apogee_rc + i);

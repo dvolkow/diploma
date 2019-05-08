@@ -93,6 +93,25 @@ static void uni_fill_mnk_matrix(linear_equation_t *eq,
         }
 }
 
+void precalc_errors(apogee_rc_table_t *table,
+                           const double limit)
+{
+        unsigned int i, j;
+        double l_sq[TOTAL_QTY];
+
+        for (j = 0; j < TOTAL_QTY; ++j) {
+                l_sq[j] = sqrt(g_sq[j]);
+        }
+
+        for (i = 0; i < table->size; ++i) {
+                for (j = 0; j < TOTAL_QTY; ++j) {
+                        if (table->data[i].vsd[j] / l_sq[j] > limit) {
+                                table->data[i].pm_match = 0;
+                        }
+                }
+        }
+}
+
 static double sigma_for_k(const unsigned int p,
                           const apogee_rc_t *line,
                           const double n_err)
@@ -166,6 +185,24 @@ static void uni_fill_mnk_matrix_nerr(linear_equation_t *eq,
         }
 }
 
+static double get_v_generic_from_uni(const linear_eq_solve_t *v,
+                                     const apogee_rc_t *line,
+                                     const double r_0,
+                                     const int type)
+{
+        double mod_v = 0;
+        unsigned int i;
+        for (i = 0; i < BETA_QTY + 1; ++i) {
+                mod_v += v->data[i] * filler[type].beta_n(line, i);
+        }
+
+        for (i = BETA_QTY + 1; i < v->size; ++i) {
+                mod_v += v->data[i] * filler[type].alpha_n(line, i - BETA_QTY, r_0);
+        }
+
+        return mod_v;
+}
+
 
 static double _residuals_line(const linear_eq_solve_t *v,
                              apogee_rc_t *line,
@@ -173,33 +210,29 @@ static double _residuals_line(const linear_eq_solve_t *v,
 {
         unsigned int i, k;
         double res = 0;
-        for (k = 0; k < TOTAL_QTY; ++k) {
-                double mod_v = 0;
-                for (i = 0; i < BETA_QTY + 1; ++i) {
-                        mod_v += v->data[i] * filler[k].beta_n(line, i);
-                }
 
-                for (i = BETA_QTY + 1; i < v->size; ++i) {
-                        mod_v += v->data[i] * filler[k].alpha_n(line, i - BETA_QTY, r_0);
-                }
+        for (k = 0; k < TOTAL_QTY; ++k) {
+                double mod_v = get_v_generic_from_uni(v, line, r_0, k);
 
                 if (k == VR_PART) {
                         res += pow_double(line->v_helio - mod_v, 2) / g_sq[k];
+                        line->vsd[k] = fabs(line->v_helio - mod_v);
                         continue;
                 }
 
                 if (k == L_PART) {
-                        res += pow_double(line->pm_l - mod_v, 2) / g_sq[k];
+                        res += pow_double(line->pm_l - K_PM * mod_v, 2) / g_sq[k];
+                        line->vsd[k] = fabs(line->pm_l - K_PM * mod_v);
                         continue;
                 }
 
                 if (k == B_PART) {
-                        res += pow_double(line->pm_b - mod_v, 2) / g_sq[k];
+                        res += pow_double(line->pm_b - K_PM * mod_v, 2) / g_sq[k];
+                        line->vsd[k] = fabs(line->pm_b - K_PM * mod_v);
                         continue;
                 }
         }
 
-        //line->eps = fabs(line->v_helio - mod_v);
         return res;
 }
 
@@ -237,14 +270,14 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
                 }
 
                 if (k == L_PART) {
-                        res += pow_double(line->pm_l - mod_v, 2) / s;
-                        update_err(fabs(line->pm_l - mod_v) / sqrt_s, &line->eps);
+                        res += pow_double(line->pm_l - K_PM * mod_v, 2) / s;
+                        update_err(fabs(line->pm_l - K_PM * mod_v) / sqrt_s, &line->eps);
                         continue;
                 }
 
                 if (k == B_PART) {
-                        res += pow_double(line->pm_b - mod_v, 2) / s;
-                        update_err(fabs(line->pm_b - mod_v) / sqrt_s, &line->eps);
+                        res += pow_double(line->pm_b - K_PM * mod_v, 2) / s;
+                        update_err(fabs(line->pm_b - K_PM * mod_v) / sqrt_s, &line->eps);
                         continue;
                 }
         }
@@ -254,20 +287,23 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
 
 
 static double residuals_summary(const linear_eq_solve_t *solution, 
-                                const apogee_rc_table_t *table)
+                                apogee_rc_table_t *table)
 {
         double sum = 0;
-        unsigned int i;
+        unsigned int i, j;
         for (i = 0; i < table->size; ++i) {
                 sum += _residuals_line(solution, &table->data[i],
                                         table->r_0);
+
+                for (j = 0; j < TOTAL_QTY; ++j)
+                        table->sigma[j] += table->data[i].vsd[j];
         }
         assert(sum > 0);
         return sum;
 }
 
 static double residuals_summary_nerr(const linear_eq_solve_t *solution, 
-                                     const apogee_rc_table_t *table)
+                                     apogee_rc_table_t *table)
 {
         double sum = 0;
         unsigned int i;
@@ -398,7 +434,7 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_with_nerr_solution(&eq, table);
-        //uni_nerr_get_errors(opt, table);
+        uni_nerr_get_errors(opt, table);
         table->r_0 = opt->r_0;
 
         //dump_united_solution(opt);

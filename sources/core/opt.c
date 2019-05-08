@@ -53,7 +53,7 @@ double get_mod_vr(const opt_t *solution,
 }
 
 static double residuals_summary(const linear_eq_solve_t *v, 
-                                const apogee_rc_table_t *table)
+                                apogee_rc_table_t *table)
 {
         double sum = 0;
         unsigned int i;
@@ -65,7 +65,7 @@ static double residuals_summary(const linear_eq_solve_t *v,
 }
 
 double opt_residuals_summary(const linear_eq_solve_t *v, 
-                             const apogee_rc_table_t *table)
+                             apogee_rc_table_t *table)
 {
         return residuals_summary(v, table);
 }

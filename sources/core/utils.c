@@ -119,12 +119,22 @@ bool __limited_by_eps(const void *line,
                       const double l, 
                       const double h)
 {
-        return get_param(7, line) / l < h;
+        const apogee_rc_t *la = line;
+        return la->eps / l < h;
 }
+
+bool __limited_by_sigma_uni(const void *line, 
+                            const double l, 
+                            const double h)
+{
+        const apogee_rc_t *la = line;
+        return true;
+}
+
 
 bool __matching(const void *line, const double l, const double h)
 {
-        apogee_rc_t *la = line;
+        const apogee_rc_t *la = line;
         return la->pm_match > 0;
 }
 
@@ -156,6 +166,9 @@ filter_t *filter_factory(const parser_t *cfg)
                         break;
                 case MATCH_FILTER:
                         filter->f = __matching;
+                        break;
+                case UNITED_FILTER:
+                        filter->f = __limited_by_sigma_uni;
                         break;
                 default:
                         filter->f = NULL;
@@ -202,3 +215,5 @@ apogee_rc_table_t *get_limited_generic(const void *table,
                         return NULL;
         }
 }
+
+

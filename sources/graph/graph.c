@@ -10,6 +10,8 @@
 #include "opt.h"
 #include "math.h"
 #include "utils.h"
+#include "unicore.h"
+#include "mem.h"
 
 
 #define OUTPUT_RESULT_FILENAME  \
@@ -300,8 +302,17 @@ void dump_united_solution(const opt_t *solution)
         printf("A: %lf pm %lf\n", solution->s.data[4],
                                       solution->bounds[4].l);
         printf("khi_sq: %lf\n", solution->sq);
-        printf("N_free: %d\n", 3 * solution->size - solution->s.size);
+        printf("N_free: %d\n", 3 * solution->size - solution->s.size - 1);
         printf("---------------\n");
+}
+
+void dump_table_parameters(const apogee_rc_table_t *table,
+                           const opt_t *solution)
+{
+        const unsigned int n_free = table->size - (solution->s.size + 1);
+        printf("SD[VR_PART] = %lf\n", sqrt(table->sigma[VR_PART] / n_free));
+        printf("SD[L_PART] = %lf\n", sqrt(table->sigma[L_PART] / n_free));
+        printf("SD[B_PART] = %lf\n", sqrt(table->sigma[B_PART] / n_free));
 }
 
 void dump_core_b_solution(const opt_t *solution)

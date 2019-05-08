@@ -7,6 +7,7 @@
 #include "core.h"
 #include "core_b.h"
 #include "graph.h"
+#include "trigonometry.h"
 
 static matrix_line_t g_matrix_line;
 
@@ -60,7 +61,7 @@ void core_b_fill_mnk_matrix(linear_equation_t *eq,
                 }
 
                 for (i = BETA_QTY; i < eq->size; ++i) {
-                        line->_[i] = core_b_get_alpha_n(&table->data[j], table->r_0, i - BETA_QTY + 1);
+                        line->_[i] = core_b_get_alpha_n(&table->data[j], i - BETA_QTY + 1, table->r_0);
                 }
 
                 for (i = 0; i < len; ++i) {
@@ -85,7 +86,7 @@ static double core_b_get_mod_v(const opt_t *solution,
         }
 
         for (i = BETA_QTY; i < solution->s.size; ++i) {
-                mod_v += core_b_get_alpha_n(line, r_0, i - BETA_QTY + 1) * 
+                mod_v += core_b_get_alpha_n(line, i - BETA_QTY + 1, r_0) * 
                                 solution->s.data[i];
         }
 
@@ -98,8 +99,8 @@ static double core_b_residuals_line(const opt_t *solution,
 {
         const double mod_v = core_b_get_mod_v(solution, line);
         /* pm_l and pm_b already multiplied in k */
-        line->eps = fabs(line->pm_b - mod_v);
-        return pow_double(line->pm_b - mod_v, 2);
+        line->eps = fabs(line->pm_b - K_PM * mod_v);
+        return pow_double(line->pm_b - K_PM * mod_v, 2);
 }
 
 
@@ -156,7 +157,7 @@ opt_t *core_b_get_linear_solution(linear_equation_t *eq,
         opt_params.sq = residuals_summary(&opt_params, table);
         core_b_get_errors(&opt_params, table);
         /* To dump get sd: */
-        opt_params.sq = sqrt(opt_params.sq / (table->size + s.size - 1));
+        opt_params.sq = sqrt(opt_params.sq / (table->size - s.size - 1));
 
         *ret = opt_params;
         return ret;
