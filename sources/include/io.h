@@ -19,6 +19,7 @@ apogee_rc_table_t *read_table(const char *input_file_name);
 void output_result(void);
 unsigned int countlines(const char *filename);
 
+opt_t *read_solution(const char *input_file_name);
 
 #endif // IO_H
 

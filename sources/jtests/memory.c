@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "mem.h"
 #include "math.h"
 #include "asserts.h"
@@ -10,7 +11,7 @@ int jmemory()
       linear_eq_solve_t *jes = dv_alloc(sizeof(linear_eq_solve_t));
       linear_equation_t *jle2 = dv_alloc(sizeof(linear_equation_t));
       
-      assert(jle != jes);
+      assert((void *)jle != (void *)jes);
       assert(jes != NULL);
       assert(jle != NULL);
       printf("%s: linear_equation_t has %lu\n", 
@@ -18,10 +19,10 @@ int jmemory()
       printf("%s: linear_eq_solve_t has %lu\n", 
                       __func__, sizeof(*jes));
       printf("%s: jle has %p memaddr\n",
-                      __func__, jle);
+                      __func__, (void *)jle);
       printf("%s: jes has %p memaddr\n",
-                      __func__, jes);
+                      __func__, (void *)jes);
       printf("%s: jle2 has %p memaddr\n",
-                      __func__, jle2);
+                      __func__, (void *)jle2);
       return 0;
 }

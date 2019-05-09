@@ -4,6 +4,9 @@
 #include "mem.h"
 #include <stdio.h>
 #include <gsl/gsl_linalg.h>
+#include <gsl/gsl_statistics.h>
+#include <gsl/gsl_sf_erf.h>
+
 #ifdef DEBUG
 #include "debug.h"
 #endif
@@ -15,13 +18,7 @@
 #define to_gsl_vector(a)        \
         gsl_vector_view_array((a)->right, (a)->size)
 
-static double __factorial_storage[PRECACHED_FACTORIAL_LEN] = {
-        1, 1, 2, 6, 24, 
-        120, 720, 5040,
-        40320, 362880
-};
-
-
+static double __factorial_storage[PRECACHED_FACTORIAL_LEN];
 
 void *make_linear_struct(double *data, int size, 
                                 linear_type_t type)
@@ -52,6 +49,10 @@ static void gsl_vector_copy_to(linear_eq_solve_t *x, const gsl_vector *src)
         }
 }
 
+
+/*
+ * Ax = B linear systems solver
+ */
 void solve(linear_equation_t *eq, linear_eq_solve_t *x)
 {
         gsl_vector *gx = gsl_vector_alloc(eq->size);
@@ -69,6 +70,7 @@ void solve(linear_equation_t *eq, linear_eq_solve_t *x)
         gsl_vector_free(gx);
 }
 
+
 static void copy_diagonal(linear_equation_t *dst, 
                                 const gsl_matrix *src)
 {
@@ -79,6 +81,27 @@ static void copy_diagonal(linear_equation_t *dst,
         }
 }
 
+void add_matrix_to_matrix(const linear_equation_t *src,
+                          linear_equation_t *dst)
+{
+        unsigned int i, j;
+        assert(src->size == dst->size);
+        const unsigned int len = dst->size;
+
+        for (i = 0; i < len; ++i) {
+                for (j = 0; j < len; ++j) {
+                        dst->data[i * len + j] +=
+                                src->data[i * len + j];
+                }
+
+                dst->right[i] += src->right[i];
+        }
+}
+
+/*
+ * Get inverse matrix for @eq->data, and get only
+ * diagonal elems. 
+ */
 void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res)
 {
         gsl_matrix_view m = to_gsl_matrix(eq);
@@ -94,8 +117,13 @@ void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res)
         gsl_permutation_free(p);
 }
 
-int dv_factorial(const int n)
+
+/*
+ * Use precalculated values
+ */
+double dv_factorial(const unsigned int n)
 {
+        assert(n < PRECACHED_FACTORIAL_LEN);
         return __factorial_storage[n];
 }
 
@@ -109,8 +137,55 @@ double dot_prod(double *a, double *b, int size)
         return res; 
 }
 
-double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const int nfree,
+double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const unsigned int nfree,
                                 const double sd)
 {
         return sqrt(p * sd);
 }
+
+
+/* Statistics: */
+double get_median(const double *data, const unsigned int size)
+{
+        return gsl_stats_median_from_sorted_data(data, 1, size);
+}
+
+double get_mean(const double *data, const unsigned int size)
+{
+        return gsl_stats_mean(data, 1, size); 
+}
+
+double get_sd(const double *data, const unsigned int size)
+{
+        return gsl_stats_sd(data, 1, size);
+}
+
+/* Error functions: */
+static double __psi(const double kappa)
+{
+        return 1 - 2 * gsl_sf_erf_Q(kappa);
+}
+
+double get_limit_by_eps(const unsigned int size)
+{
+        const double left = 1 -  1. / size; 
+        const double step = 1e-4;
+        double kappa = 2;
+        while (__psi(kappa) < left) {
+                kappa += step;
+        }
+        return kappa - step;
+}
+
+int math_init(void) 
+{
+        __factorial_storage[0] = 1;
+        int i;
+        for (i = 1; i < PRECACHED_FACTORIAL_LEN; ++i) {
+                __factorial_storage[i] = __factorial_storage[i - 1] * i;
+        }
+
+        return 0;
+}
+
+void math_exit() {}

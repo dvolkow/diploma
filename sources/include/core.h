@@ -1,15 +1,14 @@
 #ifndef CORE_H  
 #define CORE_H  1
 
-#include "types.h"
+#include <stdbool.h>
+#include "filter.h"
 
-#define MAX_ORDER_SOLUTION      10
-
-#define LOWER_BOUND_R0          3.0
-#define UPPER_BOUND_R0          17.0
+#define LOWER_BOUND_R0          6.0
+#define UPPER_BOUND_R0          12.0
 
 #define SEARCH_PRECISION        0.001
-#define STEP_DIVISOR            2
+#define STEP_DIVISOR            4
 
 typedef enum {
         FIRST = 0,
@@ -23,17 +22,52 @@ typedef enum {
 
 typedef enum {
         VR_MODE,
-        PM_RA_MODE,
-        PM_DEC_MODE,
+        L_MODE,
+        B_MODE,
 } eq_mode_t;
 
 typedef enum {
-        NAME_PROGRAM_ARG = 0,
-        ORD_ARG,
-        INPUT_FILE_ARG,
+        SIMPLE_MODE
+      , ITERATE_MODE
+      , GENERATION_MODE
+} g_mode_t;
 
-        // MUST BE LAST:
-        CMD_ARGS_QTY
-} cmd_line_arg_t;
+typedef struct {
+#define DEFAULT_ORD             1
+        unsigned int ord;
+#define DEFAULT_INF_NAME        "apogee_rc.txt"
+        char *input_file_name;
+#define DEFAULT_DUMP_FILE_NAME  "dump_table.txt"
+        char *dump_file_name;
+#define DEFAULT_L               0
+        double l;
+#define DEFAULT_H               0
+        double h;
+        double n_err;
+#define DEFAULT_MKSIZE          10
+        unsigned int mksize;
+#define DEFAULT_FILTER          BAD_FILTER
+        filter_mode_t filter;
+#define DEFAULT_MODE            SIMPLE_MODE
+        g_mode_t mode;
+} parser_t;
+#define GET_MODE(p_parser)      \
+        ((p_parser)->mode)
+
+void parse_args(int, char **);
+bool parser_t_is_valid(const parser_t *cfg);
+parser_t *get_parser(void);
+
+void get_solution(void);
+int parser_init(void);
+void parser_exit(void);
+
+
+#define PREC_COMPARE_ITER                       1e-5
+#define ITER_CONDITION(w_1, w_2, r_1, r_2)              \
+        (fabs((w_1) - (w_2)) > PREC_COMPARE_ITER ||     \
+         fabs((r_1) - (r_2)) > PREC_COMPARE_ITER)
+
+
 
 #endif // CORE_H

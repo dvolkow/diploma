@@ -3,18 +3,25 @@
 #include <string.h>
 #include <assert.h>
 
+
 #include "core.h"
-#include "jtest.h"
+#include "core_b.h"
+#include "core_l.h"
+#include "core_vr.h"
 #include "types.h"
 #include "io.h"
 #include "mem.h"
 #include "math.h"
-#ifdef DEBUG
 #include "debug.h"
-#endif // DEBUG
 #include "opt.h"
+#include "graph.h"
+#include "utils.h"
+#include "unicore.h"
+#include "generators.h"
 
-double get_beta_n(const apogee_rc_t *line, beta_ord_t type)
+static matrix_line_t g_matrix_line;
+
+double core_vr_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 {
         switch (type) {
                 case FIRST:
@@ -24,16 +31,17 @@ double get_beta_n(const apogee_rc_t *line, beta_ord_t type)
                 case THIRD:
                         return -sin(line->b);
                 default:
+#ifdef DEBUG
                         printf("%s: type error!\n", __func__);
+#endif
+                        return 0;
         }
-
-        return 0;
 }
 
 static double s_alpha_n(const double R, 
                         const double sinl, 
                         const double cosb, 
-                        const double r_0, const int n)
+                        const double r_0, const unsigned int n)
 {
         if (n == 1)
                 return -2 * (R - r_0) * r_0 * sinl * cosb / R;
@@ -41,33 +49,35 @@ static double s_alpha_n(const double R,
                 return r_0 * pow_double(R - r_0, n) * sinl * cosb / (R * dv_factorial(n));
 }
 
-double get_alpha_n(const apogee_rc_t *line, 
-                   const double r_0,
-                   const int n)
+double core_vr_get_alpha_n(const apogee_rc_t *line,
+                           const unsigned int n,
+                           const double r_0)
 {
         assert(n > 0);
-        
+
         double R = get_R_distance(line, r_0);
         return s_alpha_n(R, sin(line->l), cos(line->b), r_0, n);
 }
 
 void fill_mnk_matrix_vr(linear_equation_t *eq,
-                         apogee_rc_table_t *table)
+                        apogee_rc_table_t *table)
 {
         unsigned int i, j, k;
         unsigned int len = eq->size;
-        matrix_line_t *line = (matrix_line_t *)dv_alloc(sizeof(double) * len);
+        matrix_line_t *line = &g_matrix_line;
+
+        assert(len <= BETA_QTY + MAX_ORDER_SOLUTION);
 
         memset(eq->data, 0, sizeof(double) * eq->size * eq->size);
         memset(eq->right, 0, sizeof(double) * eq->size);
 
         for (j = 0; j < table->size; ++j) {
                 for (i = 0; i < BETA_QTY; ++i) {
-                        line->_[i] = get_beta_n(&table->data[j], i);
+                        line->_[i] = core_vr_get_beta_n(&table->data[j], i);
                 }
 
                 for (i = BETA_QTY; i < eq->size; ++i) {
-                        line->_[i] = get_alpha_n(&table->data[j], table->r_0, i - BETA_QTY + 1);
+                        line->_[i] = core_vr_get_alpha_n(&table->data[j], i - BETA_QTY + 1, table->r_0);
                 }
 
                 for (i = 0; i < len; ++i) {
@@ -96,68 +106,241 @@ void fill_mnk_matrix(linear_equation_t *eq,
         }
 }
 
-
-
-void run_all_jtests()
+void filter_get_and_apply(apogee_rc_table_t *table)
 {
-        UTEST_LINE_PRINT();
-        printf("%s: start unit tests...\n", __func__);
+        /* TODO: Filter assigner: */
+        parser_t *cfg = get_parser();
 
-        unsigned int i;
-        FORALL_JTEST_TABLE(jtest_table, i) {
-                TRY_TEST(&jtest_table[i]);
+        switch (cfg->filter) {
+                case L_FILTER:
+                case B_FILTER:
+                case ERR_FILTER:
+                case MATCH_FILTER:
+                        table = get_limited_generic(table, 
+                                                    filter_factory(cfg), 
+                                                    L_FILTER);
+                        break;
+                default:
+                        return;
         }
-        printf("%s: unit test completed!\n", __func__);
-        UTEST_LINE_PRINT();
 }
 
-void get_solution(int argc, char *argv[])
+static opt_t *__get_solution_iterate(apogee_rc_table_t *table,
+                                        linear_equation_t *eq)
 {
-        int size = atoi(argv[ORD_ARG]);
-        double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) * 
+        assert(table->size != 0);
+
+        filter_get_and_apply(table);
+
+        opt_params_t params = {
+                .residuals_summary = opt_residuals_summary,
+                .fill_mnk_matrix = fill_mnk_matrix_vr,
+        };
+
+        opt_t *solution = opt_linear(eq, table, &params);
+
+        prec_t p = {
+                .l = lower_bound_search(eq, table, solution->r_0),
+                .h = upper_bound_search(eq, table, solution->r_0)
+        };
+
+        get_errors(solution, table);
+        iteration_storage_t *st = iteration_storage_create(table, solution);
+        dump_all(solution, &p, st);
+        return solution;
+}
+
+void get_iterate_solution(apogee_rc_table_t *table,
+                          opt_t *solution);
+void get_iterate_solution_nerr(apogee_rc_table_t *table,
+                               opt_t *solution);
+
+void get_solution()
+{
+        parser_t *cfg = get_parser();
+        unsigned int size = cfg->ord;
+        double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) *
                                                    (size + BETA_QTY));
-        apogee_rc_table_t *table = read_table(argv[INPUT_FILE_ARG]);
+        apogee_rc_table_t *table = read_table(cfg->input_file_name);
+
 
         if (table == NULL) {
                 printf("%s: fail to open %s!\n",
-                                __func__, argv[INPUT_FILE_ARG]);
+                                __func__, cfg->input_file_name);
                 return;
         }
         assert(table->size != 0);
 
+        filter_get_and_apply(table);
+
+        dump_objects_xyz(table, table->size);
+        dump_table(table);
+
         linear_equation_t eq = {
                 .data = matrix,
-                .right = dv_alloc(sizeof(double) * size + BETA_QTY),
+                .right = dv_alloc(sizeof(double) * (size + BETA_QTY)),
                 .size = size + BETA_QTY,
                 .ord = size
         };
+
+        opt_params_t params = {
+                .residuals_summary = opt_residuals_summary,
+                .fill_mnk_matrix = fill_mnk_matrix_vr,
+        };
+        opt_t *solution = opt_linear(&eq, table, &params);
 #ifdef DEBUG
-        printf("%s: ord = %d\n", __func__, eq.ord);
-#endif
-        opt_t *solution = opt_linear(&eq, table);
         printf("%s: solution: R_0 = %lf\n",
                         __func__, solution->r_0);
-
+#endif
 
         prec_t p = {
                 .l = lower_bound_search(&eq, table, solution->r_0),
                 .h = upper_bound_search(&eq, table, solution->r_0)
         };
+#ifdef DEBUG
         printf("%s: solution: -R_0 = %lf\n", 
                         __func__, p.l);
         printf("%s: solution: +R_0 = %lf\n", 
                         __func__, p.h);
-#ifdef DEBUG
-        print_vector(solution->s.data, solution->s.size);
 #endif
+
         get_errors(solution, table);
-        dump_result(solution, table, &p);
-        dump_rotation_curve(table, solution);
+        iteration_storage_t *st = iteration_storage_create(table, solution);
+        dump_all(solution, &p, st);
+
+        // TODO: function's interface need improve
+        if (cfg->mode == ITERATE_MODE)
+                printf("_______%s_______\n", "First_stage_complete");
+        cfg->filter = ERR_FILTER;
+        cfg->h = get_limit_by_eps(table->size);
+        cfg->l = sqrt(solution->sq / (solution->size - solution->s.size - 1));
+#ifdef DEBUG
+        printf("%s: kappa(%d) = %0.7lf\n", 
+                        __func__,
+                        table->size,
+                        get_limit_by_eps(table->size));
+#endif
+
+        unsigned int old_size = table->size;
+        while (cfg->mode == ITERATE_MODE) {
+                solution = __get_solution_iterate(table, &eq);
+                cfg->h = get_limit_by_eps(table->size);
+                cfg->l = sqrt(solution->sq / (solution->size - solution->s.size - 1));
+                if (table->size == old_size)
+                        break;
+                old_size = table->size;
+        }
+
+        if (cfg->mode == ITERATE_MODE) {
+                dump_objects_xyz(table, table->size);
+                dump_table(table);
+                dump_all(solution, &p, st);
+        }
+
+        get_iterate_solution(table, solution);
+        //get_iterate_solution_nerr(table, solution);
 }
 
-int main(int argc, char *argv[])
+void get_iterate_solution_nerr(apogee_rc_table_t *table,
+                               opt_t *solution)
 {
-        run_all_jtests();
-        get_solution(argc, argv);
-        return 0;
+        parser_t *cfg = get_parser();
+        cfg->filter = MATCH_FILTER;
+        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+
+        solution = united_with_nature_errs_entry(table);
+
+        cfg->filter = ERR_FILTER;
+        cfg->h = get_limit_by_eps(table->size);
+        cfg->l = sqrt(solution->sq / (solution->size - solution->s.size - 1));
+        unsigned int old_size = table->size;
+        unsigned int i = 1;
+        while (true) {
+                printf("%s: iteration #%u, size %u\n", __func__, i++, table->size);
+                filter_get_and_apply(table);
+                if (table->size == old_size)
+                        break;
+                solution = united_with_nature_errs_entry(table);
+                cfg->h = get_limit_by_eps(table->size);
+                cfg->l = sqrt(solution->sq / (solution->size - solution->s.size - 1));
+                old_size = table->size;
+        }
+        
+        opt_t *mk_sol = monte_carlo_entry(solution, table, cfg->mksize);
+        dump_united_solution(mk_sol);
+}
+
+void get_iterate_solution(apogee_rc_table_t *table,
+                          opt_t *solution)
+{
+        double sd[TOTAL_QTY];
+
+        parser_t *cfg = get_parser();
+        cfg->filter = MATCH_FILTER;
+        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+
+        table->w_sun = 7;
+        double w_old = 7;
+        double r_old = table->r_0;
+#ifdef DEBUG
+        printf("%s: r_old %lf, w_old %lf\n",
+                        __func__, r_old, w_old);
+#endif
+
+        solution = exception_algorithm(table,
+                                       core_vr_entry,
+                                       precalc_errors_vr);
+        double r_new = solution->r_0;
+        solution = exception_algorithm(table,
+                                       core_b_entry,
+                                       precalc_errors_mu_b);
+        double w_new = table->w_sun;
+
+#ifdef DEBUG
+        printf("%s: r_new %lf, w_new %lf\n",
+                        __func__, r_new, w_new);
+#endif
+        int i = 1;
+        while (ITER_CONDITION(w_old, w_new, r_old, r_new)) {
+                printf("%s: iteration #%u, size %u\n", __func__, i++, table->size);
+                r_old = r_new;
+                w_old = w_new;
+//              solution = core_vr_entry(table);
+                solution = exception_algorithm(table,
+                                               core_vr_entry,
+                                               precalc_errors_vr);
+                r_new = table->r_0;
+                sd[VR_PART] = pow_double(solution->sq, 2);
+                solution = exception_algorithm(table,
+                                               core_b_entry,
+                                               precalc_errors_mu_b);
+                sd[B_PART] = pow_double(solution->sq, 2);
+                w_new = table->w_sun;
+                printf("%s: #%d completed.\n", __func__, i++);
+#ifdef DEBUG
+                printf("%s: r_new %lf, w_new %lf\n",
+                        __func__, r_new, w_new);
+#endif
+        }
+        solution = core_vr_entry(table);
+        sd[VR_PART] = pow_double(solution->sq, 2);
+        solution = core_l_entry(table);
+        sd[L_PART] = pow_double(solution->sq, 2);
+
+        uni_g_sd_init(sd);
+        /** TODO: need modify dispersion
+        solution = exception_algorithm(table,
+                                       united_entry,
+                                       precalc_errors_uni); 
+         */
+        solution = united_entry(table);
+        dump_united_solution(solution);
+        dump_table_parameters(table, solution);
+
+        /**
+        cfg->filter = ERR_FILTER;
+        cfg->h = get_limit_by_eps(table->size);
+        cfg->l = sqrt(solution->sq / (solution->size + solution->s.size + 1));
+        unsigned int old_size = table->size;
+        */
 }
