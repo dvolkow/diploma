@@ -188,7 +188,7 @@ static void uni_fill_mnk_matrix_nerr(linear_equation_t *eq,
 static double get_v_generic_from_uni(const linear_eq_solve_t *v,
                                      const apogee_rc_t *line,
                                      const double r_0,
-                                     const int type)
+                                     const unsigned int type)
 {
         double mod_v = 0;
         unsigned int i;
@@ -208,32 +208,25 @@ static void _residuals_line(const linear_eq_solve_t *v,
                             apogee_rc_t *line,
                             const double r_0)
 {
-        unsigned int i, k;
-        double res = 0;
-
+        unsigned int k;
         for (k = 0; k < TOTAL_QTY; ++k) {
                 double mod_v = get_v_generic_from_uni(v, line, r_0, k);
 
                 if (k == VR_PART) {
-//                        res += pow_double(line->v_helio - mod_v, 2) / g_sq[k];
                         line->vsd[k] = fabs(line->v_helio - mod_v);
                         continue;
                 }
 
                 if (k == L_PART) {
-//                       res += pow_double(line->pm_l - K_PM * mod_v, 2) / g_sq[k];
                         line->vsd[k] = fabs(line->pm_l - K_PM * mod_v);
                         continue;
                 }
 
                 if (k == B_PART) {
-//                        res += pow_double(line->pm_b - K_PM * mod_v, 2) / g_sq[k];
                         line->vsd[k] = fabs(line->pm_b - K_PM * mod_v);
                         continue;
                 }
         }
-
-        return res;
 }
 
 static double _chi_line(const linear_eq_solve_t *v,
@@ -241,26 +234,23 @@ static double _chi_line(const linear_eq_solve_t *v,
                         const double r_0,
                         const double *sigma)
 {
-        unsigned int i, k;
+        unsigned int k;
         double res = 0;
 
         for (k = 0; k < TOTAL_QTY; ++k) {
                 double mod_v = get_v_generic_from_uni(v, line, r_0, k);
 
                 if (k == VR_PART) {
-//                      res += pow_double(line->v_helio - mod_v, 2) / sigma[k];
                         res += pow_double(line->v_helio - mod_v, 2) / g_sq[k];
                         continue;
                 }
 
                 if (k == L_PART) {
-//                      res += pow_double(line->pm_l - K_PM * mod_v, 2) / sigma[k];
                         res += pow_double(line->pm_l - K_PM * mod_v, 2) / g_sq[k];
                         continue;
                 }
 
                 if (k == B_PART) {
-//                      res += pow_double(line->pm_b - K_PM * mod_v, 2) / sigma[k];
                         res += pow_double(line->pm_b - K_PM * mod_v, 2) / g_sq[k];
                         continue;
                 }
@@ -280,16 +270,9 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
         double res = 0;
         line->eps = 0;
 
-        void update_err(const double new, double *perr)
-        {
-                if (new > *perr)
-                        *perr = new;
-        }
-
         for (k = 0; k < TOTAL_QTY; ++k) {
                 double mod_v = 0;
                 double s = sigma_for_k(k, line, n_err);
-                double sqrt_s = sqrt(s);
                 for (i = 0; i < BETA_QTY + 1; ++i) {
                         mod_v += v->data[i] * filler[k].beta_n(line, i);
                 }
@@ -300,19 +283,16 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
 
                 if (k == VR_PART) {
                         res += pow_double(line->v_helio - mod_v, 2) / s;
-                        update_err(fabs(line->v_helio - mod_v) / sqrt_s, &line->eps);
                         continue;
                 }
 
                 if (k == L_PART) {
                         res += pow_double(line->pm_l - K_PM * mod_v, 2) / s;
-                        update_err(fabs(line->pm_l - K_PM * mod_v) / sqrt_s, &line->eps);
                         continue;
                 }
 
                 if (k == B_PART) {
                         res += pow_double(line->pm_b - K_PM * mod_v, 2) / s;
-                        update_err(fabs(line->pm_b - K_PM * mod_v) / sqrt_s, &line->eps);
                         continue;
                 }
         }
@@ -435,8 +415,8 @@ void uni_g_sd_init(const double *values)
 opt_t *united_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
-        int size = cfg->ord;
-        int dim = size + TOTAL_QTY + 1;
+        unsigned int size = cfg->ord;
+        unsigned int dim = size + TOTAL_QTY + 1;
         double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
 
 #ifdef DEBUG
@@ -463,8 +443,8 @@ opt_t *united_entry(apogee_rc_table_t *table)
 opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
-        int size = cfg->ord;
-        int dim = size + TOTAL_QTY + 1;
+        unsigned int size = cfg->ord;
+        unsigned int dim = size + TOTAL_QTY + 1;
         double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
         table->n_err = cfg->n_err;
 

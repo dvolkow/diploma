@@ -54,14 +54,14 @@ typedef enum {
 typedef struct {
         double  *data;
         double  *right;
-        int     size;
-        short   ord;
+        unsigned int size;
+        unsigned int ord;
 } linear_equation_t;
 
 
 typedef struct {
         double  *data;
-        int     size;
+        unsigned int size;
 } linear_eq_solve_t;
 
 
@@ -76,7 +76,7 @@ typedef struct {
         double r_0;
         double sq;
         prec_t *bounds;
-        size_t size;
+        unsigned int size;
 } opt_t;
 
 
@@ -91,18 +91,18 @@ void solve(linear_equation_t *, linear_eq_solve_t *);
 void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res);
 
 double get_R_distance(const apogee_rc_t *line, double r_0);
-double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const int nfree,
+double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const unsigned int nfree,
                                 const double sd);
 point_t *get_point(const apogee_rc_t *line);
 
-double get_median(const double *data, const size_t size);
-double get_sd(const double *data, const size_t size);
-double get_mean(const double *data, const size_t size);
+double get_median(const double *data, const unsigned int size);
+double get_sd(const double *data, const unsigned int size);
+double get_mean(const double *data, const unsigned int size);
 
 double get_limit_by_eps(const unsigned int size);
 
 #define PRECACHED_FACTORIAL_LEN         25
-double dv_factorial(const int n);
+double dv_factorial(const unsigned int n);
 
 double dot_prod(double *a, double *b, int size);
 

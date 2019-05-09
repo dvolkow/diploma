@@ -34,7 +34,7 @@ typedef enum {
 
 typedef struct {
 #define DEFAULT_ORD             1
-        int ord;
+        unsigned int ord;
 #define DEFAULT_INF_NAME        "apogee_rc.txt"
         char *input_file_name;
 #define DEFAULT_DUMP_FILE_NAME  "dump_table.txt"
@@ -54,12 +54,20 @@ typedef struct {
 #define GET_MODE(p_parser)      \
         ((p_parser)->mode)
 
-void parse_args(int, const char **);
+void parse_args(int, char **);
 bool parser_t_is_valid(const parser_t *cfg);
 parser_t *get_parser(void);
 
 void get_solution(void);
 int parser_init(void);
 void parser_exit(void);
+
+
+#define PREC_COMPARE_ITER                       1e-5
+#define ITER_CONDITION(w_1, w_2, r_1, r_2)              \
+        (fabs((w_1) - (w_2)) > PREC_COMPARE_ITER ||     \
+         fabs((r_1) - (r_2)) > PREC_COMPARE_ITER)
+
+
 
 #endif // CORE_H

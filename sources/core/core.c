@@ -41,7 +41,7 @@ double core_vr_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 static double s_alpha_n(const double R, 
                         const double sinl, 
                         const double cosb, 
-                        const double r_0, const int n)
+                        const double r_0, const unsigned int n)
 {
         if (n == 1)
                 return -2 * (R - r_0) * r_0 * sinl * cosb / R;
@@ -158,7 +158,7 @@ void get_iterate_solution_nerr(apogee_rc_table_t *table,
 void get_solution()
 {
         parser_t *cfg = get_parser();
-        int size = cfg->ord;
+        unsigned int size = cfg->ord;
         double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) *
                                                    (size + BETA_QTY));
         apogee_rc_table_t *table = read_table(cfg->input_file_name);
@@ -256,7 +256,7 @@ void get_iterate_solution_nerr(apogee_rc_table_t *table,
         unsigned int old_size = table->size;
         unsigned int i = 1;
         while (true) {
-                printf("%s: iteration #%u, size %lu\n", __func__, i++, table->size);
+                printf("%s: iteration #%u, size %u\n", __func__, i++, table->size);
                 filter_get_and_apply(table);
                 if (table->size == old_size)
                         break;
@@ -273,16 +273,6 @@ void get_iterate_solution_nerr(apogee_rc_table_t *table,
 void get_iterate_solution(apogee_rc_table_t *table,
                           opt_t *solution)
 {
-        bool condition(const double w_1,
-                       const double w_2,
-                       const double r_1,
-                       const double r_2)
-        {
-                const double prec = 1e-5;
-                return fabs(w_1 - w_2) > prec ||
-                       fabs(r_1 - r_2) > prec;
-        }
-
         double sd[TOTAL_QTY];
 
         parser_t *cfg = get_parser();
@@ -311,8 +301,8 @@ void get_iterate_solution(apogee_rc_table_t *table,
                         __func__, r_new, w_new);
 #endif
         int i = 1;
-        while (condition(w_old, w_new, r_old, r_new)) {
-                printf("%s: iteration #%u, size %lu\n", __func__, i++, table->size);
+        while (ITER_CONDITION(w_old, w_new, r_old, r_new)) {
+                printf("%s: iteration #%u, size %u\n", __func__, i++, table->size);
                 r_old = r_new;
                 w_old = w_new;
 //              solution = core_vr_entry(table);

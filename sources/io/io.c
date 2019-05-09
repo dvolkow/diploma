@@ -127,7 +127,7 @@ opt_t *read_solution(const char *input_file_name)
                 fscanf(fin, "%lf", &solution->s.data[i]); 
         }
 
-        fscanf(fin, "%lu", &solution->size); // size of sample
+        fscanf(fin, "%u", &solution->size);
         return solution;
 }
 

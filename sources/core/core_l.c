@@ -9,6 +9,7 @@
 #include "graph.h"
 #include "trigonometry.h"
 #include "unicore.h"
+#include "utils.h"
 
 static matrix_line_t g_matrix_line;
 
@@ -181,10 +182,10 @@ opt_t *core_l_get_linear_solution(linear_equation_t *eq,
 opt_t *core_l_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
-//       cfg->filter = MATCH_FILTER;
-//       table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+        cfg->filter = MATCH_FILTER;
+        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
 
-        int size = cfg->ord;
+        unsigned int size = cfg->ord;
         double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) *
                                                    (size + BETA_QTY));
         linear_equation_t eq = {

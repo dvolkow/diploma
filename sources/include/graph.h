@@ -27,6 +27,15 @@
 #define AVERAGE_COUNT_EDGE_L_BOUND      5
 #define AVERAGE_COUNT_EDGE_R_BOUND      12
 
+#define IS_LAST_STEP(c, s)                              \
+        (((c) - (s)) <= 0)
+
+#define R_INTO_MIDDLE(v)                                \
+        ((v < AVERAGE_COUNT_EDGE_R_BOUND) &&            \
+                        (v > AVERAGE_COUNT_EDGE_L_BOUND))
+
+
+
 typedef enum {
         COUNTER,
         DISTANCE,

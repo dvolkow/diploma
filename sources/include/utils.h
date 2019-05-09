@@ -23,7 +23,6 @@ apogee_rc_table_t *get_limited_generic(const void *table,
 
 average_res_t *get_average_theta(const iteration_storage_t *st_part,
                                  const opt_t *solution,
-                                 const size_t size);
+                                 const unsigned int size);
 filter_t *filter_factory(const parser_t *cfg);
-bool __limited_by_l(const void *line, const double l, const double h);
 #endif // UTILS_H

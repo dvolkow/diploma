@@ -121,7 +121,7 @@ void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res)
 /*
  * Use precalculated values
  */
-double dv_factorial(const int n)
+double dv_factorial(const unsigned int n)
 {
         assert(n < PRECACHED_FACTORIAL_LEN);
         return __factorial_storage[n];
@@ -137,7 +137,7 @@ double dot_prod(double *a, double *b, int size)
         return res; 
 }
 
-double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const int nfree,
+double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const unsigned int nfree,
                                 const double sd)
 {
         return sqrt(p * sd);
@@ -145,17 +145,17 @@ double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const
 
 
 /* Statistics: */
-double get_median(const double *data, const size_t size)
+double get_median(const double *data, const unsigned int size)
 {
         return gsl_stats_median_from_sorted_data(data, 1, size);
 }
 
-double get_mean(const double *data, const size_t size)
+double get_mean(const double *data, const unsigned int size)
 {
         return gsl_stats_mean(data, 1, size); 
 }
 
-double get_sd(const double *data, const size_t size)
+double get_sd(const double *data, const unsigned int size)
 {
         return gsl_stats_sd(data, 1, size);
 }

@@ -140,7 +140,7 @@ static opt_t *core_vr_get_solution(linear_equation_t *eq,
 opt_t *core_vr_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
-        int size = cfg->ord;
+        unsigned int size = cfg->ord;
         double *matrix = (double *)dv_alloc(sizeof(double) * (size + BETA_QTY_FIX) *
                                                    (size + BETA_QTY_FIX));
 

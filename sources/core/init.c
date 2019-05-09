@@ -9,8 +9,8 @@ static init_t g_init_deinit_table[] = {
         { "math subsystem",  math_init, math_exit }
       , { "parser subsystem",  parser_init, parser_exit }
       , { "random generators subsystem",  random_seed_init, random_seed_exit }
-#ifdef DEBUG
-//      , { "unit test subsystem",  jtest_init, jtest_exit }
+#ifdef JTEST_DEBUG
+      , { "unit test subsystem",  jtest_init, jtest_exit }
 #endif
         // MUST BE LAST:
       , { NULL, NULL, NULL }
@@ -56,10 +56,10 @@ static void deinitialization_process()
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
         initialization_process();
-        parse_args(argc, argv);
+        parse_args(argc, (char **)argv);
         parser_t *cfg = get_parser();
         if (cfg == NULL || !parser_t_is_valid(cfg)) {
                 printf("%s: invalid parameters!\n",

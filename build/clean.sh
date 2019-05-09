@@ -1,5 +1,6 @@
 #! /bin/bash
 
-echo "This script remove all result_* directories in current"
-rm -r result_*
+rm -r *.txt
+rm -rf cmake_install.cmake CMakeFiles Makefile
+rm ./diploma
 

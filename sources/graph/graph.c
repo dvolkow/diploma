@@ -47,12 +47,12 @@ parameter_t g_ptable[] = {
 #define MAX_G_GRAPH_LEN         8
 static char __g_graph_buffer[MAX_G_GRAPH_LEN];
 
-static char *__get_name_by_idx(const int idx)
+static char *__get_name_by_idx(const unsigned int idx)
 {
-        const int known = BETA_QTY + 1;
+        const unsigned int known = BETA_QTY + 1;
         if (idx < known) return g_ptable[idx].name;
 
-        sprintf(__g_graph_buffer, "th[%d]", idx - known + 2);
+        sprintf(__g_graph_buffer, "th[%u]", idx - known + 2);
         return __g_graph_buffer;
 }
 
@@ -87,7 +87,7 @@ void dump_result(opt_t *opt,
         CHECK_FILE_AND_RET(fout, OUTPUT_RESULT_FILENAME);
 
         PRINT_OUTPUT_LINE(fout);
-        fprintf(fout, "Result for APOGEE-RC dataset by %lu obj:\n",
+        fprintf(fout, "Result for APOGEE-RC dataset by %u obj:\n",
                         opt->size);
         PRINT_OUTPUT_LINE(fout);
         fprintf(fout, "R_0: \t%0.3lf \t+%0.3lf\n",
@@ -203,7 +203,6 @@ static double *get_sorted_r(const iteration_storage_t *sorted_st, const size_t s
         return sorted_r;
 }
 
-
 void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mode)
 {
         average_res_t *a;
@@ -215,32 +214,22 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
         CHECK_FILE_AND_RET(aout, AVERAGE_R_FILE_NAME);
 
         double r = st[0].r;
-        int estimate_counter = solution->size;
+        int estimate_counter = (int)solution->size;
         int left_bound = 0;
         int i_counter = 1;
 
-        bool r_into_middle(const double v) {
-                return (v < AVERAGE_COUNT_EDGE_R_BOUND) &&
-                        (v > AVERAGE_COUNT_EDGE_L_BOUND);
-        }
-
-        bool is_last_step(const int c, const int s) {
-                return (c - s) <= 0;
-        }
-
-
         while (estimate_counter > 0) {
                 /* Setting for size */
-                int size = r_into_middle(r) ? AVERAGE_COUNT_BASE
+                int size = R_INTO_MIDDLE(r) ? AVERAGE_COUNT_BASE
                                             : AVERAGE_COUNT_EDGE;
 
-                if (is_last_step(estimate_counter, size)) {
+                if (IS_LAST_STEP(estimate_counter, size)) {
                         size = estimate_counter;
                 }
 
                 /* Get & print */
-                a = get_average_theta(&st[left_bound], solution, size);
-                double median_r = get_median(&sorted_r[left_bound], size);
+                a = get_average_theta(&st[left_bound], solution, (unsigned int)size);
+                double median_r = get_median(&sorted_r[left_bound], (unsigned int)size);
                 fprintf(aout, "%d %d %lf %lf %lf %lf %lf\n",
                                 ++i_counter, size,
                                 median_r,
@@ -309,7 +298,6 @@ void dump_united_solution(const opt_t *solution)
 void dump_table_parameters(const apogee_rc_table_t *table,
                            const opt_t *solution)
 {
-        const unsigned int n_free = table->size - (solution->s.size + 1);
         printf("SD[VR_PART] = %lf\n", sqrt(table->sigma[VR_PART]));
         printf("SD[L_PART] = %lf\n", sqrt(table->sigma[L_PART]));
         printf("SD[B_PART] = %lf\n", sqrt(table->sigma[B_PART]));
@@ -342,28 +330,22 @@ void dump_background(const iteration_storage_t *st,
         double *sorted_r = get_sorted_r(st, solution->size);
 
         double r = st[0].r;
-        int estimate_counter = solution->size;
+        int estimate_counter = (int)solution->size;
         int left_bound = 0;
-        int i_counter = 1;
-
-        bool is_last_step(const int c, const int s) {
-                return (c - s) <= 0;
-        }
-
-        int size = solution->size / b_count;
+        int size = (int)solution->size / b_count;
 
         while (estimate_counter > 0) {
                 /* Setting for size */
 
-                if (is_last_step(estimate_counter, size)) {
+                if (IS_LAST_STEP(estimate_counter, size)) {
                         size = estimate_counter;
                 }
 
                 /* Get & print */
-                a = get_average_theta(&st[left_bound], solution, size);
+                a = get_average_theta(&st[left_bound], solution, (unsigned int)size);
 
                 fprintf(dout, "%lf %lf %lf %lf %lf %d %lf\n",
-                               get_median(&sorted_r[left_bound], size),
+                               get_median(&sorted_r[left_bound], (unsigned int)size),
                                sorted_r[left_bound],
                                sorted_r[left_bound + size - 1],
                                a->sd,

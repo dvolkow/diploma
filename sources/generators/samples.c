@@ -75,12 +75,12 @@ void fill_table_by_uni_solution(const opt_t *solution,
         gsl_rng *rng = dv_rand_acquire(MT);
         assert(rng != NULL);
 
-        const dsize_t ssize = solution->size;
+        const unsigned int ssize = solution->size;
         dst_table->r_0 = solution->r_0;
         dst_table->size = ssize;
         parser_t *cfg = get_parser();
 
-        dsize_t i;
+        unsigned int i;
 
         for (i = 0; i < ssize; ++i) {
                 dst_table->data[i].id = i;
@@ -112,7 +112,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
 {
         opt_t **results = dv_alloc(sizeof(opt_t *) * count);
         apogee_rc_table_t *tmp_table = dv_alloc(sizeof(apogee_rc_table_t));
-        const dsize_t ssize = data->size;
+        const unsigned int ssize = data->size;
         const unsigned int n = solution->s.size;
         tmp_table->data = dv_alloc(sizeof(apogee_rc_t) * ssize);
         tmp_table->r_0 = solution->r_0;
@@ -126,7 +126,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
         main_res.s.size = n;
         main_res.bounds = dv_alloc(sizeof(prec_t) * n);
 
-        const unsigned int fits_count = (ROTC_UPPER_BOUND - ROTC_LOWER_BOUND) / ROTC_STEP_R;
+        const unsigned int fits_count = (unsigned int)((ROTC_UPPER_BOUND - ROTC_LOWER_BOUND) / ROTC_STEP_R);
         //printf("%s: fits_count = %u\n", __func__, fits_count);
         rot_curve_t *curve = dv_alloc(sizeof(rot_curve_t) * fits_count);
         double r = ROTC_LOWER_BOUND;

@@ -73,7 +73,7 @@ typedef struct {
         double w_sun; 
         double n_err; // natural errors ^ 2 
         double sigma[3];
-        size_t size;
+        unsigned int size;
 } apogee_rc_table_t;
 
 

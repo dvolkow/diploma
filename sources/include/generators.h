@@ -25,7 +25,7 @@ static inline unsigned long int dv_random_seed(void)
 {
         struct timeval tv;
         gettimeofday(&tv, 0);
-        return (tv.tv_sec + tv.tv_usec);
+        return (unsigned long)(tv.tv_sec) + (unsigned long)(tv.tv_usec);
 }
 
 opt_t *monte_carlo_entry(const opt_t *solution,

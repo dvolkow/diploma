@@ -56,17 +56,20 @@ bool parser_t_is_valid(const parser_t *cfg)
                cfg->ord > 0;
 }
 
+static inline int matches(const char *arg,
+                          const char *argv)
+{
+        return !strcmp(argv, arg);
+}
+
+
 static void filter_assigner(const char *argv)
 {
-        inline int matches(const char *arg) {
-                return !strcmp(argv, arg);
-        }
-
-        if (matches("L")) {
+        if (matches("L", argv)) {
                 __cfg->filter = L_FILTER;
-        } else if (matches("B")){
+        } else if (matches("B", argv)) {
                 __cfg->filter = B_FILTER;
-        } else if (matches("ERR")){
+        } else if (matches("ERR", argv)) {
                 __cfg->filter = ERR_FILTER;
         } else {
                 __cfg->filter = BAD_FILTER;
@@ -75,58 +78,49 @@ static void filter_assigner(const char *argv)
 
 static void mode_assigner(const char *argv)
 {
-        inline int matches(const char *arg) {
-                return !strcmp(argv, arg);
-        }
-
-        if (matches("I")) 
+        if (matches("I", argv)) 
                 __cfg->mode = ITERATE_MODE;
-        if (matches("G"))
+        if (matches("G", argv))
                 __cfg->mode = GENERATION_MODE;
 }
 
 void parse_args(int argc, 
-                const char *argv[])
+                char *argv[])
 {
-        inline int matches(const char *arg) {
-                return !strcmp(*argv, arg);
-        }
-
         parser_t *res = get_parser();
         double readbuff;
 
         while (CHECK_ARGS(argc)) {
-
                 NEXT_ARG(argc, argv);
-                if (matches("-f") || matches("--file")) {
+                if (matches("-f", *argv) || matches("--file", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 res->input_file_name = *argv;
                         } else {
                                 goto usage_ret;
                         }
-                } else if (matches("--ord")) {
+                } else if (matches("--ord", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
-                                res->ord = atoi(*argv);
+                                res->ord = (unsigned int)atoi(*argv);
                         } else {
                                 goto usage_ret;
                         }
-                } else if (matches("--mksize")) {
+                } else if (matches("--mksize", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
-                                res->mksize = atoi(*argv);
+                                res->mksize = (unsigned int)atoi(*argv);
                         } else {
                                 goto usage_ret;
                         }
-                } else if (matches("-d") || matches("--dump")) {
+                } else if (matches("-d", *argv) || matches("--dump", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 res->dump_file_name = *argv;
                         } else {
                                 goto usage_ret;
                         }
-                } else if (matches("-e") || matches("--err")) {
+                } else if (matches("-e", *argv) || matches("--err", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 sscanf(*argv, "%lf", &readbuff);
@@ -134,14 +128,14 @@ void parse_args(int argc,
                         } else {
                                 goto usage_ret;
                         }
-                } else if (matches("-m") || matches("--mode")) {
+                } else if (matches("-m", *argv) || matches("--mode", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 mode_assigner(*argv);
                         } else {
                                 goto usage_ret;
                         }
-                } else if (matches("--filter")) {
+                } else if (matches("--filter", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 filter_assigner(*argv);

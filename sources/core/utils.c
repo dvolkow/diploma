@@ -76,7 +76,7 @@ static inline double __get_a(const iteration_storage_t *st_part,
 
 average_res_t *get_average_theta(const iteration_storage_t *st_part,
                                  const opt_t *solution,
-                                 const size_t size)
+                                 const unsigned int size)
 {
         assert(size != 0);
 
@@ -115,7 +115,7 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
  * Before call must be set __cfg->h (high global limit)
  * as sd by sample
  */
-bool __limited_by_eps(const void *line, 
+static bool __limited_by_eps(const void *line, 
                       const double l, 
                       const double h)
 {
@@ -123,27 +123,19 @@ bool __limited_by_eps(const void *line,
         return la->eps / l < h;
 }
 
-bool __limited_by_sigma_uni(const void *line, 
-                            const double l, 
-                            const double h)
-{
-        const apogee_rc_t *la = line;
-        return true;
-}
 
-
-bool __matching(const void *line, const double l, const double h)
+static bool __matching(const void *line, const double l, const double h)
 {
         const apogee_rc_t *la = line;
         return la->pm_match > 0;
 }
 
-bool __limited_by_l(const void *line, const double l, const double h)
+static bool __limited_by_l(const void *line, const double l, const double h)
 {
         return get_param(1, line) < deg_to_rad(h) && get_param(1, line) >= deg_to_rad(l);
 }
 
-bool __limited_by_b(const void *line, const double l, const double h)
+static bool __limited_by_b(const void *line, const double l, const double h)
 {
         return get_param(2, line) < deg_to_rad(h) && get_param(2, line) >= deg_to_rad(l);
 }
@@ -167,9 +159,6 @@ filter_t *filter_factory(const parser_t *cfg)
                 case MATCH_FILTER:
                         filter->f = __matching;
                         break;
-                case UNITED_FILTER:
-                        filter->f = __limited_by_sigma_uni;
-                        break;
                 default:
                         filter->f = NULL;
         }
@@ -182,7 +171,7 @@ filter_t *filter_factory(const parser_t *cfg)
  */
 apogee_rc_table_t *get_limited_replace(const void *table, const filter_t *filter)
 {
-        apogee_rc_table_t *src = table;
+        apogee_rc_table_t *src = (apogee_rc_table_t *)table;
         unsigned int i;
         unsigned int count = 0;
         // no filter check:
