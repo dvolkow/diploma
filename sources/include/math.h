@@ -19,6 +19,15 @@ static inline double mas_to_rad(const double mas)
         return mas * 0.001 * M_PI / (180 * 60 * 60);
 }
 
+static inline double mas_to_deg(const double mas)
+{
+        return mas / (60 * 60 * 1000);
+}
+
+static inline double deg_to_mas(const double deg)
+{
+        return deg * 60 * 60 * 1000;
+}
 
 static inline double rad_to_deg(const double rad)
 {

@@ -93,8 +93,8 @@ static void uni_fill_mnk_matrix(linear_equation_t *eq,
         }
 }
 
-void precalc_errors(apogee_rc_table_t *table,
-                           const double limit)
+void precalc_errors_uni(apogee_rc_table_t *table,
+                        const double limit)
 {
         unsigned int i, j;
         double l_sq[TOTAL_QTY];
@@ -204,9 +204,9 @@ static double get_v_generic_from_uni(const linear_eq_solve_t *v,
 }
 
 
-static double _residuals_line(const linear_eq_solve_t *v,
-                             apogee_rc_t *line,
-                             const double r_0)
+static void _residuals_line(const linear_eq_solve_t *v,
+                            apogee_rc_t *line,
+                            const double r_0)
 {
         unsigned int i, k;
         double res = 0;
@@ -215,19 +215,19 @@ static double _residuals_line(const linear_eq_solve_t *v,
                 double mod_v = get_v_generic_from_uni(v, line, r_0, k);
 
                 if (k == VR_PART) {
-                        res += pow_double(line->v_helio - mod_v, 2) / g_sq[k];
+//                        res += pow_double(line->v_helio - mod_v, 2) / g_sq[k];
                         line->vsd[k] = fabs(line->v_helio - mod_v);
                         continue;
                 }
 
                 if (k == L_PART) {
-                        res += pow_double(line->pm_l - K_PM * mod_v, 2) / g_sq[k];
+//                       res += pow_double(line->pm_l - K_PM * mod_v, 2) / g_sq[k];
                         line->vsd[k] = fabs(line->pm_l - K_PM * mod_v);
                         continue;
                 }
 
                 if (k == B_PART) {
-                        res += pow_double(line->pm_b - K_PM * mod_v, 2) / g_sq[k];
+//                        res += pow_double(line->pm_b - K_PM * mod_v, 2) / g_sq[k];
                         line->vsd[k] = fabs(line->pm_b - K_PM * mod_v);
                         continue;
                 }
@@ -235,6 +235,41 @@ static double _residuals_line(const linear_eq_solve_t *v,
 
         return res;
 }
+
+static double _chi_line(const linear_eq_solve_t *v,
+                        apogee_rc_t *line,
+                        const double r_0,
+                        const double *sigma)
+{
+        unsigned int i, k;
+        double res = 0;
+
+        for (k = 0; k < TOTAL_QTY; ++k) {
+                double mod_v = get_v_generic_from_uni(v, line, r_0, k);
+
+                if (k == VR_PART) {
+//                      res += pow_double(line->v_helio - mod_v, 2) / sigma[k];
+                        res += pow_double(line->v_helio - mod_v, 2) / g_sq[k];
+                        continue;
+                }
+
+                if (k == L_PART) {
+//                      res += pow_double(line->pm_l - K_PM * mod_v, 2) / sigma[k];
+                        res += pow_double(line->pm_l - K_PM * mod_v, 2) / g_sq[k];
+                        continue;
+                }
+
+                if (k == B_PART) {
+//                      res += pow_double(line->pm_b - K_PM * mod_v, 2) / sigma[k];
+                        res += pow_double(line->pm_b - K_PM * mod_v, 2) / g_sq[k];
+                        continue;
+                }
+        }
+
+        return res;
+}
+
+
 
 static double _residuals_line_nerr(const linear_eq_solve_t *v,
                                    apogee_rc_t *line,
@@ -285,18 +320,25 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
         return res;
 }
 
-
 static double residuals_summary(const linear_eq_solve_t *solution, 
                                 apogee_rc_table_t *table)
 {
         double sum = 0;
         unsigned int i, j;
+        const unsigned int n_free = table->size - solution->size - 1;
         for (i = 0; i < table->size; ++i) {
-                sum += _residuals_line(solution, &table->data[i],
-                                        table->r_0);
-
+                _residuals_line(solution, &table->data[i], table->r_0);
                 for (j = 0; j < TOTAL_QTY; ++j)
-                        table->sigma[j] += table->data[i].vsd[j];
+                        table->sigma[j] += table->data[i].vsd[j] * table->data[i].vsd[j];
+        }
+        
+        for (j = 0; j < TOTAL_QTY; ++j) {
+                table->sigma[j] = table->sigma[j] / n_free; 
+        }
+
+        for (i = 0; i < table->size; ++i) {
+                sum += _chi_line(solution, &table->data[i],
+                                 table->r_0, table->sigma);
         }
         assert(sum > 0);
         return sum;

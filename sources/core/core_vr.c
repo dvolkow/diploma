@@ -97,8 +97,8 @@ static double _residuals_line(const linear_eq_solve_t *v,
                 mod_v += core_vr_get_alpha_n(line, i - BETA_QTY_FIX + 1, r_0) * v->data[i];
         }
 
-        line->eps = fabs(line->v_helio - mod_v);
-        return pow_double(line->v_helio - mod_v, 2);
+        line->eps = fabs(line->v_helio - mod_v - __core_vr_get_beta_n(line, THIRD));
+        return pow_double(line->v_helio - mod_v - __core_vr_get_beta_n(line, THIRD), 2);
 }
 
 
@@ -113,6 +113,17 @@ static double residuals_summary(const linear_eq_solve_t *solution,
         }
         assert(sum > 0);
         return sum;
+}
+
+void precalc_errors_vr(apogee_rc_table_t *table,
+                       const double limit)
+{
+        unsigned int i;
+        for (i = 0; i < table->size; ++i) {
+                if (table->data[i].eps / table->sigma[VR_PART] > limit) {
+                        table->data[i].pm_match = 0;
+                }
+        }
 }
 
 static opt_t *core_vr_get_solution(linear_equation_t *eq,
@@ -146,6 +157,7 @@ opt_t *core_vr_entry(apogee_rc_table_t *table)
         opt_t *opt = core_vr_get_solution(&eq, table);
         opt->sq = sqrt(opt->sq / (table->size - eq.size - 1));
         table->r_0 = opt->r_0;
+        table->sigma[VR_PART] = opt->sq;
 
         dump_core_vr_solution(opt);
         return opt;

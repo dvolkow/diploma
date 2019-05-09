@@ -1,10 +1,14 @@
 #include <math.h>
 #include <assert.h>
+#include <string.h>
+
 #include "types.h"
 #include "mem.h"
+#include "core.h"
 #include "core_l.h"
 #include "graph.h"
 #include "trigonometry.h"
+#include "unicore.h"
 
 static matrix_line_t g_matrix_line;
 
@@ -57,7 +61,7 @@ void core_l_fill_mnk_matrix(linear_equation_t *eq,
                         line->_[i] = core_l_get_beta_n(&table->data[j], i);
                 }
 
-                for (i = BETA_QTY; i < eq->size; ++i) {
+                for (i = BETA_QTY; i < len; ++i) {
                         line->_[i] = core_l_get_alpha_n(&table->data[j], i - BETA_QTY + 1, table->r_0);
                 }
 
@@ -112,6 +116,20 @@ static double residuals_summary(const opt_t *solution,
         assert(sum > 0);
         return sum;
 }
+
+
+void precalc_errors_mu_l(apogee_rc_table_t *table,
+                         const double limit)
+{
+        unsigned int i;
+        for (i = 0; i < table->size; ++i) {
+                if (table->data[i].eps / table->sigma[L_PART] > limit) {
+                        table->data[i].pm_match = 0;
+                }
+        }
+}
+
+
 
 void core_l_get_errors(opt_t *solution, apogee_rc_table_t *table)
 {
@@ -177,6 +195,7 @@ opt_t *core_l_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_l_get_linear_solution(&eq, table);
+        table->sigma[L_PART] = opt->sq;
         dump_core_l_solution(opt);
         return opt;
 }

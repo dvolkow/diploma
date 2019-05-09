@@ -18,6 +18,8 @@ void uni_g_sd_init(const double *);
 opt_t *united_entry(apogee_rc_table_t *);
 opt_t *united_with_nature_errs_entry(apogee_rc_table_t *);
 
-void precalc_errors(apogee_rc_table_t *table,
-                           const double limit);
+void precalc_errors_uni(apogee_rc_table_t *table,
+                        const double limit);
+void filter_get_and_apply(apogee_rc_table_t *table);
+
 #endif // UNICORE_H  1

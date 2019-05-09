@@ -227,6 +227,34 @@ opt_t *opt_linear(linear_equation_t *eq,
         return ret;
 }
 
+
+/**
+ * @table: data for research
+ * @f: optimized function
+ * @precalc_errors: criteria for exception
+ */
+opt_t *exception_algorithm(apogee_rc_table_t *table,
+                           opt_t *(*f)(apogee_rc_table_t *),
+                           void (*precalc_errors)(apogee_rc_table_t *,
+                                                  const double))
+{
+        parser_t *cfg = get_parser();
+        cfg->filter = MATCH_FILTER;
+        unsigned int old_size = table->size;
+        opt_t *solution = f(table);
+        
+        while (true) {
+                precalc_errors(table, get_limit_by_eps(table->size));
+                filter_get_and_apply(table);
+                if (table->size == old_size)
+                        break;
+                solution = f(table);
+                old_size = table->size;
+        }
+
+        return solution;
+}
+
 void get_errors(opt_t *solution, apogee_rc_table_t *table)
 {
         linear_equation_t m, invm;

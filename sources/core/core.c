@@ -106,7 +106,7 @@ void fill_mnk_matrix(linear_equation_t *eq,
         }
 }
 
-static void filter_get_and_apply(apogee_rc_table_t *table)
+void filter_get_and_apply(apogee_rc_table_t *table)
 {
         /* TODO: Filter assigner: */
         parser_t *cfg = get_parser();
@@ -297,9 +297,13 @@ void get_iterate_solution(apogee_rc_table_t *table,
                         __func__, r_old, w_old);
 #endif
 
-        solution = core_vr_entry(table);
+        solution = exception_algorithm(table,
+                                       core_vr_entry,
+                                       precalc_errors_vr);
         double r_new = solution->r_0;
-        solution = core_b_entry(table);
+        solution = exception_algorithm(table,
+                                       core_b_entry,
+                                       precalc_errors_mu_b);
         double w_new = table->w_sun;
 
 #ifdef DEBUG
@@ -311,10 +315,15 @@ void get_iterate_solution(apogee_rc_table_t *table,
                 printf("%s: iteration #%u, size %lu\n", __func__, i++, table->size);
                 r_old = r_new;
                 w_old = w_new;
-                solution = core_vr_entry(table);
+//              solution = core_vr_entry(table);
+                solution = exception_algorithm(table,
+                                               core_vr_entry,
+                                               precalc_errors_vr);
                 r_new = table->r_0;
                 sd[VR_PART] = pow_double(solution->sq, 2);
-                solution = core_b_entry(table);
+                solution = exception_algorithm(table,
+                                               core_b_entry,
+                                               precalc_errors_mu_b);
                 sd[B_PART] = pow_double(solution->sq, 2);
                 w_new = table->w_sun;
                 printf("%s: #%d completed.\n", __func__, i++);
@@ -323,25 +332,18 @@ void get_iterate_solution(apogee_rc_table_t *table,
                         __func__, r_new, w_new);
 #endif
         }
+        solution = core_vr_entry(table);
+        sd[VR_PART] = pow_double(solution->sq, 2);
         solution = core_l_entry(table);
         sd[L_PART] = pow_double(solution->sq, 2);
 
         uni_g_sd_init(sd);
+        /** TODO: need modify dispersion
+        solution = exception_algorithm(table,
+                                       united_entry,
+                                       precalc_errors_uni); 
+         */
         solution = united_entry(table);
-
-        cfg->filter = MATCH_FILTER;
-        unsigned int old_size = table->size;
-        i = 0;
-        while (true) {
-                precalc_errors(table, get_limit_by_eps(table->size));
-                filter_get_and_apply(table);
-                printf("%s: iteration #%u, size %lu\n", __func__, i++, table->size);
-                if (table->size == old_size)
-                        break;
-                solution = united_entry(table);
-                old_size = table->size;
-        }
- 
         dump_united_solution(solution);
         dump_table_parameters(table, solution);
 

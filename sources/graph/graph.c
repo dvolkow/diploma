@@ -310,9 +310,9 @@ void dump_table_parameters(const apogee_rc_table_t *table,
                            const opt_t *solution)
 {
         const unsigned int n_free = table->size - (solution->s.size + 1);
-        printf("SD[VR_PART] = %lf\n", sqrt(table->sigma[VR_PART] / n_free));
-        printf("SD[L_PART] = %lf\n", sqrt(table->sigma[L_PART] / n_free));
-        printf("SD[B_PART] = %lf\n", sqrt(table->sigma[B_PART] / n_free));
+        printf("SD[VR_PART] = %lf\n", sqrt(table->sigma[VR_PART]));
+        printf("SD[L_PART] = %lf\n", sqrt(table->sigma[L_PART]));
+        printf("SD[B_PART] = %lf\n", sqrt(table->sigma[B_PART]));
 }
 
 void dump_core_b_solution(const opt_t *solution)

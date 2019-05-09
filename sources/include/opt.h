@@ -34,4 +34,10 @@ double opt_residuals_summary(const linear_eq_solve_t *,
 double get_beta_n(const apogee_rc_t *line, beta_ord_t type);
 double get_mod_vr(const opt_t *solution, 
                   const apogee_rc_t *line);
+
+
+opt_t *exception_algorithm(apogee_rc_table_t *,
+                           opt_t *(*f)(apogee_rc_table_t *),
+                           void (*precalc_errors)(apogee_rc_table_t *,
+                                                  const double));
 #endif // OPT_H

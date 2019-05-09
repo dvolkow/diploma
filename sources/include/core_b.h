@@ -8,5 +8,7 @@ double core_b_get_alpha_n(const apogee_rc_t *,
                           const unsigned int,
                           const double);
 opt_t *core_b_entry(apogee_rc_table_t *);
+void precalc_errors_mu_b(apogee_rc_table_t *,
+                         const double);
 #endif // CORE_B_H
 

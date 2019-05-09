@@ -57,8 +57,27 @@ static double get_cos_phi(const apogee_rc_t *line)
         return (sin(deg_to_rad(DELTA_N)) - sin(line->b) * sin(line->dec)) / (cos(line->b) * cos(line->dec));
 }
 
+static double get_sin_b(const apogee_rc_t *line)
+{
+        return sin(line->dec) * cos(deg_to_rad(90 - DELTA_N)) -
+                cos(line->dec) * sin(line->ra - deg_to_rad(ALPHA_N + 90)) * sin(deg_to_rad(90 - DELTA_N));
+}
+
+static double get_sin_phi_II(const apogee_rc_t *line)
+{
+        return (cos(line->dec) * sin(line->ra - deg_to_rad(ALPHA_N + 90)) * cos(deg_to_rad(90 - DELTA_N)) +
+                                sin(line->dec) * sin(deg_to_rad(90 - DELTA_N))) / cos(asin(get_sin_b(line)));
+}
+
+static double get_cos_phi_II(const apogee_rc_t *line)
+{
+        return cos(line->dec) * cos(line->ra - deg_to_rad(ALPHA_N + 90)) / cos(asin(get_sin_b(line)));
+}
 /*
  * Conversion between galactical and ecliptical velocities:
+ *
+ * 1. Dotting for equations for angles
+ * 2. Substitution and conversion coordinates
  */
 double mu_l_from_pa_dec_pm(const apogee_rc_t *line)
 {
@@ -74,6 +93,43 @@ double mu_b_from_pa_dec_pm(const apogee_rc_t *line)
         const double cos_phi = get_cos_phi(line);
 
         return line->pm_dec * cos_phi - line->pm_ra * sin_phi;
+}
+
+double l_from_radec(const apogee_rc_t *line)
+{
+        return rad_to_deg(atan2(get_sin_phi_II(line), get_cos_phi_II(line))) + L_GAL;
+}
+
+double b_from_radec(const apogee_rc_t *line)
+{
+        return rad_to_deg(asin(get_sin_b(line)));
+}
+
+double mu_l_from_pa_dec_pm_II(const apogee_rc_t *line)
+{
+        double new_ra = line->ra + mas_to_rad(line->pm_ra);
+        double new_dec = line->dec + mas_to_rad(line->pm_dec);
+        apogee_rc_t new_line = *line;
+        new_line.ra = new_ra;
+        new_line.dec = new_dec;
+        double res = deg_to_mas(l_from_radec(&new_line) - l_from_radec(line)) * cos(line->b);
+//        printf("old l = %lf, new l = %lf\n", l_from_radec(line), l_from_radec(&new_line));
+//        printf("old l - new l = %lf\n", res);
+        return res;
+        
+}
+
+double mu_b_from_pa_dec_pm_II(const apogee_rc_t *line)
+{
+        double new_ra = line->ra + mas_to_rad(line->pm_ra);
+        double new_dec = line->dec + mas_to_rad(line->pm_dec);
+        apogee_rc_t new_line = *line;
+        new_line.ra = new_ra;
+        new_line.dec = new_dec;
+        double res = deg_to_mas(b_from_radec(&new_line) - b_from_radec(line));
+//        printf("old b = %lf, new b = %lf\n", b_from_radec(line), b_from_radec(&new_line));
+//        printf("old b - new b = %lf\n", b_from_radec(&new_line) - b_from_radec(line));
+        return res;
 }
 
 /*

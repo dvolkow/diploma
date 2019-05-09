@@ -62,5 +62,4 @@ void get_solution(void);
 int parser_init(void);
 void parser_exit(void);
 
-
 #endif // CORE_H
