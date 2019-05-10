@@ -4,11 +4,13 @@
 #include "jtest.h"
 #include "generators.h"
 #include "core.h"
+#include "db.h"
 
 static init_t g_init_deinit_table[] = {
         { "math subsystem",  math_init, math_exit }
       , { "parser subsystem",  parser_init, parser_exit }
       , { "random generators subsystem",  random_seed_init, random_seed_exit }
+      , { "data base",  db_init, db_exit }
 #ifdef JTEST_DEBUG
       , { "unit test subsystem",  jtest_init, jtest_exit }
 #endif

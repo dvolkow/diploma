@@ -7,6 +7,8 @@
 #define LOWER_BOUND_R0          6.0
 #define UPPER_BOUND_R0          12.0
 
+#define W_SUN_START             7.0
+
 #define SEARCH_PRECISION        0.001
 #define STEP_DIVISOR            4
 
@@ -50,6 +52,8 @@ typedef struct {
         filter_mode_t filter;
 #define DEFAULT_MODE            SIMPLE_MODE
         g_mode_t mode;
+#define DEFAULT_BOLTER          0
+        int bolter;
 } parser_t;
 #define GET_MODE(p_parser)      \
         ((p_parser)->mode)

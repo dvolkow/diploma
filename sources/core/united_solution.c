@@ -218,12 +218,12 @@ static void _residuals_line(const linear_eq_solve_t *v,
                 }
 
                 if (k == L_PART) {
-                        line->vsd[k] = fabs(line->pm_l - K_PM * mod_v);
+                        line->vsd[k] = fabs(line->pm_l - mod_v);
                         continue;
                 }
 
                 if (k == B_PART) {
-                        line->vsd[k] = fabs(line->pm_b - K_PM * mod_v);
+                        line->vsd[k] = fabs(line->pm_b - mod_v);
                         continue;
                 }
         }
@@ -246,12 +246,12 @@ static double _chi_line(const linear_eq_solve_t *v,
                 }
 
                 if (k == L_PART) {
-                        res += pow_double(line->pm_l - K_PM * mod_v, 2) / g_sq[k];
+                        res += pow_double(line->pm_l - mod_v, 2) / g_sq[k];
                         continue;
                 }
 
                 if (k == B_PART) {
-                        res += pow_double(line->pm_b - K_PM * mod_v, 2) / g_sq[k];
+                        res += pow_double(line->pm_b - mod_v, 2) / g_sq[k];
                         continue;
                 }
         }
@@ -287,12 +287,12 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
                 }
 
                 if (k == L_PART) {
-                        res += pow_double(line->pm_l - K_PM * mod_v, 2) / s;
+                        res += pow_double(line->pm_l - mod_v, 2) / s;
                         continue;
                 }
 
                 if (k == B_PART) {
-                        res += pow_double(line->pm_b - K_PM * mod_v, 2) / s;
+                        res += pow_double(line->pm_b - mod_v, 2) / s;
                         continue;
                 }
         }

@@ -51,17 +51,21 @@ typedef struct {
 } rot_curve_t;
 
 #define DEFAULT_BACKGROUND_COUNT        127
-void dump_rand_test(const double *array, 
-                    const dsize_t size);
+void dump_rand_test(const double *, 
+                    const dsize_t);
 
-void dump_table(const apogee_rc_table_t *table);
-void dump_objects_xyz(const apogee_rc_table_t *table, const dsize_t size);
+void dump_table(const apogee_rc_table_t *);
+void dump_objects_xyz(const apogee_rc_table_t *,
+                      const dsize_t,
+                      const char *);
 void dump_all(opt_t *solution, prec_t *p, iteration_storage_t *st);
+void dump_result(const opt_t *opt);
 
 void dump_core_l_solution(const opt_t *);
 void dump_core_b_solution(const opt_t *);
 void dump_core_vr_solution(const opt_t *);
 void dump_united_solution(const opt_t *);
+void dump_united_solution_points(const opt_t *);
 
 void dump_uni_rotation_curve(const rot_curve_t *, const unsigned int);
 void dump_uni_rotation_objs(const apogee_rc_table_t *,
@@ -70,4 +74,9 @@ void dump_uni_rotation_objs(const apogee_rc_table_t *,
 double get_point_by_uni_solution(const opt_t *, const double);
 void dump_table_parameters(const apogee_rc_table_t *,
                            const opt_t *);
+
+
+char *name_for_obj(const unsigned int i,
+                   const unsigned int n,
+                   const char *prefix);
 #endif // GRAPH_H

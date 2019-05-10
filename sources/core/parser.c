@@ -32,6 +32,7 @@ int parser_init(void)
         __cfg->filter           = DEFAULT_FILTER;
         __cfg->mode             = DEFAULT_MODE;
         __cfg->mksize           = DEFAULT_MKSIZE;
+        __cfg->bolter           = DEFAULT_BOLTER;
 
         return 0;
 }
@@ -132,6 +133,13 @@ void parse_args(int argc,
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 mode_assigner(*argv);
+                        } else {
+                                goto usage_ret;
+                        }
+                } else if (matches("-b", *argv) || matches("--bolter", *argv)) {
+                        if (CHECK_ARGS(argc)) {
+                                NEXT_ARG(argc, argv);
+                                res->bolter = atoi(*argv);
                         } else {
                                 goto usage_ret;
                         }

@@ -10,6 +10,7 @@
 #include "generators.h"
 #include "graph.h"
 #include "unicore.h"
+#include "trigonometry.h"
 
 static gsl_rng *g_gauss_rg_p;
 
@@ -78,36 +79,64 @@ void fill_table_by_uni_solution(const opt_t *solution,
         const unsigned int ssize = solution->size;
         dst_table->r_0 = solution->r_0;
         dst_table->size = ssize;
-        parser_t *cfg = get_parser();
 
         unsigned int i;
+        double sd[TOTAL_QTY];
+        for (i = 0; i < TOTAL_QTY; ++i) {
+                sd[i] = sqrt(src_table->sigma[i]);
+#ifdef DEBUG_GEN
+                printf("%s: %u = %lf\n", __func__, i, sd[i]);
+#endif
+        }
 
         for (i = 0; i < ssize; ++i) {
                 dst_table->data[i].id = i;
                 dst_table->data[i].l = src_table->data[i].l;
                 dst_table->data[i].b = src_table->data[i].b;
-                dst_table->data[i].ra = src_table->data[i].ra;
-                dst_table->data[i].dec = src_table->data[i].dec;
                 dst_table->data[i].dist = src_table->data[i].dist;
                 dst_table->data[i].pm_match = src_table->data[i].pm_match;
-                dst_table->data[i].pm_b_err = src_table->data[i].pm_b_err;
-                dst_table->data[i].pm_l_err = src_table->data[i].pm_l_err;
+
+//              TODO: Variable for solutions:
+//              dst_table->data[i].pm_b_err = src_table->data[i].pm_b_err;
+//              dst_table->data[i].pm_l_err = src_table->data[i].pm_l_err;
+
                 dst_table->data[i].v_helio = __gen_gauss_d(rng,
                                                        src_table->data[i].v_helio,
-                                                       src_table->data[i].v_err + sqrt(cfg->n_err));
+                                                       sd[VR_PART]);
+#ifdef DEBUG_GEN
+                if (i < 10)
+                printf("%s[VR]: origin %lf, new %lf\n", __func__, 
+                                src_table->data[i].v_helio, 
+                                dst_table->data[i].v_helio);
+#endif
                 dst_table->data[i].pm_l = __gen_gauss_d(rng,
                                                        src_table->data[i].pm_l,
-                                                       src_table->data[i].pm_l_err + sqrt(cfg->n_err));
+                                                       sd[L_PART]);
+#ifdef DEBUG_GEN
+                if (i < 10)
+                printf("%s[PM_L]: origin %lf, new %lf\n", __func__, 
+                                src_table->data[i].pm_l, 
+                                dst_table->data[i].pm_l);
+#endif
                 dst_table->data[i].pm_b = __gen_gauss_d(rng,
                                                        src_table->data[i].pm_b,
-                                                       src_table->data[i].pm_b_err + sqrt(cfg->n_err));
+                                                       sd[B_PART]);
+#ifdef DEBUG_GEN
+                if (i < 10)
+                printf("%s[PM_B]: origin %lf, new %lf\n", __func__, 
+                                src_table->data[i].pm_b, 
+                                dst_table->data[i].pm_b);
+#endif
         }
+
+        vr_b_iterations(dst_table);
 }
 
 
 
 opt_t *monte_carlo_entry(const opt_t *solution,
                          const apogee_rc_table_t *data,
+                         opt_t *(*f_entry)(apogee_rc_table_t *data),
                          unsigned int count)
 {
         opt_t **results = dv_alloc(sizeof(opt_t *) * count);
@@ -127,10 +156,16 @@ opt_t *monte_carlo_entry(const opt_t *solution,
         main_res.bounds = dv_alloc(sizeof(prec_t) * n);
 
         const unsigned int fits_count = (unsigned int)((ROTC_UPPER_BOUND - ROTC_LOWER_BOUND) / ROTC_STEP_R);
-        //printf("%s: fits_count = %u\n", __func__, fits_count);
         rot_curve_t *curve = dv_alloc(sizeof(rot_curve_t) * fits_count);
+        double **__curve = dv_alloc(sizeof(double *) * count);
         double r = ROTC_LOWER_BOUND;
         unsigned int i, j;
+
+#ifdef DEBUG_GEN
+        double *test_vr = dv_alloc(sizeof(double) * count);
+        double *test_l = dv_alloc(sizeof(double) * count);
+        double *test_b = dv_alloc(sizeof(double) * count);
+#endif
 
         i = 0;
         while (r < ROTC_UPPER_BOUND) {
@@ -141,22 +176,33 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                 ++i;
                 r += ROTC_STEP_R;
         }
-        //printf("%s: i = %u\n", __func__, i);
 
         for (i = 0; i < count; ++i) {
                 fill_table_by_uni_solution(solution, data, tmp_table);
-                results[i] = united_with_nature_errs_entry(tmp_table);
+
+#ifdef DEBUG_GEN
+                test_vr[i] = tmp_table->data[15].v_helio;
+                test_l[i] = tmp_table->data[15].pm_l;
+                test_b[i] = tmp_table->data[15].pm_b;
+#endif
+
+                results[i] = f_entry(tmp_table);
                 printf("%s: [%d/%d] completed\n", __func__, i + 1, count);
+                dump_united_solution_points(results[i]);
+                __curve[i] = (double *)dv_alloc(sizeof(double) * fits_count); 
                 for (j = 0; j < fits_count; ++j) {
                         double theta = get_point_by_uni_solution(results[i], curve[j].r);
-                        if (theta > curve[j].theta_max)
-                                curve[j].theta_max = theta;
-                        if (theta < curve[j].theta_min)
-                                curve[j].theta_min = theta;
+                        __curve[i][j] = theta;
                 }
         }
 
-        dump_uni_rotation_curve(curve, fits_count);
+#ifdef DEBUG_GEN
+        printf("%s: test_vr %lf pm %lf, test_l %lf pm %lf, test_b %lf pm %lf\n", __func__,
+                        get_mean(test_vr, count), get_sd(test_vr, count),
+                        get_mean(test_l, count), get_sd(test_l, count),
+                        get_mean(test_b, count), get_sd(test_b, count));
+#endif
+
         dump_uni_rotation_objs(data, solution);
 
         double *tmp_line = dv_alloc(sizeof(double) * count);
@@ -168,11 +214,26 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                 main_res.s.data[j] = get_mean(tmp_line, count);
         }
 
+        for (i = 0; i < fits_count; ++i) {
+                for (j = 0; j < count; ++j)
+                        tmp_line[j] = __curve[j][i];
+                double sd_curve = get_sd(tmp_line, count);
+                curve[i].theta_max = curve[i].theta + sd_curve;
+                curve[i].theta_min = curve[i].theta - sd_curve;
+        }
+
+        dump_uni_rotation_curve(curve, fits_count);
+
         for (j = 0; j < count; ++j) {
                 tmp_line[j] = results[j]->r_0;
         }
 
         main_res.r_0 = get_mean(tmp_line, count);
+        main_res.dr_0 = get_sd(tmp_line, count);
+        for (j = 0; j < count; ++j) {
+                tmp_line[j] = results[j]->sq;
+        }
+        main_res.sq = get_mean(tmp_line, count);
         opt_t *ret = dv_alloc(sizeof(opt_t));
         *ret = main_res;
         return ret;
@@ -253,12 +314,27 @@ gsl_rng *dv_rand_acquire(gen_mode_t mode)
                         __func__, get_random_double_by_memory());
 #endif
         return __dv_rand_acquire((unsigned long int)(gsl_rng_uniform(g_gauss_rg_p) 
-                                        * 1000 + get_random_double_by_memory()), mode);
+                                        * 1000), mode);
 }
 
 void dv_rand_release(gsl_rng *r)
 {
         gsl_rng_free(r);
+}
+
+
+apogee_rc_table_t *create_apogee_rc_table_by_size(unsigned int size)
+{
+        apogee_rc_t *apogee_rc = dv_alloc(sizeof(apogee_rc_t) * size);
+        apogee_rc_table_t *table = dv_alloc(sizeof(apogee_rc_table_t));
+        table->data = apogee_rc;
+        table->size = size;
+        return table;
+}
+
+apogee_rc_table_t *generic_table(void)
+{
+        return create_apogee_rc_table_by_size(PREALLOC_TABLE_SIZE);
 }
 
 
@@ -274,7 +350,7 @@ void generate(void)
 
         apogee_rc_table_t *table = gen_table_by_solution(solution);
         dump_table(table);
-        dump_objects_xyz(table, table->size);
+        dump_objects_xyz(table, table->size, name_for_obj(__LINE__, 0, "xyz"));
 }
 
 int random_seed_init()

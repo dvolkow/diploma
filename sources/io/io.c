@@ -7,6 +7,7 @@
 #include "mem.h"
 #include "types.h"
 #include "debug.h"
+#include "generators.h"
 
 
 /*
@@ -24,10 +25,8 @@ apogee_rc_table_t *read_table(const char *input_file_name)
                 return NULL;
         }
 
-        apogee_rc_t *apogee_rc = dv_alloc(sizeof(apogee_rc_t) * size);
-        apogee_rc_table_t *table = dv_alloc(sizeof(apogee_rc_table_t));
-        table->data = apogee_rc;
-        table->size = size;
+        apogee_rc_table_t *table = create_apogee_rc_table_by_size(size);
+        apogee_rc_t *apogee_rc = table->data;
 
         unsigned int i;
         for (i = 0; i < size; ++i) {

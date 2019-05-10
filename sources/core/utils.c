@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "types.h"
+#include "db.h"
 #include "mem.h"
 #include "graph.h"
 #include "math.h"
@@ -181,7 +182,9 @@ apogee_rc_table_t *get_limited_replace(const void *table, const filter_t *filter
         for (i = 0; i < src->size; ++i) {
                 if (filter->f(&src->data[i], filter->l, filter->h)) {
                         src->data[count++] = src->data[i];
-                } 
+                } else {
+                        db_add_to_table(&src->data[i], ERROR_LIMITED);
+                }
         }
 
         src->size = count;

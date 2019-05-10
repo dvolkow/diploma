@@ -39,6 +39,7 @@ parameter_t g_ptable[] = {
         { "u" }
       , { "v" }
       , { "w" }
+      , { "o_0" }
       , { "A" }
         // MUST BE LAST:
       , { NULL }
@@ -49,27 +50,25 @@ static char __g_graph_buffer[MAX_G_GRAPH_LEN];
 
 static char *__get_name_by_idx(const unsigned int idx)
 {
-        const unsigned int known = BETA_QTY + 1;
+        const unsigned int known = BETA_QTY + 2;
         if (idx < known) return g_ptable[idx].name;
 
         sprintf(__g_graph_buffer, "th[%u]", idx - known + 2);
         return __g_graph_buffer;
 }
 
-static void dump_unfriendly_result(const opt_t *opt,
-                                   const prec_t *p)
+static void dump_unfriendly_result(const opt_t *opt)
 {
         FILE *fout = fopen(OUTPUT_UNFRESULT_FILENAME, "w");
         CHECK_FILE_AND_RET(fout, OUTPUT_UNFRESULT_FILENAME);
 
-        fprintf(fout, "%0.3lf %0.3lf %0.3lf\n",
+        fprintf(fout, "%0.3lf %0.3lf\n",
                         opt->r_0,
-                        p->h - opt->r_0,
-                        opt->r_0 - p->l);
-        fprintf(fout, "%0.3lf\n",
-                        sqrt(opt->sq / (opt->size + opt->s.size + 1)));
+                        opt->dr_0);
+        //fprintf(fout, "%0.3lf\n",
+        //                sqrt(opt->sq / (opt->size + opt->s.size + 1)));
 
-        fprintf(fout, "%d\n", opt->s.size - BETA_QTY);
+        //fprintf(fout, "%d\n", opt->s.size - BETA_QTY);
         unsigned int i;
         for (i = 0; i < opt->s.size; ++i) {
                 fprintf(fout, "%0.3f %0.3f %0.2lf\n",
@@ -80,8 +79,7 @@ static void dump_unfriendly_result(const opt_t *opt,
         fclose(fout);
 }
 
-void dump_result(opt_t *opt,
-                  prec_t *p)
+void dump_result(const opt_t *opt)
 {
         FILE *fout = fopen(OUTPUT_RESULT_FILENAME, "w");
         CHECK_FILE_AND_RET(fout, OUTPUT_RESULT_FILENAME);
@@ -91,10 +89,10 @@ void dump_result(opt_t *opt,
                         opt->size);
         PRINT_OUTPUT_LINE(fout);
         fprintf(fout, "R_0: \t%0.3lf \t+%0.3lf\n",
-                        opt->r_0, p->h - opt->r_0);
-        fprintf(fout, "\t\t-%0.3lf\n", opt->r_0 - p->l);
+                        opt->r_0, opt->dr_0);
+        fprintf(fout, "\t\t-%0.3lf\n", opt->dr_0);
         fprintf(fout, "SD: \t%0.3lf\n",
-                        sqrt(opt->sq / (opt->size + opt->s.size + 1)));
+                        sqrt(opt->sq / (3 * opt->size - opt->s.size - 1)));
         PRINT_OUTPUT_LINE(fout);
         unsigned int i;
 #ifdef DEBUG
@@ -115,7 +113,7 @@ void dump_result(opt_t *opt,
         PRINT_OUTPUT_LINE(fout);
         fclose(fout);
 
-        dump_unfriendly_result(opt, p);
+        dump_unfriendly_result(opt);
 }
 
 double get_point_by_uni_solution(const opt_t *solution, const double r)
@@ -295,6 +293,20 @@ void dump_united_solution(const opt_t *solution)
         printf("---------------\n");
 }
 
+void dump_united_solution_points(const opt_t *solution)
+{
+        printf("United Solution:\n");
+        printf("R_0: %lf\n", solution->r_0);
+        printf("u_sun: %lf\n", solution->s.data[0]);
+        printf("v_sun: %lf\n", solution->s.data[1]);
+        printf("w_sun: %lf\n", solution->s.data[2]);
+        printf("omega_0: %lf\n", solution->s.data[3]);
+        printf("A: %lf\n", solution->s.data[4]);
+        printf("khi_sq: %lf\n", solution->sq);
+        printf("N_free: %d\n", 3 * solution->size - solution->s.size - 1);
+        printf("---------------\n");
+}
+
 void dump_table_parameters(const apogee_rc_table_t *table,
                            const opt_t *solution)
 {
@@ -370,9 +382,10 @@ void dump_background(const iteration_storage_t *st,
 }
 
 
+
 void dump_all(opt_t *solution, prec_t *p, iteration_storage_t *st)
 {
-        dump_result(solution, p);
+//        dump_result(solution, p);
 	dump_averages(st, solution, DISTANCE);
         dump_rotation_curve(st, solution);
 //      dump_background(st, solution, DEFAULT_BACKGROUND_COUNT);
@@ -437,14 +450,12 @@ static double get_theta_uni_obj(const apogee_rc_t *line,
                 get_u_g(line, solution) * sin_beta_uni(line, solution->r_0);
 }
 
-void dump_uni_rotation_objs(const apogee_rc_table_t *table,
-                            const opt_t *solution)
+void dump_uni_rotation_objs_named(const apogee_rc_table_t *table,
+                                  const opt_t *solution,
+                                  const char *filename)
 {
-        FILE *oout = fopen(DF_OUT_FILE_NAME, "w");
-        CHECK_FILE_AND_RET(oout, DF_OUT_FILE_NAME);
-
-        FILE *sout = fopen(SUN_POINT_FILE_NAME, "w");
-        CHECK_FILE_AND_RET(sout, SUN_POINT_FILE_NAME);
+        FILE *oout = fopen(filename, "w");
+        CHECK_FILE_AND_RET(oout, filename);
 
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
@@ -452,11 +463,22 @@ void dump_uni_rotation_objs(const apogee_rc_table_t *table,
                                 get_R_distance(&table->data[i], solution->r_0),
                                 get_theta_uni_obj(&table->data[i], solution));
         }
+        fclose(oout);
+}
+
+void dump_uni_rotation_objs(const apogee_rc_table_t *table,
+                            const opt_t *solution)
+{
+        dump_uni_rotation_objs_named(table,
+                                     solution,
+                                     DF_OUT_FILE_NAME);
+
+        FILE *sout = fopen(SUN_POINT_FILE_NAME, "w");
+        CHECK_FILE_AND_RET(sout, SUN_POINT_FILE_NAME);
 
         fprintf(sout, "%lf %lf\n", solution->r_0, solution->r_0 * solution->s.data[BETA_QTY] + solution->s.data[1]);
 
         fclose(sout);
-        fclose(oout);
 }
 
 void dump_line_xyz(const apogee_rc_t *line)
@@ -473,10 +495,12 @@ void dump_objects_xyz_is(const iteration_storage_t *storage)
 }
 
 
-void dump_objects_xyz(const apogee_rc_table_t *table, const dsize_t size)
+void dump_objects_xyz(const apogee_rc_table_t *table,
+                      const dsize_t size,
+                      const char *filename)
 {
-        FILE *fout = fopen("xyz_obj.txt", "w");
-        CHECK_FILE_AND_RET(fout, "xyz_obj.txt");
+        FILE *fout = fopen(filename, "w");
+        CHECK_FILE_AND_RET(fout, filename);
 
         assert(table->size >= size);
         dsize_t i;

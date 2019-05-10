@@ -4,6 +4,7 @@
 #include <assert.h>
 
 
+#include "db.h"
 #include "core.h"
 #include "core_b.h"
 #include "core_l.h"
@@ -139,14 +140,16 @@ static opt_t *__get_solution_iterate(apogee_rc_table_t *table,
 
         opt_t *solution = opt_linear(eq, table, &params);
 
+        /**
         prec_t p = {
                 .l = lower_bound_search(eq, table, solution->r_0),
                 .h = upper_bound_search(eq, table, solution->r_0)
         };
 
+        */
         get_errors(solution, table);
-        iteration_storage_t *st = iteration_storage_create(table, solution);
-        dump_all(solution, &p, st);
+        //iteration_storage_t *st = iteration_storage_create(table, solution);
+        //dump_all(solution, &p, st);
         return solution;
 }
 
@@ -163,6 +166,7 @@ void get_solution()
                                                    (size + BETA_QTY));
         apogee_rc_table_t *table = read_table(cfg->input_file_name);
 
+        db_add(generic_table()); // ERROR_LIMITED
 
         if (table == NULL) {
                 printf("%s: fail to open %s!\n",
@@ -173,7 +177,7 @@ void get_solution()
 
         filter_get_and_apply(table);
 
-        dump_objects_xyz(table, table->size);
+        dump_objects_xyz(table, table->size, name_for_obj(__LINE__, 0, __func__));
         dump_table(table);
 
         linear_equation_t eq = {
@@ -193,10 +197,12 @@ void get_solution()
                         __func__, solution->r_0);
 #endif
 
+        /**
         prec_t p = {
                 .l = lower_bound_search(&eq, table, solution->r_0),
                 .h = upper_bound_search(&eq, table, solution->r_0)
         };
+        */
 #ifdef DEBUG
         printf("%s: solution: -R_0 = %lf\n", 
                         __func__, p.l);
@@ -205,8 +211,8 @@ void get_solution()
 #endif
 
         get_errors(solution, table);
-        iteration_storage_t *st = iteration_storage_create(table, solution);
-        dump_all(solution, &p, st);
+        //iteration_storage_t *st = iteration_storage_create(table, solution);
+        //dump_all(solution, &p, st);
 
         // TODO: function's interface need improve
         if (cfg->mode == ITERATE_MODE)
@@ -232,12 +238,14 @@ void get_solution()
         }
 
         if (cfg->mode == ITERATE_MODE) {
-                dump_objects_xyz(table, table->size);
+                dump_objects_xyz(table, table->size, name_for_obj(178, table->size, __func__));
                 dump_table(table);
-                dump_all(solution, &p, st);
+                //dump_all(solution, &p, st);
         }
 
         get_iterate_solution(table, solution);
+        apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
+        dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
         //get_iterate_solution_nerr(table, solution);
 }
 
@@ -266,9 +274,44 @@ void get_iterate_solution_nerr(apogee_rc_table_t *table,
                 old_size = table->size;
         }
         
-        opt_t *mk_sol = monte_carlo_entry(solution, table, cfg->mksize);
+        opt_t *mk_sol = monte_carlo_entry(solution,
+                                          table,
+                                          united_with_nature_errs_entry,
+                                          cfg->mksize);
         dump_united_solution(mk_sol);
 }
+
+
+void vr_b_iterations(apogee_rc_table_t *table)
+{
+        double sd[TOTAL_QTY];
+        table->w_sun = W_SUN_START;
+        double w_old = W_SUN_START;
+        double r_old = table->r_0;
+
+        core_vr_entry(table);
+        double r_new = table->r_0;
+        core_b_entry(table);
+        double w_new = table->w_sun;
+        sd[B_PART] = table->sigma[B_PART];
+
+        while (ITER_CONDITION(w_old, w_new, r_old, r_new)) {
+                r_old = r_new;
+                w_old = w_new;
+                core_vr_entry(table);
+                r_new = table->r_0;
+                core_b_entry(table);
+                w_new = table->w_sun;
+                sd[B_PART] = table->sigma[B_PART];
+        }
+
+        core_vr_entry(table);
+        sd[VR_PART] = table->sigma[VR_PART];
+        core_l_entry(table);
+        sd[L_PART] = table->sigma[L_PART];
+        uni_g_sd_init(sd);
+}
+
 
 void get_iterate_solution(apogee_rc_table_t *table,
                           opt_t *solution)
@@ -279,8 +322,8 @@ void get_iterate_solution(apogee_rc_table_t *table,
         cfg->filter = MATCH_FILTER;
         table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
 
-        table->w_sun = 7;
-        double w_old = 7;
+        table->w_sun = W_SUN_START;
+        double w_old = W_SUN_START;
         double r_old = table->r_0;
 #ifdef DEBUG
         printf("%s: r_old %lf, w_old %lf\n",
@@ -290,11 +333,13 @@ void get_iterate_solution(apogee_rc_table_t *table,
         solution = exception_algorithm(table,
                                        core_vr_entry,
                                        precalc_errors_vr);
+        sd[VR_PART] = table->sigma[VR_PART];
         double r_new = solution->r_0;
         solution = exception_algorithm(table,
                                        core_b_entry,
                                        precalc_errors_mu_b);
         double w_new = table->w_sun;
+        sd[B_PART] = table->sigma[B_PART];
 
 #ifdef DEBUG
         printf("%s: r_new %lf, w_new %lf\n",
@@ -310,11 +355,11 @@ void get_iterate_solution(apogee_rc_table_t *table,
                                                core_vr_entry,
                                                precalc_errors_vr);
                 r_new = table->r_0;
-                sd[VR_PART] = pow_double(solution->sq, 2);
+                sd[VR_PART] = table->sigma[VR_PART];
                 solution = exception_algorithm(table,
                                                core_b_entry,
                                                precalc_errors_mu_b);
-                sd[B_PART] = pow_double(solution->sq, 2);
+                sd[B_PART] = table->sigma[B_PART];
                 w_new = table->w_sun;
                 printf("%s: #%d completed.\n", __func__, i++);
 #ifdef DEBUG
@@ -323,19 +368,33 @@ void get_iterate_solution(apogee_rc_table_t *table,
 #endif
         }
         solution = core_vr_entry(table);
-        sd[VR_PART] = pow_double(solution->sq, 2);
+        sd[VR_PART] = table->sigma[VR_PART];
         solution = core_l_entry(table);
-        sd[L_PART] = pow_double(solution->sq, 2);
+        sd[L_PART] = table->sigma[L_PART];
 
         uni_g_sd_init(sd);
         /** TODO: need modify dispersion
-        solution = exception_algorithm(table,
+         */
+        if (cfg->bolter > 0)
+                solution = exception_algorithm(table,
                                        united_entry,
                                        precalc_errors_uni); 
-         */
-        solution = united_entry(table);
-        dump_united_solution(solution);
-        dump_table_parameters(table, solution);
+        else
+                solution = united_entry(table);
+
+        opt_t *mk_sol = monte_carlo_entry(solution,
+                                          table,
+                                          united_entry,
+                                          cfg->mksize);
+        dump_united_solution(mk_sol);
+        dump_table_parameters(table, mk_sol);
+
+        dump_result(mk_sol);
+
+        apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
+        dump_uni_rotation_objs_named(dumped,
+                                     solution,
+                                     "ERROR_LIMITED_R_THETA");
 
         /**
         cfg->filter = ERR_FILTER;

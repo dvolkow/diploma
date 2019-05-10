@@ -74,6 +74,7 @@ typedef struct {
 typedef struct {
         linear_eq_solve_t s;
         double r_0;
+        double dr_0;
         double sq;
         prec_t *bounds;
         unsigned int size;

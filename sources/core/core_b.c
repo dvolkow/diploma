@@ -100,10 +100,12 @@ static double core_b_residuals_line(const opt_t *solution,
                                     apogee_rc_t *line)
 {
         const double mod_v = core_b_get_mod_v(solution, line);
-//        printf("mod_v = %lf, line->pm_b = %lf\n", K_PM * mod_v, line->pm_b);
+#ifdef DEBUG
+        printf("mod_v = %lf, line->pm_b = %lf\n", mod_v, line->pm_b);
+#endif
         /* pm_l and pm_b already multiplied in k */
-        line->eps = fabs(line->pm_b - K_PM * mod_v);
-        return pow_double(line->pm_b - K_PM * mod_v, 2);
+        line->eps = fabs(line->pm_b - mod_v);
+        return pow_double(line->pm_b - mod_v, 2);
 }
 
 
@@ -114,7 +116,6 @@ static double residuals_summary(const opt_t *solution,
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
                 sum += core_b_residuals_line(solution, &table->data[i]);
-//                printf("%u: %lf\n", i, sum);
         }
         assert(sum > 0);
         return sum;
@@ -200,10 +201,13 @@ opt_t *core_b_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_b_get_linear_solution(&eq, table);
+#ifdef DEBUG_B
         dump_core_b_solution(opt);
+#endif
         table->w_sun = opt->s.data[2];
-        table->sigma[B_PART] = opt->sq;
+        table->sigma[B_PART] = pow_double(opt->sq, 2);
 #ifdef DEBUG
+        dump_table_parameters(table, NULL);
         printf("%s: get w_0 = %lf\n",
                         __func__, table->w_sun);
 #endif

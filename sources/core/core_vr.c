@@ -155,10 +155,13 @@ opt_t *core_vr_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_vr_get_solution(&eq, table);
-        opt->sq = sqrt(opt->sq / (table->size - eq.size - 1));
         table->r_0 = opt->r_0;
-        table->sigma[VR_PART] = opt->sq;
+        table->sigma[VR_PART] = opt->sq / (table->size - eq.size - 1);
+        opt->sq = sqrt(table->sigma[VR_PART]);
 
+#ifdef DEBUG_VR
         dump_core_vr_solution(opt);
+        dump_table_parameters(table, NULL);
+#endif
         return opt;
 }

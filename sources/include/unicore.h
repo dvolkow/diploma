@@ -15,6 +15,7 @@ double core_vr_get_alpha_n(const apogee_rc_t *,
                            const unsigned int ,
                            const double );
 void uni_g_sd_init(const double *);
+void vr_b_iterations(apogee_rc_table_t *);
 opt_t *united_entry(apogee_rc_table_t *);
 opt_t *united_with_nature_errs_entry(apogee_rc_table_t *);
 

@@ -101,8 +101,8 @@ static double core_l_residuals_line(const opt_t *solution,
 {
         const double mod_v = core_l_get_mod_v(solution, line);
         /* pm_l and pm_b already multiplied in k */
-        line->eps = fabs(line->pm_l - K_PM * mod_v);
-        return pow_double(line->pm_l - K_PM * mod_v, 2);
+        line->eps = fabs(line->pm_l - mod_v);
+        return pow_double(line->pm_l - mod_v, 2);
 }
 
 
@@ -196,7 +196,10 @@ opt_t *core_l_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_l_get_linear_solution(&eq, table);
-        table->sigma[L_PART] = opt->sq;
+        table->sigma[L_PART] = pow_double(opt->sq, 2);
+#ifdef DEBUG_L
         dump_core_l_solution(opt);
+        dump_table_parameters(table, NULL);
+#endif
         return opt;
 }
