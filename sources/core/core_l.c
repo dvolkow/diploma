@@ -197,6 +197,7 @@ opt_t *core_l_entry(apogee_rc_table_t *table)
 
         opt_t *opt = core_l_get_linear_solution(&eq, table);
         table->sigma[L_PART] = pow_double(opt->sq, 2);
+        table->omega_0 = opt->s.data[BETA_QTY - 1];
 #ifdef DEBUG_L
         dump_core_l_solution(opt);
         dump_table_parameters(table, NULL);

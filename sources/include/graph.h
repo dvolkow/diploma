@@ -75,6 +75,21 @@ double get_point_by_uni_solution(const opt_t *, const double);
 void dump_table_parameters(const apogee_rc_table_t *,
                            const opt_t *);
 
+void dump_objects_theta_R(const apogee_rc_table_t *,
+                          opt_t *,
+                          unsigned int,
+                          const char *);
+
+double get_c_point_by_part_solution(const opt_t *, 
+                                    const double,
+                                    unsigned int,
+                                    const double,
+                                    unsigned int);
+
+void dump_part_rotation_curve(const opt_t *,
+                              unsigned int,
+                              const char *,
+                              const double);
 
 char *name_for_obj(const unsigned int i,
                    const unsigned int n,

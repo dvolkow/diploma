@@ -8,6 +8,9 @@
 #include "trigonometry.h"
 #include "io.h"
 #include "opt.h"
+#include "core_l.h"
+#include "core_b.h"
+#include "core_vr.h"
 #include "math.h"
 #include "utils.h"
 #include "unicore.h"
@@ -116,7 +119,9 @@ void dump_result(const opt_t *opt)
         dump_unfriendly_result(opt);
 }
 
-double get_point_by_uni_solution(const opt_t *solution, const double r)
+
+double get_point_by_uni_solution(const opt_t *solution, 
+                                 const double r)
 {
         double theta = r * solution->s.data[BETA_QTY] -
                                         2 * solution->s.data[BETA_QTY + 1] * (r - solution->r_0);
@@ -127,6 +132,145 @@ double get_point_by_uni_solution(const opt_t *solution, const double r)
         }
 
         return theta;
+}
+
+double get_c_point_by_part_solution(const opt_t *solution, 
+                                    const double r,
+                                    unsigned int type,
+                                    const double omega_0,
+                                    unsigned int A_idx)
+{
+        double theta = 2 * solution->s.data[A_idx] * (r - solution->r_0);
+        double theta_s = 0;
+
+        unsigned int i;
+        for (i = A_idx + 1; i < solution->s.size; ++i) {
+                theta_s += solution->s.data[i] / dv_factorial(i - A_idx + 1) * 
+                                        pow_double(r - solution->r_0, i - A_idx + 1);
+        }
+
+        double theta_omega = r * omega_0;
+
+        return type != B_PART ? -theta + theta_s + theta_omega
+                              : theta - theta_s + theta_omega;
+}
+
+
+
+
+static double get_mu_sun(const apogee_rc_t *line,
+                         const linear_eq_solve_t *solution,
+                         double (*f_beta)(const apogee_rc_t *, 
+                                          beta_ord_t),
+                        unsigned int A_idx)
+{
+        unsigned int i;
+        double res = 0;
+
+        for (i = 0; i < A_idx; ++i) {
+                res += f_beta(line, i) * solution->data[i];
+        }
+
+        return res;
+}
+
+
+
+/**
+ * Object to Theta-R diagramm
+ */
+static double obs_theta_R_by_l(const opt_t *solution, 
+                               const apogee_rc_t *line,
+                               const double omega_0)
+{
+        double R = get_R_distance(line, solution->r_0);
+        double mu_l = get_mu_sun(line, &solution->s, core_l_get_beta_n, BETA_QTY);
+        return ((line->pm_l - mu_l + omega_0 * line->cos_b) / 
+                        (solution->r_0 * line->cos_l / line->dist - line->cos_b) +                              omega_0) * R;
+}
+
+
+static double obs_theta_R_by_b(const opt_t *solution, 
+                               const apogee_rc_t *line,
+                               const double omega_0)
+{
+        double R = get_R_distance(line, solution->r_0);
+        double mu_b = get_mu_sun(line, &solution->s, core_b_get_beta_n, BETA_QTY);
+        return ((-line->pm_b + mu_b) / (solution->r_0 * line->sin_l * line->sin_b) * line->dist + omega_0) * R;
+}
+
+
+static double obs_theta_R_by_vr(const opt_t *solution, 
+                                const apogee_rc_t *line,
+                                const double omega_0)
+{
+        double R = get_R_distance(line, solution->r_0);
+        double vr_sun = get_mu_sun(line, &solution->s, __core_vr_get_beta_n, BETA_QTY_FIX);
+        return ((line->v_helio - vr_sun - __core_vr_get_beta_n(line, THIRD)) / (solution->r_0 * line->sin_l * line->cos_b) + omega_0) * R;
+}
+
+
+/**
+ * Generic dumper for objects. 
+ *
+ * @type: see to enum VR_PART, B_PART, L_PART
+ */
+void dump_objects_theta_R(const apogee_rc_table_t *table,
+                          opt_t *solution,
+                          unsigned int type,
+                          const char *filename)
+{
+        unsigned int size = table->size;
+        unsigned int i;
+
+        FILE *fout = fopen(filename, "w");
+        CHECK_FILE_AND_RET(fout, filename);
+
+        double (*f)(const opt_t *, const apogee_rc_t *, const double);
+
+        if (type == VR_PART) {
+                f = obs_theta_R_by_vr;
+        }
+
+        if (type == L_PART) {
+                solution->s.data[BETA_QTY - 1] = 0;
+                f = obs_theta_R_by_l;
+        }
+
+        if (type == B_PART) {
+                f = obs_theta_R_by_b;
+        }
+
+        for (i = 0; i < size; ++i) {
+                double R = get_R_distance(&table->data[i], solution->r_0);
+                double theta = f(solution, &table->data[i], table->omega_0);
+                fprintf(fout, "%lf %lf\n", R, theta);
+        }
+
+        fclose(fout);
+}
+
+void dump_part_rotation_curve(const opt_t *solution,
+                              unsigned int type,
+                              const char *filename,
+                              const double omega_0)
+{
+        double R = ROTC_LOWER_BOUND;
+        FILE *fout = fopen(filename, "w");
+        CHECK_FILE_AND_RET(fout, filename);
+        unsigned int A_idx = type == VR_MODE ? BETA_QTY_FIX
+                                             : BETA_QTY;
+
+        while (R < ROTC_UPPER_BOUND) {
+                double theta = get_c_point_by_part_solution(solution,
+                                                            R, type,
+                                                            omega_0,
+                                                            A_idx);
+                fprintf(fout, "%lf %lf\n", R, theta);
+                R += ROTC_STEP_R;
+        }
+
+        fclose(fout);
 }
 
 void dump_uni_rotation_curve(const rot_curve_t *curve, const unsigned int size)

@@ -367,10 +367,30 @@ void get_iterate_solution(apogee_rc_table_t *table,
                         __func__, r_new, w_new);
 #endif
         }
+
         solution = core_vr_entry(table);
         sd[VR_PART] = table->sigma[VR_PART];
+
+        solution = core_b_entry(table);
+        sd[B_PART] = table->sigma[B_PART];
+
         solution = core_l_entry(table);
         sd[L_PART] = table->sigma[L_PART];
+        dump_objects_theta_R(table, solution, L_PART, "L_PART_OBJ.txt");
+        dump_part_rotation_curve(solution, L_PART, "l_cur.txt", table->omega_0);
+
+
+        solution = core_vr_entry(table);
+        dump_objects_theta_R(table, solution, VR_PART, "VR_PART_OBJ.txt");
+        dump_part_rotation_curve(solution, VR_PART, "vr_cur.txt", table->omega_0);
+
+        solution = core_b_entry(table);
+#ifdef DEBUG
+        printf("w_sun = %lf, R_0 = %lf, omega_0 = %lf\n", 
+                        table->w_sun, table->r_0, table->omega_0);
+#endif
+        dump_objects_theta_R(table, solution, B_PART, "B_PART_OBJ.txt");
+        dump_part_rotation_curve(solution, B_PART, "b_cur.txt", table->omega_0);
 
         uni_g_sd_init(sd);
         /** TODO: need modify dispersion

@@ -6,16 +6,15 @@
 #include "mem.h"
 #include "types.h"
 #include "core.h"
+#include "core_vr.h"
 #include "opt.h"
 #include "unicore.h"
-
-#define BETA_QTY_FIX    2
 
 static double w_0 = 0;
 static matrix_line_t g_matrix_line;
 
-static double __core_vr_get_beta_n(const apogee_rc_t *line,
-                                 beta_ord_t type)
+double __core_vr_get_beta_n(const apogee_rc_t *line,
+                            beta_ord_t type)
 {
         switch (type) {
                 case FIRST:
@@ -24,7 +23,7 @@ static double __core_vr_get_beta_n(const apogee_rc_t *line,
                         return -line->sin_l * line->cos_b;
                 case THIRD:
                         // fixed parameter:
-                        return w_0 * (-line->sin_b);
+                        return w_0 * line->sin_b;
                 default:
 #ifdef DEBUG
                         printf("%s: type error!\n", __func__);

@@ -77,6 +77,7 @@ typedef struct {
         apogee_rc_t *data;
         double r_0; 
         double w_sun; 
+        double omega_0; 
         double n_err; // natural errors ^ 2 
         double sigma[3];
         unsigned int size;
