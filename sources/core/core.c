@@ -177,7 +177,7 @@ void get_solution()
 
         filter_get_and_apply(table);
 
-        dump_objects_xyz(table, table->size, name_for_obj(__LINE__, 0, __func__));
+        dump_objects_xyz(table, table->size, name_for_obj(178, 0, __func__));
         dump_table(table);
 
         linear_equation_t eq = {

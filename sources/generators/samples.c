@@ -90,7 +90,7 @@ void fill_table_by_uni_solution(const opt_t *solution,
         }
 
         for (i = 0; i < ssize; ++i) {
-                dst_table->data[i].id = i;
+                //dst_table->data[i].id = i;
                 dst_table->data[i].l = src_table->data[i].l;
                 dst_table->data[i].b = src_table->data[i].b;
                 dst_table->data[i].dist = src_table->data[i].dist;
@@ -247,7 +247,7 @@ apogee_rc_table_t *gen_table_by_solution(const opt_t *solution)
         assert(rng != NULL);
 
 
-        const dsize_t ssize = solution->size;
+        const unsigned int ssize = solution->size;
         table->r_0 = solution->r_0;
         table->size = ssize;
         table->data = dv_alloc(sizeof(apogee_rc_t) * ssize);
@@ -263,7 +263,7 @@ apogee_rc_table_t *gen_table_by_solution(const opt_t *solution)
 #define RHIGH   12.83    
 
         for (i = 0; i < ssize; ++i) {
-                table->data[i].id = i;
+                //table->data[i].id = i;
                 table->data[i].l = deg_to_rad(__gen_flat_d(rng, LLOW, LHIGH));
                 table->data[i].b = deg_to_rad(__gen_b_d(rng, 0, 15)); //__gen_flat_d(rng, BLOW, BHIGH);
                 table->data[i].dist = __gen_dist_d(rng, 3, 1.5); //__gen_flat_d(rng, RLOW, RHIGH);
