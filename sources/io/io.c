@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "io.h"
 #include "math.h"
@@ -50,11 +51,16 @@ apogee_rc_table_t *read_table(const char *input_file_name)
                 apogee_rc[i].ra = deg_to_rad(apogee_rc[i].ra);
                 apogee_rc[i].dec = deg_to_rad(apogee_rc[i].dec);
                 apogee_rc[i].pm_ra = apogee_rc[i].pm_ra / cos(apogee_rc[i].dec);
-                apogee_rc[i].id = i;
+                //apogee_rc[i].id = i;
                 apogee_rc[i].pm_l = K_PM * mu_l_from_pa_dec_pm_II(apogee_rc + i);
                 apogee_rc[i].pm_b = K_PM * mu_b_from_pa_dec_pm_II(apogee_rc + i);
                 apogee_rc[i].pm_l_err = errors_ecliptic_to_gal(apogee_rc + i);
                 apogee_rc[i].pm_b_err = errors_ecliptic_to_gal(apogee_rc + i);
+
+                apogee_rc[i].sin_l = sin(apogee_rc[i].l);
+                apogee_rc[i].cos_l = cos(apogee_rc[i].l);
+                apogee_rc[i].cos_b = cos(apogee_rc[i].b);
+                apogee_rc[i].sin_b = sin(apogee_rc[i].b);
 #ifdef DEBUG
                 printf("%u (%d): pm_l_I = %lf pm_b_I = %lf | pm_l_II = %lf pm_b_II = %lf\n", i,
                                 apogee_rc[i].pm_match,

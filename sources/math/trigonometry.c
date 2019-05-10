@@ -15,8 +15,8 @@ double get_R_distance(const apogee_rc_t *line, const double r_0)
         double dist = line->dist;
         assert(dist > 0);
         assert(r_0 > 0);
-        double root = dist * dist * cos(line->b) * cos(line->b) +
-                r_0 * r_0 - 2 * r_0 * dist * cos(line->l) * cos(line->b);
+        double root = dist * dist * line->cos_b * line->cos_b +
+                r_0 * r_0 - 2 * r_0 * dist * line->cos_l * line->cos_b;
 
         assert(root >= 0);
         return sqrt(root);
@@ -24,17 +24,17 @@ double get_R_distance(const apogee_rc_t *line, const double r_0)
 
 static double get_x(const apogee_rc_t *line) 
 {
-        return line->dist * cos(line->l) * cos(line->b);
+        return line->dist * line->cos_l * line->cos_b;
 }
 
 static double get_y(const apogee_rc_t *line) 
 {
-        return line->dist * sin(line->l) * cos(line->b);
+        return line->dist * line->sin_l * line->cos_b;
 }
 
 static double get_z(const apogee_rc_t *line) 
 {
-        return line->dist * sin(line->b);
+        return line->dist * line->sin_b;
 }
 
 point_t *get_point(const apogee_rc_t *line) 

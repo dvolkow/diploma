@@ -19,12 +19,12 @@ static double __core_vr_get_beta_n(const apogee_rc_t *line,
 {
         switch (type) {
                 case FIRST:
-                        return -cos(line->l) * cos(line->b);
+                        return -line->cos_l * line->cos_b;
                 case SECOND:
-                        return -sin(line->l) * cos(line->b);
+                        return -line->sin_l * line->cos_b;
                 case THIRD:
                         // fixed parameter:
-                        return w_0 * (-sin(line->b));
+                        return w_0 * (-line->sin_b);
                 default:
 #ifdef DEBUG
                         printf("%s: type error!\n", __func__);

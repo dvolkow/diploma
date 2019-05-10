@@ -43,19 +43,25 @@ typedef struct {
         double  v_err;
         double  pm_ra_err;
         double  pm_dec_err;
-        int     nvis;
-        int     pm_match;
 
+        // precalc data:
         double  pm_l;
         double  pm_b;
         double  pm_l_err;
         double  pm_b_err;
-        // solution data:
         
+        double  sin_l;
+        double  cos_l;
+        double  sin_b;
+        double  cos_b;
+        
+        // solution data:
         double  eps;
         double  vsd[3];
 #define __mem_7 offsetof(apogee_rc_t, eps)
-        dsize_t id;
+        // dsize_t id;
+        int     nvis;
+        int     pm_match;
 } apogee_rc_t;
 
 

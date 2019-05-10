@@ -17,11 +17,11 @@ double core_l_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 {
         switch (type) {
                 case FIRST:
-                        return sin(line->l) / (line->dist);
+                        return line->sin_l / (line->dist);
                 case SECOND:
-                        return -cos(line->l) / (line->dist);
+                        return -(line->cos_l) / (line->dist);
                 case THIRD:
-                        return -cos(line->b);
+                        return -(line->cos_b);
                 default:
 #ifdef DEBUG
                         printf("%s: type error!\n", __func__);
@@ -38,7 +38,7 @@ double core_l_get_alpha_n(const apogee_rc_t *line,
         const double r = line->dist;
         const double delta_R = R - r0;
 
-        const double tmp = (r0 * cos(line->l) / r - cos(line->b)) / R;
+        const double tmp = (r0 * line->cos_l / r - (line->cos_b)) / R;
 
         if (n > 1) {
                 return (pow_double(delta_R, n) * tmp) / dv_factorial(n);

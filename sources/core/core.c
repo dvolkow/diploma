@@ -26,11 +26,11 @@ double core_vr_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
 {
         switch (type) {
                 case FIRST:
-                        return -cos(line->l) * cos(line->b);
+                        return -line->cos_l * line->cos_b;
                 case SECOND:
-                        return -sin(line->l) * cos(line->b);
+                        return -line->sin_l * line->cos_b;
                 case THIRD:
-                        return -sin(line->b);
+                        return -line->sin_b;
                 default:
 #ifdef DEBUG
                         printf("%s: type error!\n", __func__);
@@ -39,10 +39,10 @@ double core_vr_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
         }
 }
 
-static double s_alpha_n(const double R, 
-                        const double sinl, 
-                        const double cosb, 
-                        const double r_0, const unsigned int n)
+static inline double s_alpha_n(const double R,
+                               const double sinl,
+                               const double cosb,
+                               const double r_0, const unsigned int n)
 {
         if (n == 1)
                 return -2 * (R - r_0) * r_0 * sinl * cosb / R;
@@ -57,7 +57,7 @@ double core_vr_get_alpha_n(const apogee_rc_t *line,
         assert(n > 0);
 
         double R = get_R_distance(line, r_0);
-        return s_alpha_n(R, sin(line->l), cos(line->b), r_0, n);
+        return s_alpha_n(R, line->sin_l, line->cos_b, r_0, n);
 }
 
 void fill_mnk_matrix_vr(linear_equation_t *eq,
@@ -177,7 +177,7 @@ void get_solution()
 
         filter_get_and_apply(table);
 
-        dump_objects_xyz(table, table->size, name_for_obj(__LINE__, 0, __func__));
+        dump_objects_xyz(table, table->size, name_for_obj(178, 0, __func__));
         dump_table(table);
 
         linear_equation_t eq = {
