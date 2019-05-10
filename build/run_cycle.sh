@@ -5,4 +5,4 @@ do
         ./run.sh $i $2 $3 $4
 done 
 mv result_* ../results/
-./clean.sh
+#./clean.sh

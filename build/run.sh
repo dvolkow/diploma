@@ -6,14 +6,17 @@ H=$3
 
 if [[ -n "$4" ]]; then
         ./diploma -f ${IN_FILE} --ord ${ORD} --mksize ${H} -b $4
-        NEW_DIR=$(echo "result_${ORD}__${H}_$(echo ${IN_FILE}_$4 | sed 's/.txt//')")
+        NEW_DIR=$(echo "result_${ORD}_${H}_$(echo ${IN_FILE}_$4 | sed 's/.txt//')")
 elif [[ -n "$3" ]]; then
         ./diploma -f ${IN_FILE} --ord ${ORD} --mksize ${H} -b 1
         NEW_DIR=$(echo "result_${ORD}_${H}_$(echo ${IN_FILE} | sed 's/.txt//')")
 else 
-        ./diploma -f ${IN_FILE} --ord ${ORD} 
+        ./diploma -f ${IN_FILE} --ord ${ORD} -b 1 
         NEW_DIR=$(echo "result_${ORD}_$(echo ${IN_FILE} | sed 's/.txt//')")
 fi
+
+mv get_solution_180_0 get_solution_178_0
+
 gnuplot ../sources/scripts/main.gnu
 #gnuplot ../sources/scripts/background.gnu
 gnuplot ../sources/scripts/xy.gnu
