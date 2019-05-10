@@ -38,7 +38,7 @@ double core_l_get_alpha_n(const apogee_rc_t *line,
         const double r = line->dist;
         const double delta_R = R - r0;
 
-        const double tmp = (r0 * line->cos_l) / r - (line->cos_b) / R;
+        const double tmp = (r0 * line->cos_l / r - (line->cos_b)) / R;
 
         if (n > 1) {
                 return (pow_double(delta_R, n) * tmp) / dv_factorial(n);
