@@ -15,36 +15,47 @@ else
         NEW_DIR=$(echo "result_${ORD}_$(echo ${IN_FILE} | sed 's/.txt//')")
 fi
 
-mv get_solution_180_0 get_solution_178_0
+#mv get_solution_180_0 get_solution_178_0
 
-gnuplot ../sources/scripts/main.gnu
-#gnuplot ../sources/scripts/background.gnu
-gnuplot ../sources/scripts/xy.gnu
-gnuplot ../sources/scripts/yz.gnu
-gnuplot ../sources/scripts/xz.gnu
-#gnuplot ../sources/scripts/lb.gnu
+./plot.sh
 
 mkdir ${NEW_DIR}
 
-mv ./sun.txt ${NEW_DIR}
-#mv ./averages.txt ${NEW_DIR}
-#mv ./dump_table.txt ${NEW_DIR}
-mv ./rotc.eps ${NEW_DIR}/${IN_FILE}_${ORD}.eps
-mv ./rotc.txt ${NEW_DIR}
-#mv ./background.txt ${NEW_DIR}
-mv ./result.txt ${NEW_DIR}
-mv ./unfresult.txt ${NEW_DIR}
-mv ./objs.txt ${NEW_DIR}
-#mv ./bk_sd.txt ${NEW_DIR}
-#mv ./xyz_obj.txt ${NEW_DIR}
-mv ./get_solution_178_0 ${NEW_DIR}
+PREFIX="${IN_FILE}_${ORD}"
+
+mv ./b_cur.txt ${NEW_DIR}
+mv ./B_PART_OBJ.txt ${NEW_DIR}
+mv ./b_rotc.eps ${NEW_DIR}/${PREFIX}_b_rotc.eps
+
 mv ./ERROR_LIMITED ${NEW_DIR}
 mv ./ERROR_LIMITED_R_THETA ${NEW_DIR}
-#mv ./back.eps ${NEW_DIR}/${IN_FILE}_${ORD}_${H}$4_back.eps
-mv ./xy.eps ${NEW_DIR}/${IN_FILE}_${ORD}_xy.eps
-mv ./xz.eps ${NEW_DIR}/${IN_FILE}_${ORD}_xz.eps
-mv ./yz.eps ${NEW_DIR}/${IN_FILE}_${ORD}_yz.eps
-#mv ./lb.eps ${NEW_DIR}/${IN_FILE}_${ORD}_${H}$4_lb.eps
+
+mv ./get_solution_178_0 ${NEW_DIR}
+
+mv ./l_cur.txt ${NEW_DIR}
+mv ./L_PART_OBJ.txt ${NEW_DIR}
+mv ./l_rotc.eps ${NEW_DIR}/${PREFIX}_l_rotc.eps
+
+mv ./objs.txt ${NEW_DIR}
+
+mv ./R0Theta0.txt ${NEW_DIR}
+mv ./R0Theta0_main.txt ${NEW_DIR}
+mv ./R0Theta0.eps ${NEW_DIR}/${PREFIX}_R0Theta0.eps
+
+mv ./result.txt ${NEW_DIR}
+mv ./sun.txt ${NEW_DIR}
+
+mv ./rotc.eps ${NEW_DIR}/${PREFIX}.eps
+mv ./rotc.txt ${NEW_DIR}
+
+mv ./unfresult.txt ${NEW_DIR}
+
+mv ./vr_cur.txt ${NEW_DIR}
+mv ./VR_PART_OBJ.txt ${NEW_DIR}
+mv ./vr_rotc.eps ${NEW_DIR}/${PREFIX}_vr_rotc.eps
+
+mv ./xy.eps ${NEW_DIR}/${PREFIX}_xy.eps
+mv ./xz.eps ${NEW_DIR}/${PREFIX}_xz.eps
+mv ./yz.eps ${NEW_DIR}/${PREFIX}_yz.eps
 
 cat ${NEW_DIR}/result.txt
-#cat ${NEW_DIR}/bk_sd.txt

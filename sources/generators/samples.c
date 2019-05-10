@@ -143,7 +143,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                          opt_t *(*f_entry)(apogee_rc_table_t *data),
                          unsigned int count)
 {
-        opt_t **results = dv_alloc(sizeof(opt_t *) * count);
+        const opt_t **results = dv_alloc(sizeof(opt_t *) * count);
         apogee_rc_table_t *tmp_table = dv_alloc(sizeof(apogee_rc_table_t));
         const unsigned int ssize = data->size;
         const unsigned int n = solution->s.size;
@@ -237,6 +237,9 @@ opt_t *monte_carlo_entry(const opt_t *solution,
         for (j = 0; j < count; ++j) {
                 tmp_line[j] = results[j]->sq;
         }
+
+        dump_R0_theta_ellips(results, count, solution);
+
         main_res.sq = get_mean(tmp_line, count);
         opt_t *ret = dv_alloc(sizeof(opt_t));
         *ret = main_res;

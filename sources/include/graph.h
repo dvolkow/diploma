@@ -22,6 +22,12 @@
 #define AVERAGE_R_FILE_NAME     \
         "averages.txt"
 
+#define R0THETA0_FILE_NAME      \
+        "R0Theta0.txt"
+
+#define R0THETA0_MAIN_FILE_NAME \
+        "R0Theta0_main.txt"
+
 #define AVERAGE_COUNT_BASE              500
 #define AVERAGE_COUNT_EDGE              (AVERAGE_COUNT_BASE / EDGE_SPARCE_DIVISOR)
 #define AVERAGE_COUNT_EDGE_L_BOUND      5
@@ -90,6 +96,10 @@ void dump_part_rotation_curve(const opt_t *,
                               unsigned int,
                               const char *,
                               const double);
+
+void dump_R0_theta_ellips(const opt_t **,
+                          unsigned int,
+                          const opt_t *);
 
 char *name_for_obj(const unsigned int i,
                    const unsigned int n,

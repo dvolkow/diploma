@@ -390,6 +390,29 @@ void dump_averages(iteration_storage_t *st, opt_t *solution, averages_mode_t mod
         fclose(aout);
 }
 
+void dump_R0_theta_ellips(const opt_t **res,
+                          unsigned int size,
+                          const opt_t *solution)
+{
+        unsigned int i;
+
+        FILE *aout = fopen(R0THETA0_FILE_NAME, "w");
+        CHECK_FILE_AND_RET(aout, R0THETA0_FILE_NAME);
+
+        for (i = 0; i < size; ++i) {
+                fprintf(aout, "%lf %lf\n",
+                        res[i]->r_0, res[i]->s.data[BETA_QTY] * res[i]->r_0);
+        }
+
+        FILE *cout = fopen(R0THETA0_MAIN_FILE_NAME, "w");
+        CHECK_FILE_AND_RET(aout, R0THETA0_MAIN_FILE_NAME);
+
+        fprintf(cout, "%lf %lf", solution->r_0, 
+                                 solution->r_0 * solution->s.data[BETA_QTY]);
+        fclose(cout);
+        fclose(aout);
+}
+
 void dump_core_l_solution(const opt_t *solution)
 {
         printf("L Core Solution:\n");
