@@ -93,6 +93,10 @@ void fill_table_by_uni_solution(const opt_t *solution,
                 //dst_table->data[i].id = i;
                 dst_table->data[i].l = src_table->data[i].l;
                 dst_table->data[i].b = src_table->data[i].b;
+                dst_table->data[i].cos_l = src_table->data[i].cos_l;
+                dst_table->data[i].cos_b = src_table->data[i].cos_b;
+                dst_table->data[i].sin_b = src_table->data[i].sin_b;
+                dst_table->data[i].sin_l = src_table->data[i].sin_l;
                 dst_table->data[i].dist = src_table->data[i].dist;
                 dst_table->data[i].pm_match = src_table->data[i].pm_match;
 

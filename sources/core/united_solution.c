@@ -11,6 +11,7 @@
 
 static matrix_line_t g_matrix_line;
 static double g_sq[TOTAL_QTY];
+//static linear_equation_t g_tmp_eq;
 
 
 static double united_l_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
@@ -41,12 +42,55 @@ static coeff_t filler[TOTAL_QTY] = {
         { .beta_n = core_b_get_beta_n,   .alpha_n = core_b_get_alpha_n },  // B_PART
 };
 
+static void __fill_part_mnk_matrix(linear_equation_t *tmp,
+                                   const apogee_rc_table_t *table,
+                                   const unsigned int k)
+{
+        unsigned int j, i, n;
+        unsigned int len = tmp->size;
+        matrix_line_t *line = &g_matrix_line;
+
+        memset(tmp->data, 0, sizeof(double) * len * len);
+        memset(tmp->right, 0, sizeof(double) * len);
+
+        for (j = 0; j < table->size; ++j) {
+                for (i = 0; i < BETA_QTY + 1; ++i) {
+                        line->_[i] = filler[k].beta_n(&table->data[j], i);
+                }
+
+                for (i = BETA_QTY + 1; i < len; ++i) {
+                        line->_[i] = filler[k].alpha_n(&table->data[j], i - BETA_QTY, table->r_0);
+                }
+
+                for (i = 0; i < len; ++i) {
+                        double m = line->_[i];
+                        for (n = 0; n < len; ++n) {
+                                tmp->data[i * len + n] += line->_[n] * m / g_sq[k];
+                        }
+
+                        if (k == VR_PART) {
+                                tmp->right[i] += table->data[j].v_helio * m / g_sq[k];
+                                continue;
+                        }
+
+                        if (k == L_PART) {
+                                tmp->right[i] += table->data[j].pm_l * m / g_sq[k];
+                                continue;
+                        }
+
+                        if (k == B_PART) {
+                                tmp->right[i] += table->data[j].pm_b * m / g_sq[k];
+                                continue;
+                        }
+                }
+        }
+}
+
 static void uni_fill_mnk_matrix(linear_equation_t *eq,
                                 apogee_rc_table_t *table)
 {
-        unsigned int i, j, k, n;
+        unsigned int k;
         unsigned int len = eq->size; // A + thetas + omega_0 + v_sun + .. + w_sun
-        matrix_line_t *line = &g_matrix_line;
 
         memset(eq->data, 0, sizeof(double) * len * len);
         memset(eq->right, 0, sizeof(double) * len);
@@ -58,37 +102,7 @@ static void uni_fill_mnk_matrix(linear_equation_t *eq,
         tmp.ord = eq->ord;
 
         for (k = 0; k < TOTAL_QTY; ++k) {
-                memset(tmp.data, 0, sizeof(double) * len * len);
-                memset(tmp.right, 0, sizeof(double) * len);
-                for (j = 0; j < table->size; ++j) {
-                        for (i = 0; i < BETA_QTY + 1; ++i) {
-                                line->_[i] = filler[k].beta_n(&table->data[j], i);
-                        }
-
-                        for (i = BETA_QTY + 1; i < len; ++i) {
-                                line->_[i] = filler[k].alpha_n(&table->data[j], i - BETA_QTY, table->r_0);
-                        }
-
-                        for (i = 0; i < len; ++i) {
-                                double m = line->_[i];
-                                for (n = 0; n < len; ++n) {
-                                        tmp.data[i * len + n] += line->_[n] * m / g_sq[k];
-                                }
-
-                                if (k == VR_PART) {
-                                        tmp.right[i] += table->data[j].v_helio * m / g_sq[k];
-                                }
-
-                                if (k == L_PART) {
-                                        tmp.right[i] += table->data[j].pm_l * m / g_sq[k];
-                                }
-
-                                if (k == B_PART) {
-                                        tmp.right[i] += table->data[j].pm_b * m / g_sq[k];
-                                }
-                        }
-                }
-
+                __fill_part_mnk_matrix(&tmp, table, k);
                 add_matrix_to_matrix(&tmp, eq);
         }
 }
