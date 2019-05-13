@@ -38,6 +38,8 @@ typedef enum {
         VR_PART_MODE
       , B_PART_MODE
       , L_PART_MODE
+      , UNI_MODE
+      , UNINAT_MODE
       , INVALID_MODE
 } solution_mode_t;
 

@@ -170,13 +170,9 @@ void fill_table_by_uni_solution(const opt_t *solution,
         double sd[TOTAL_QTY];
         for (i = 0; i < TOTAL_QTY; ++i) {
                 sd[i] = sqrt(src_table->sigma[i]);
-#ifdef DEBUG_GEN
-                printf("%s: %u = %lf\n", __func__, i, sd[i]);
-#endif
         }
 
         for (i = 0; i < ssize; ++i) {
-                //dst_table->data[i].id = i;
                 dst_table->data[i].l = src_table->data[i].l;
                 dst_table->data[i].b = src_table->data[i].b;
                 dst_table->data[i].cos_l = src_table->data[i].cos_l;
@@ -189,38 +185,35 @@ void fill_table_by_uni_solution(const opt_t *solution,
 //              TODO: Variable for solutions:
 //              dst_table->data[i].pm_b_err = src_table->data[i].pm_b_err;
 //              dst_table->data[i].pm_l_err = src_table->data[i].pm_l_err;
+                double vr_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       solution->r_0,
+                                                       VR_PART);
+
+                double mu_b_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       solution->r_0,
+                                                       B_PART);
+
+                double mu_l_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       solution->r_0,
+                                                       L_PART);
 
                 dst_table->data[i].v_helio = __gen_gauss_d(rng,
-                                                       src_table->data[i].v_helio,
-                                                       sd[VR_PART]);
-#ifdef DEBUG_GEN
-                if (i < 10)
-                printf("%s[VR]: origin %lf, new %lf\n", __func__, 
-                                src_table->data[i].v_helio, 
-                                dst_table->data[i].v_helio);
-#endif
-                dst_table->data[i].pm_l = __gen_gauss_d(rng,
-                                                       src_table->data[i].pm_l,
-                                                       sd[L_PART]);
-#ifdef DEBUG_GEN
-                if (i < 10)
-                printf("%s[PM_L]: origin %lf, new %lf\n", __func__, 
-                                src_table->data[i].pm_l, 
-                                dst_table->data[i].pm_l);
-#endif
+                                                        vr_mod,
+                                                        sd[VR_PART]);
                 dst_table->data[i].pm_b = __gen_gauss_d(rng,
-                                                       src_table->data[i].pm_b,
-                                                       sd[B_PART]);
-#ifdef DEBUG_GEN
-                if (i < 10)
-                printf("%s[PM_B]: origin %lf, new %lf\n", __func__,
-                                src_table->data[i].pm_b,
-                                dst_table->data[i].pm_b);
-#endif
+                                                        mu_b_mod,
+                                                        sd[B_PART]);
+                dst_table->data[i].pm_l = __gen_gauss_d(rng,
+                                                        mu_l_mod,
+                                                        sd[L_PART]);
         }
 
         dv_rand_release(rng);
-        vr_b_iterations(dst_table);
+        // TODO: Need it?
+        // vr_b_iterations(dst_table);
 }
 
 

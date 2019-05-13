@@ -78,11 +78,13 @@ int main(int argc, const char *argv[])
         if (table == NULL) {
                 printf("%s: fail to open %s!\n",
                                 __func__, cfg->input_file_name);
-                return -1;
+                return -2;
         }
+
         assert(table->size != 0);
 
         db_add(generic_table()); // ERROR_LIMITED
+
         solution_mode_t mode = GET_SOLUTION_MODE(cfg);
         switch(mode) {
 	case VR_PART_MODE:
@@ -94,6 +96,10 @@ int main(int argc, const char *argv[])
         case B_PART_MODE:
 		get_partial_b_solution(table);
 		break;
+        case UNI_MODE:
+                get_united_solution(table);
+                break;
+        case UNINAT_MODE:
         default:
 		printf("Use -s [--solution] option to set solution mode.\nExit.\n");
 		break;

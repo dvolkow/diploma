@@ -94,6 +94,10 @@ static void solution_mode_assigner(const char *argv)
                 __cfg->solution_mode = L_PART_MODE;
         if (matches("b", argv))
                 __cfg->solution_mode = B_PART_MODE;
+        if (matches("u", argv))
+                __cfg->solution_mode = UNI_MODE;
+        if (matches("nu", argv))
+                __cfg->solution_mode = UNINAT_MODE;
 }
 
 void parse_args(int argc,

@@ -167,6 +167,11 @@ void precalc_errors_mu_b(apogee_rc_table_t *table,
 }
 
 
+/**
+ * Deprecated function for get errors from LSE matrix.
+ * Now all error are getting from Monte-Karlo.
+ */
+#if 0
 void core_b_get_errors(opt_t *solution, apogee_rc_table_t *table)
 {
         linear_equation_t m, invm;
@@ -186,6 +191,7 @@ void core_b_get_errors(opt_t *solution, apogee_rc_table_t *table)
                         get_error_mnk_estimated(invm.data[i * invm.size + i], invm.size + table->size + 1, solution->sq / (table->size + 1));
         }
 }
+#endif
 
 opt_t *core_b_get_linear_solution(linear_equation_t *eq,
                                   apogee_rc_table_t *table)
@@ -206,7 +212,6 @@ opt_t *core_b_get_linear_solution(linear_equation_t *eq,
         };
 
         opt_params.sq = residuals_summary(&opt_params, table);
-        core_b_get_errors(&opt_params, table);
         /* To dump get sd: */
         opt_params.sq = sqrt(opt_params.sq / (table->size - s.size - 1));
 
@@ -219,11 +224,6 @@ opt_t *core_b_entry(apogee_rc_table_t *table)
         parser_t *cfg = get_parser();
         cfg->filter = MATCH_FILTER;
         table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
-#ifdef DEBUG
-        printf("%s: entry with R_0  %lf\n",
-                        __func__, table->r_0);
-#endif
-
         unsigned int size = cfg->ord;
         double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) *
                                                    (size + BETA_QTY));
@@ -235,16 +235,8 @@ opt_t *core_b_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_b_get_linear_solution(&eq, table);
-#ifdef DEBUG_B
-        dump_core_b_solution(opt);
-#endif
         table->w_sun = opt->s.data[2];
         table->sigma[B_PART] = pow_double(opt->sq, 2);
-#ifdef DEBUG
-        dump_table_parameters(table, NULL);
-        printf("%s: get w_0 = %lf\n",
-                        __func__, table->w_sun);
-#endif
         return opt;
 }
 

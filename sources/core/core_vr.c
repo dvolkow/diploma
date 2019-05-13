@@ -25,9 +25,6 @@ double __core_vr_get_beta_n(const apogee_rc_t *line,
                         // fixed parameter:
                         return w_0 * line->sin_b;
                 default:
-#ifdef DEBUG
-                        printf("%s: type error!\n", __func__);
-#endif
                         return 0;
         }
 }
@@ -158,9 +155,5 @@ opt_t *core_vr_entry(apogee_rc_table_t *table)
         table->sigma[VR_PART] = opt->sq / (table->size - eq.size - 1);
         opt->sq = sqrt(table->sigma[VR_PART]);
 
-#ifdef DEBUG_VR
-        dump_core_vr_solution(opt);
-        dump_table_parameters(table, NULL);
-#endif
         return opt;
 }
