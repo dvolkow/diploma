@@ -7,6 +7,8 @@
 #include "math.h"
 #include "opt.h"
 #include "unicore.h"
+#include "core_b.h"
+#include "core_l.h"
 #ifdef DEBUG
 #include "debug.h"
 #endif // DEBUG
@@ -45,14 +47,48 @@ double get_mod_vr(const opt_t *solution,
                 mod_v += solution->s.data[i] * core_vr_get_beta_n(line, i);
         }
         for (i = BETA_QTY; i < solution->s.size; ++i) {
-                mod_v += core_vr_get_alpha_n(line, i - BETA_QTY + 1, r_0) * 
+                mod_v += core_vr_get_alpha_n(line, i - BETA_QTY + 1, r_0) *
                                 solution->s.data[i];
         }
 
         return mod_v;
 }
 
-static double residuals_summary(const linear_eq_solve_t *v, 
+double get_mod_b(const opt_t *solution,
+                 const apogee_rc_t *line)
+{
+        const double r_0 = solution->r_0;
+        double mod_v = 0;
+        unsigned int i;
+        for (i = 0; i < BETA_QTY; ++i) {
+                mod_v += solution->s.data[i] * core_b_get_beta_n(line, i);
+        }
+        for (i = BETA_QTY; i < solution->s.size; ++i) {
+                mod_v += core_b_get_alpha_n(line, i - BETA_QTY + 1, r_0) *
+                                solution->s.data[i];
+        }
+
+        return mod_v;
+}
+
+double get_mod_l(const opt_t *solution,
+                 const apogee_rc_t *line)
+{
+        const double r_0 = solution->r_0;
+        double mod_v = 0;
+        unsigned int i;
+        for (i = 0; i < BETA_QTY; ++i) {
+                mod_v += solution->s.data[i] * core_l_get_beta_n(line, i);
+        }
+        for (i = BETA_QTY; i < solution->s.size; ++i) {
+                mod_v += core_l_get_alpha_n(line, i - BETA_QTY + 1, r_0) *
+                                solution->s.data[i];
+        }
+
+        return mod_v;
+}
+
+static double residuals_summary(const linear_eq_solve_t *v,
                                 apogee_rc_table_t *table)
 {
         double sum = 0;
@@ -64,7 +100,7 @@ static double residuals_summary(const linear_eq_solve_t *v,
         return sum;
 }
 
-double opt_residuals_summary(const linear_eq_solve_t *v, 
+double opt_residuals_summary(const linear_eq_solve_t *v,
                              apogee_rc_table_t *table)
 {
         return residuals_summary(v, table);
@@ -99,13 +135,13 @@ static inline void step_forward(apogee_rc_table_t *table,
 static inline void step_backward(apogee_rc_table_t *table,
                                 const double step, bound_t type)
 {
-        step_forward(table, step, type == LOWER ? UPPER 
+        step_forward(table, step, type == LOWER ? UPPER
                                                 : LOWER);
 }
 
-static double __bound_parameter(linear_equation_t *eq, 
+static double __bound_parameter(linear_equation_t *eq,
                                         apogee_rc_table_t *table,
-                                        double r_0, bound_t type) 
+                                        double r_0, bound_t type)
 {
         linear_eq_solve_t s = {
                 .data = dv_alloc(sizeof(double) * eq->size),
@@ -116,7 +152,7 @@ static double __bound_parameter(linear_equation_t *eq,
         table->r_0 = r_0;
 
         fill_mnk_matrix_vr(eq, table);
-        solve(eq, &s); 
+        solve(eq, &s);
         double sq = residuals_summary(&s, table);
         double thr_sq = sq * (1.0 + 1.0 / (table->size + eq->size + 1.0));
 
@@ -143,7 +179,7 @@ static double __bound_parameter(linear_equation_t *eq,
         return table->r_0;
 }
 
-double lower_bound_search(linear_equation_t *eq, 
+double lower_bound_search(linear_equation_t *eq,
                                 apogee_rc_table_t *table,
                                 double r_0)
 {
@@ -242,7 +278,7 @@ opt_t *exception_algorithm(apogee_rc_table_t *table,
         cfg->filter = MATCH_FILTER;
         unsigned int old_size = table->size;
         opt_t *solution = f(table);
-        
+
         while (true) {
                 precalc_errors(table, get_limit_by_eps(table->size));
                 filter_get_and_apply(table);

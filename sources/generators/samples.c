@@ -56,18 +56,104 @@ static double __gen_dist_d(const gsl_rng *r,
 }
 
 static double __gen_b_d(const gsl_rng *r,
-                           const double mean, 
+                           const double mean,
                            const double sd)
 {
 #define CUT_BY_B        80
-        double res; 
+        double res;
         do {
                 res = __gen_gauss_d(r, mean, sd);
-        } 
+        }
         while (fabs(res) >= CUT_BY_B);
 
         return res;
 }
+
+void fill_table_by_vr_solution(const opt_t *solution,
+                               const apogee_rc_table_t *src_table,
+                               apogee_rc_table_t *dst_table)
+{
+        gsl_rng *rng = dv_rand_acquire(MT);
+        assert(rng != NULL);
+
+        dst_table->r_0 = solution->r_0;
+        dst_table->size = src_table->size;
+
+        const double sd = sqrt(src_table->sigma[VR_PART]);
+        unsigned int i;
+        for (i = 0; i < src_table->size; ++i) {
+                dst_table->data[i].l = src_table->data[i].l;
+                dst_table->data[i].b = src_table->data[i].b;
+                dst_table->data[i].cos_l = src_table->data[i].cos_l;
+                dst_table->data[i].cos_b = src_table->data[i].cos_b;
+                dst_table->data[i].sin_b = src_table->data[i].sin_b;
+                dst_table->data[i].sin_l = src_table->data[i].sin_l;
+                dst_table->data[i].dist = src_table->data[i].dist;
+
+                dst_table->data[i].v_helio = __gen_gauss_d(rng,
+                                                get_mod_vr(solution, &src_table->data[i]),
+                                                  sd);
+        }
+        dv_rand_release(rng);
+}
+
+void fill_table_by_b_solution(const opt_t *solution,
+                               const apogee_rc_table_t *src_table,
+                               apogee_rc_table_t *dst_table)
+{
+        gsl_rng *rng = dv_rand_acquire(MT);
+        assert(rng != NULL);
+
+        dst_table->r_0 = solution->r_0;
+        dst_table->size = src_table->size;
+
+        const double sd = sqrt(src_table->sigma[B_PART]);
+        unsigned int i;
+        for (i = 0; i < src_table->size; ++i) {
+                dst_table->data[i].l = src_table->data[i].l;
+                dst_table->data[i].b = src_table->data[i].b;
+                dst_table->data[i].cos_l = src_table->data[i].cos_l;
+                dst_table->data[i].cos_b = src_table->data[i].cos_b;
+                dst_table->data[i].sin_b = src_table->data[i].sin_b;
+                dst_table->data[i].sin_l = src_table->data[i].sin_l;
+                dst_table->data[i].dist = src_table->data[i].dist;
+
+                dst_table->data[i].pm_b = __gen_gauss_d(rng,
+                                                get_mod_b(solution, &src_table->data[i]),
+                                                  sd);
+        }
+        dv_rand_release(rng);
+}
+
+void fill_table_by_l_solution(const opt_t *solution,
+                               const apogee_rc_table_t *src_table,
+                               apogee_rc_table_t *dst_table)
+{
+        gsl_rng *rng = dv_rand_acquire(MT);
+        assert(rng != NULL);
+
+        dst_table->r_0 = solution->r_0;
+        dst_table->size = src_table->size;
+
+        const double sd = sqrt(src_table->sigma[L_PART]);
+        unsigned int i;
+        for (i = 0; i < src_table->size; ++i) {
+                dst_table->data[i].l = src_table->data[i].l;
+                dst_table->data[i].b = src_table->data[i].b;
+                dst_table->data[i].cos_l = src_table->data[i].cos_l;
+                dst_table->data[i].cos_b = src_table->data[i].cos_b;
+                dst_table->data[i].sin_b = src_table->data[i].sin_b;
+                dst_table->data[i].sin_l = src_table->data[i].sin_l;
+                dst_table->data[i].dist = src_table->data[i].dist;
+
+                dst_table->data[i].pm_l = __gen_gauss_d(rng,
+                                                get_mod_l(solution, &src_table->data[i]),
+                                                  sd);
+        }
+        dv_rand_release(rng);
+}
+
+
 
 void fill_table_by_uni_solution(const opt_t *solution,
                                 const apogee_rc_table_t *src_table,
@@ -84,13 +170,9 @@ void fill_table_by_uni_solution(const opt_t *solution,
         double sd[TOTAL_QTY];
         for (i = 0; i < TOTAL_QTY; ++i) {
                 sd[i] = sqrt(src_table->sigma[i]);
-#ifdef DEBUG_GEN
-                printf("%s: %u = %lf\n", __func__, i, sd[i]);
-#endif
         }
 
         for (i = 0; i < ssize; ++i) {
-                //dst_table->data[i].id = i;
                 dst_table->data[i].l = src_table->data[i].l;
                 dst_table->data[i].b = src_table->data[i].b;
                 dst_table->data[i].cos_l = src_table->data[i].cos_l;
@@ -103,46 +185,44 @@ void fill_table_by_uni_solution(const opt_t *solution,
 //              TODO: Variable for solutions:
 //              dst_table->data[i].pm_b_err = src_table->data[i].pm_b_err;
 //              dst_table->data[i].pm_l_err = src_table->data[i].pm_l_err;
+                double vr_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       solution->r_0,
+                                                       VR_PART);
+
+                double mu_b_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       solution->r_0,
+                                                       B_PART);
+
+                double mu_l_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       solution->r_0,
+                                                       L_PART);
 
                 dst_table->data[i].v_helio = __gen_gauss_d(rng,
-                                                       src_table->data[i].v_helio,
-                                                       sd[VR_PART]);
-#ifdef DEBUG_GEN
-                if (i < 10)
-                printf("%s[VR]: origin %lf, new %lf\n", __func__, 
-                                src_table->data[i].v_helio, 
-                                dst_table->data[i].v_helio);
-#endif
-                dst_table->data[i].pm_l = __gen_gauss_d(rng,
-                                                       src_table->data[i].pm_l,
-                                                       sd[L_PART]);
-#ifdef DEBUG_GEN
-                if (i < 10)
-                printf("%s[PM_L]: origin %lf, new %lf\n", __func__, 
-                                src_table->data[i].pm_l, 
-                                dst_table->data[i].pm_l);
-#endif
+                                                        vr_mod,
+                                                        sd[VR_PART]);
                 dst_table->data[i].pm_b = __gen_gauss_d(rng,
-                                                       src_table->data[i].pm_b,
-                                                       sd[B_PART]);
-#ifdef DEBUG_GEN
-                if (i < 10)
-                printf("%s[PM_B]: origin %lf, new %lf\n", __func__, 
-                                src_table->data[i].pm_b, 
-                                dst_table->data[i].pm_b);
-#endif
+                                                        mu_b_mod,
+                                                        sd[B_PART]);
+                dst_table->data[i].pm_l = __gen_gauss_d(rng,
+                                                        mu_l_mod,
+                                                        sd[L_PART]);
         }
 
-        vr_b_iterations(dst_table);
+        dv_rand_release(rng);
+        // TODO: Need it?
+        // vr_b_iterations(dst_table);
 }
 
 
 
 opt_t *monte_carlo_entry(const opt_t *solution,
                          const apogee_rc_table_t *data,
-                         opt_t *(*f_entry)(apogee_rc_table_t *data),
-                         unsigned int count)
+                         const mk_params_t *params)
 {
+        const unsigned int count = params->count;
         const opt_t **results = dv_alloc(sizeof(opt_t *) * count);
         apogee_rc_table_t *tmp_table = dv_alloc(sizeof(apogee_rc_table_t));
         const unsigned int ssize = data->size;
@@ -173,7 +253,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
 
         i = 0;
         while (r < ROTC_UPPER_BOUND) {
-                curve[i].theta = get_point_by_uni_solution(solution, r);
+                curve[i].theta = params->f_point_by_solution(solution, r);
                 curve[i].theta_max = curve[i].theta;
                 curve[i].theta_min = curve[i].theta;
                 curve[i].r = r;
@@ -182,7 +262,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
         }
 
         for (i = 0; i < count; ++i) {
-                fill_table_by_uni_solution(solution, data, tmp_table);
+                params->f_table_by_solution(solution, data, tmp_table);
 
 #ifdef DEBUG_GEN
                 test_vr[i] = tmp_table->data[15].v_helio;
@@ -190,12 +270,12 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                 test_b[i] = tmp_table->data[15].pm_b;
 #endif
 
-                results[i] = f_entry(tmp_table);
+                results[i] = params->f_entry(tmp_table);
                 printf("%s: [%d/%d] completed\n", __func__, i + 1, count);
-                dump_united_solution_points(results[i]);
-                __curve[i] = (double *)dv_alloc(sizeof(double) * fits_count); 
+                //dump_united_solution_points(results[i]);
+                __curve[i] = (double *)dv_alloc(sizeof(double) * fits_count);
                 for (j = 0; j < fits_count; ++j) {
-                        double theta = get_point_by_uni_solution(results[i], curve[j].r);
+                        double theta = params->f_point_by_solution(results[i], curve[j].r);
                         __curve[i][j] = theta;
                 }
         }
@@ -207,7 +287,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                         get_mean(test_b, count), get_sd(test_b, count));
 #endif
 
-        dump_uni_rotation_objs(data, solution);
+        //dump_uni_rotation_objs(data, solution);
 
         double *tmp_line = dv_alloc(sizeof(double) * count);
         for (j = 0; j < n; ++j) {
@@ -243,6 +323,17 @@ opt_t *monte_carlo_entry(const opt_t *solution,
         main_res.sq = get_mean(tmp_line, count);
         opt_t *ret = dv_alloc(sizeof(opt_t));
         *ret = main_res;
+        /**
+         * Test:
+        double *tmp_nums = dv_alloc(sizeof(double) * count);
+        gsl_rng *rng = dv_rand_acquire(MT);
+        for (i = 0; i < count; i++) {
+                tmp_nums[i] = __gen_gauss_d(rng, 10, 32);
+        }
+        printf("%s: mean %lf, sd %lf\n", __func__, get_mean(tmp_nums, count),
+                                                   get_sd(tmp_nums, count));
+        dv_rand_release(rng);
+         */
         return ret;
 }
 

@@ -1,4 +1,4 @@
-#ifndef CORE_H  
+#ifndef CORE_H
 #define CORE_H  1
 
 #include <stdbool.h>
@@ -34,6 +34,16 @@ typedef enum {
       , GENERATION_MODE
 } g_mode_t;
 
+typedef enum {
+        VR_PART_MODE
+      , B_PART_MODE
+      , L_PART_MODE
+      , UNI_MODE
+      , UNINAT_MODE
+      , INVALID_MODE
+} solution_mode_t;
+
+
 typedef struct {
 #define DEFAULT_ORD             1
         unsigned int ord;
@@ -54,15 +64,18 @@ typedef struct {
         g_mode_t mode;
 #define DEFAULT_BOLTER          0
         int bolter;
+	solution_mode_t solution_mode;
+#define DEFAULT_SOL_MODE        INVALID_MODE
 } parser_t;
-#define GET_MODE(p_parser)      \
+#define GET_MODE(p_parser)		\
         ((p_parser)->mode)
+#define GET_SOLUTION_MODE(p_parser)	\
+        ((p_parser)->solution_mode)
 
 void parse_args(int, char **);
 bool parser_t_is_valid(const parser_t *cfg);
 parser_t *get_parser(void);
 
-void get_solution(void);
 int parser_init(void);
 void parser_exit(void);
 

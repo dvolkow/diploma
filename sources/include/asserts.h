@@ -8,7 +8,7 @@
 
 #define MEMORY_LIMIT_ASSERT(a)         \
         assert((a) < MAX_MEMORY_USAGE)
-        
+
 #define FACTORIAL_STORAGE_ASSERT(a)     \
         assert((a) < PRECACHED_FACTORIAL_LEN)
 

@@ -94,13 +94,13 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
         res->sd = 0;
 
         for (i = 0; i < size; ++i) {
-                double d = __get_c(&st_part[i], solution) - 
+                double d = __get_c(&st_part[i], solution) -
                                 __get_a(&st_part[i], solution) * res->theta;
                 res->sd += pow_double(d, 2);
         }
 
         res->sd = sqrt(res->sd / (size - 1));
-        res->err = res->sd / sqrt(2. * (size - 1)); 
+        res->err = res->sd / sqrt(2. * (size - 1));
 
         res->size = size;
 
@@ -116,8 +116,8 @@ average_res_t *get_average_theta(const iteration_storage_t *st_part,
  * Before call must be set __cfg->h (high global limit)
  * as sd by sample
  */
-static bool __limited_by_eps(const void *line, 
-                      const double l, 
+static bool __limited_by_eps(const void *line,
+                      const double l,
                       const double h)
 {
         const apogee_rc_t *la = line;
@@ -191,9 +191,9 @@ apogee_rc_table_t *get_limited_replace(const void *table, const filter_t *filter
         return src;
 }
 
-apogee_rc_table_t *get_limited_generic(const void *table, 
+apogee_rc_table_t *get_limited_generic(const void *table,
                                        const filter_t *filter,
-                                       filter_mode_t mode) 
+                                       filter_mode_t mode)
 {
         if (filter == NULL)
                 return (apogee_rc_table_t *)table;

@@ -70,15 +70,15 @@ typedef struct {
 
 
 /**
- * TODO: Special container structure needed for it 
+ * TODO: Special container structure needed for it
  * TEMPORARY SOLUTION?
  */
 typedef struct {
         apogee_rc_t *data;
-        double r_0; 
-        double w_sun; 
-        double omega_0; 
-        double n_err; // natural errors ^ 2 
+        double r_0;
+        double w_sun;
+        double omega_0;
+        double n_err; // natural errors ^ 2
         double sigma[3];
         unsigned int size;
 } apogee_rc_table_t;
@@ -88,8 +88,8 @@ typedef struct {
         // may be idx ? that about performance?
         apogee_rc_t     data;
 
-        double  err; 
-        double  r; // R 
+        double  err;
+        double  r; // R
         double  theta;
 } iteration_storage_t;
 

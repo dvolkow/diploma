@@ -27,7 +27,6 @@ static double united_l_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
         }
 }
 
-
 typedef struct {
         double (*beta_n)(const apogee_rc_t *,
                          beta_ord_t);
@@ -199,10 +198,10 @@ static void uni_fill_mnk_matrix_nerr(linear_equation_t *eq,
         }
 }
 
-static double get_v_generic_from_uni(const linear_eq_solve_t *v,
-                                     const apogee_rc_t *line,
-                                     const double r_0,
-                                     const unsigned int type)
+double get_v_generic_from_uni(const linear_eq_solve_t *v,
+                              const apogee_rc_t *line,
+                              const double r_0,
+                              const unsigned int type)
 {
         double mod_v = 0;
         unsigned int i;
@@ -421,7 +420,7 @@ static opt_t *united_with_nerr_solution(linear_equation_t *eq,
 void uni_g_sd_init(const double *values)
 {
         unsigned int i;
-        for(i = 0; i < TOTAL_QTY; ++i) {
+        for (i = 0; i < TOTAL_QTY; ++i) {
                 g_sq[i] = values[i];
         }
 }
@@ -432,13 +431,6 @@ opt_t *united_entry(apogee_rc_table_t *table)
         unsigned int size = cfg->ord;
         unsigned int dim = size + TOTAL_QTY + 1;
         double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
-
-#ifdef DEBUG
-        printf("SD^2:\n");
-        printf("r_0: %lf\n", g_sq[VR_PART]);
-        printf("l: %lf\n", g_sq[L_PART]);
-        printf("b: %lf\n", g_sq[B_PART]);
-#endif
 
         linear_equation_t eq = {
                 .data = matrix,
@@ -473,6 +465,5 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
         uni_nerr_get_errors(opt, table);
         table->r_0 = opt->r_0;
 
-        //dump_united_solution(opt);
         return opt;
 }
