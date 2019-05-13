@@ -33,6 +33,7 @@ int parser_init(void)
         __cfg->mode             = DEFAULT_MODE;
         __cfg->mksize           = DEFAULT_MKSIZE;
         __cfg->bolter           = DEFAULT_BOLTER;
+        __cfg->solution_mode    = DEFAULT_SOL_MODE;
 
         return 0;
 }
@@ -79,13 +80,23 @@ static void filter_assigner(const char *argv)
 
 static void mode_assigner(const char *argv)
 {
-        if (matches("I", argv)) 
+        if (matches("I", argv))
                 __cfg->mode = ITERATE_MODE;
         if (matches("G", argv))
                 __cfg->mode = GENERATION_MODE;
 }
 
-void parse_args(int argc, 
+static void solution_mode_assigner(const char *argv)
+{
+        if (matches("vr", argv))
+                __cfg->solution_mode = VR_PART_MODE;
+        if (matches("l", argv))
+                __cfg->solution_mode = L_PART_MODE;
+        if (matches("b", argv))
+                __cfg->solution_mode = B_PART_MODE;
+}
+
+void parse_args(int argc,
                 char *argv[])
 {
         parser_t *res = get_parser();
@@ -133,6 +144,13 @@ void parse_args(int argc,
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 mode_assigner(*argv);
+                        } else {
+                                goto usage_ret;
+                        }
+                } else if (matches("-s", *argv) || matches("--solution", *argv)) {
+                        if (CHECK_ARGS(argc)) {
+                                NEXT_ARG(argc, argv);
+                                solution_mode_assigner(*argv);
                         } else {
                                 goto usage_ret;
                         }

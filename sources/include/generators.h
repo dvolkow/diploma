@@ -18,7 +18,7 @@ typedef enum {
 
 typedef struct {
         opt_t *(*f_entry)(apogee_rc_table_t *);
-        double (*f_point_by_solution)(const opt_t *, 
+        double (*f_point_by_solution)(const opt_t *,
                                       const double);
         void (*f_table_by_solution)(const opt_t *,
                                     const apogee_rc_table_t *,
@@ -26,8 +26,8 @@ typedef struct {
         unsigned int count;
 } mk_params_t;
 
-double *gen_vector_by_mean_and_sd(const gsl_rng *r, 
-                                const double mean, 
+double *gen_vector_by_mean_and_sd(const gsl_rng *r,
+                                const double mean,
                                  const double sigma,
                                  const unsigned int size);
 
@@ -49,6 +49,12 @@ void fill_table_by_uni_solution(const opt_t *,
                                 const apogee_rc_table_t *,
                                 apogee_rc_table_t *);
 void fill_table_by_vr_solution(const opt_t *,
+                               const apogee_rc_table_t *,
+                               apogee_rc_table_t *);
+void fill_table_by_b_solution(const opt_t *,
+                               const apogee_rc_table_t *,
+                               apogee_rc_table_t *);
+void fill_table_by_l_solution(const opt_t *,
                                const apogee_rc_table_t *,
                                apogee_rc_table_t *);
 double *gen_vector_by_bounds_uni(const gsl_rng *r,

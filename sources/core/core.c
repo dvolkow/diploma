@@ -94,7 +94,7 @@ void fill_mnk_matrix_vr(linear_equation_t *eq,
 #endif
 }
 
-void fill_mnk_matrix(linear_equation_t *eq, 
+void fill_mnk_matrix(linear_equation_t *eq,
                         apogee_rc_table_t *table, eq_mode_t mode)
 {
         switch (mode) {
@@ -117,8 +117,8 @@ void filter_get_and_apply(apogee_rc_table_t *table)
                 case B_FILTER:
                 case ERR_FILTER:
                 case MATCH_FILTER:
-                        table = get_limited_generic(table, 
-                                                    filter_factory(cfg), 
+                        table = get_limited_generic(table,
+                                                    filter_factory(cfg),
                                                     L_FILTER);
                         break;
                 default:
@@ -161,7 +161,7 @@ static opt_t *vr_partial_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
         unsigned int size = cfg->ord;
-        unsigned int dim = size + TOTAL_QTY + 1;
+        unsigned int dim = size + BETA_QTY;
         double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
 
         linear_equation_t eq = {
@@ -280,13 +280,13 @@ void get_solution(apogee_rc_table_t *table)
         };
         */
 #ifdef DEBUG
-        printf("%s: solution: -R_0 = %lf\n", 
+        printf("%s: solution: -R_0 = %lf\n",
                         __func__, p.l);
-        printf("%s: solution: +R_0 = %lf\n", 
+        printf("%s: solution: +R_0 = %lf\n",
                         __func__, p.h);
 #endif
 
-        get_errors(solution, table);
+        //get_errors(solution, table);
         //iteration_storage_t *st = iteration_storage_create(table, solution);
         //dump_all(solution, &p, st);
 
@@ -297,7 +297,7 @@ void get_solution(apogee_rc_table_t *table)
         cfg->h = get_limit_by_eps(table->size);
         cfg->l = sqrt(solution->sq / (solution->size - solution->s.size - 1));
 #ifdef DEBUG
-        printf("%s: kappa(%d) = %0.7lf\n", 
+        printf("%s: kappa(%d) = %0.7lf\n",
                         __func__,
                         table->size,
                         get_limit_by_eps(table->size));

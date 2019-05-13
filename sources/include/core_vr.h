@@ -1,4 +1,4 @@
-#ifndef CORE_VR_H  
+#ifndef CORE_VR_H
 #define CORE_VR_H  1
 #include "types.h"
 #include "opt.h"

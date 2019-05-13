@@ -77,10 +77,16 @@ void dump_uni_rotation_objs(const apogee_rc_table_t *,
                             const opt_t *);
 
 void dump_rotation_curve_vr(const opt_t *solution);
+void dump_rotation_curve_b(const opt_t *solution);
+void dump_rotation_curve_l(const opt_t *solution);
 
 double get_point_by_uni_solution(const opt_t *,
                                  const double);
-double get_point_by_vr_solution(const opt_t *, 
+double get_point_by_vr_solution(const opt_t *,
+                                const double);
+double get_point_by_b_solution(const opt_t *,
+                                const double);
+double get_point_by_l_solution(const opt_t *,
                                 const double);
 
 void dump_table_parameters(const apogee_rc_table_t *,

@@ -56,14 +56,14 @@ static double __gen_dist_d(const gsl_rng *r,
 }
 
 static double __gen_b_d(const gsl_rng *r,
-                           const double mean, 
+                           const double mean,
                            const double sd)
 {
 #define CUT_BY_B        80
-        double res; 
+        double res;
         do {
                 res = __gen_gauss_d(r, mean, sd);
-        } 
+        }
         while (fabs(res) >= CUT_BY_B);
 
         return res;
@@ -96,6 +96,64 @@ void fill_table_by_vr_solution(const opt_t *solution,
         }
         dv_rand_release(rng);
 }
+
+void fill_table_by_b_solution(const opt_t *solution,
+                               const apogee_rc_table_t *src_table,
+                               apogee_rc_table_t *dst_table)
+{
+        gsl_rng *rng = dv_rand_acquire(MT);
+        assert(rng != NULL);
+
+        dst_table->r_0 = solution->r_0;
+        dst_table->size = src_table->size;
+
+        const double sd = sqrt(src_table->sigma[B_PART]);
+        unsigned int i;
+        for (i = 0; i < src_table->size; ++i) {
+                dst_table->data[i].l = src_table->data[i].l;
+                dst_table->data[i].b = src_table->data[i].b;
+                dst_table->data[i].cos_l = src_table->data[i].cos_l;
+                dst_table->data[i].cos_b = src_table->data[i].cos_b;
+                dst_table->data[i].sin_b = src_table->data[i].sin_b;
+                dst_table->data[i].sin_l = src_table->data[i].sin_l;
+                dst_table->data[i].dist = src_table->data[i].dist;
+
+                dst_table->data[i].pm_b = __gen_gauss_d(rng,
+                                                get_mod_b(solution, &src_table->data[i]),
+                                                  sd);
+        }
+        dv_rand_release(rng);
+}
+
+void fill_table_by_l_solution(const opt_t *solution,
+                               const apogee_rc_table_t *src_table,
+                               apogee_rc_table_t *dst_table)
+{
+        gsl_rng *rng = dv_rand_acquire(MT);
+        assert(rng != NULL);
+
+        dst_table->r_0 = solution->r_0;
+        dst_table->size = src_table->size;
+
+        const double sd = sqrt(src_table->sigma[L_PART]);
+        unsigned int i;
+        for (i = 0; i < src_table->size; ++i) {
+                dst_table->data[i].l = src_table->data[i].l;
+                dst_table->data[i].b = src_table->data[i].b;
+                dst_table->data[i].cos_l = src_table->data[i].cos_l;
+                dst_table->data[i].cos_b = src_table->data[i].cos_b;
+                dst_table->data[i].sin_b = src_table->data[i].sin_b;
+                dst_table->data[i].sin_l = src_table->data[i].sin_l;
+                dst_table->data[i].dist = src_table->data[i].dist;
+
+                dst_table->data[i].pm_l = __gen_gauss_d(rng,
+                                                get_mod_l(solution, &src_table->data[i]),
+                                                  sd);
+        }
+        dv_rand_release(rng);
+}
+
+
 
 void fill_table_by_uni_solution(const opt_t *solution,
                                 const apogee_rc_table_t *src_table,
@@ -155,8 +213,8 @@ void fill_table_by_uni_solution(const opt_t *solution,
                                                        sd[B_PART]);
 #ifdef DEBUG_GEN
                 if (i < 10)
-                printf("%s[PM_B]: origin %lf, new %lf\n", __func__, 
-                                src_table->data[i].pm_b, 
+                printf("%s[PM_B]: origin %lf, new %lf\n", __func__,
+                                src_table->data[i].pm_b,
                                 dst_table->data[i].pm_b);
 #endif
         }
@@ -171,7 +229,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                          const apogee_rc_table_t *data,
                          const mk_params_t *params)
 {
-        const unsigned int count = params->count; 
+        const unsigned int count = params->count;
         const opt_t **results = dv_alloc(sizeof(opt_t *) * count);
         apogee_rc_table_t *tmp_table = dv_alloc(sizeof(apogee_rc_table_t));
         const unsigned int ssize = data->size;
@@ -222,7 +280,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                 results[i] = params->f_entry(tmp_table);
                 printf("%s: [%d/%d] completed\n", __func__, i + 1, count);
                 //dump_united_solution_points(results[i]);
-                __curve[i] = (double *)dv_alloc(sizeof(double) * fits_count); 
+                __curve[i] = (double *)dv_alloc(sizeof(double) * fits_count);
                 for (j = 0; j < fits_count; ++j) {
                         double theta = params->f_point_by_solution(results[i], curve[j].r);
                         __curve[i][j] = theta;

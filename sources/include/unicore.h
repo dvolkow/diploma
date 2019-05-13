@@ -1,4 +1,4 @@
-#ifndef UNICORE_H  
+#ifndef UNICORE_H
 #define UNICORE_H  1
 
 #include "types.h"

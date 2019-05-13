@@ -5,6 +5,8 @@
 #include "jtest.h"
 #include "generators.h"
 #include "core.h"
+#include "core_l.h"
+#include "core_b.h"
 #include "io.h"
 #include "unicore.h"
 #include "db.h"
@@ -81,17 +83,20 @@ int main(int argc, const char *argv[])
         assert(table->size != 0);
 
         db_add(generic_table()); // ERROR_LIMITED
-        g_mode_t mode = GET_MODE(cfg);
+        solution_mode_t mode = GET_SOLUTION_MODE(cfg);
         switch(mode) {
-                case SIMPLE_MODE:
-                case ITERATE_MODE:
-                        get_partial_vr_solution(table);
-                        break;
-                case GENERATION_MODE:
-                        generate();
-                default:
-                        break;
-
+	case VR_PART_MODE:
+		get_partial_vr_solution(table);
+		break;
+        case L_PART_MODE:
+		get_partial_l_solution(table);
+		break;
+        case B_PART_MODE:
+		get_partial_b_solution(table);
+		break;
+        default:
+		printf("Use -s [--solution] option to set solution mode.\nExit.\n");
+		break;
         }
 
         deinitialization_process();
