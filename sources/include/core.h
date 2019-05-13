@@ -62,7 +62,6 @@ void parse_args(int, char **);
 bool parser_t_is_valid(const parser_t *cfg);
 parser_t *get_parser(void);
 
-void get_solution(void);
 int parser_init(void);
 void parser_exit(void);
 

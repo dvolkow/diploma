@@ -16,6 +16,16 @@ typedef enum {
       , ANOTHER
 } gen_mode_t;
 
+typedef struct {
+        opt_t *(*f_entry)(apogee_rc_table_t *);
+        double (*f_point_by_solution)(const opt_t *, 
+                                      const double);
+        void (*f_table_by_solution)(const opt_t *,
+                                    const apogee_rc_table_t *,
+                                    apogee_rc_table_t *);
+        unsigned int count;
+} mk_params_t;
+
 double *gen_vector_by_mean_and_sd(const gsl_rng *r, 
                                 const double mean, 
                                  const double sigma,
@@ -31,11 +41,16 @@ static inline unsigned long int dv_random_seed(void)
         return (unsigned long)(tv.tv_sec) + (unsigned long)(tv.tv_usec);
 }
 
-opt_t *monte_carlo_entry(const opt_t *solution,
-                         const apogee_rc_table_t *data,
-                         opt_t *(*f_entry)(apogee_rc_table_t *data),
-                         unsigned int count);
+opt_t *monte_carlo_entry(const opt_t *,
+                         const apogee_rc_table_t *,
+                         const mk_params_t *);
 
+void fill_table_by_uni_solution(const opt_t *,
+                                const apogee_rc_table_t *,
+                                apogee_rc_table_t *);
+void fill_table_by_vr_solution(const opt_t *,
+                               const apogee_rc_table_t *,
+                               apogee_rc_table_t *);
 double *gen_vector_by_bounds_uni(const gsl_rng *r,
                                  const double l,
                                  const double h,

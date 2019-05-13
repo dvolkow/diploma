@@ -22,5 +22,7 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *);
 void precalc_errors_uni(apogee_rc_table_t *table,
                         const double limit);
 void filter_get_and_apply(apogee_rc_table_t *table);
+void get_solution(apogee_rc_table_t *table);
+void get_partial_vr_solution(apogee_rc_table_t *table);
 
 #endif // UNICORE_H  1

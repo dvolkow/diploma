@@ -64,7 +64,6 @@ void dump_table(const apogee_rc_table_t *);
 void dump_objects_xyz(const apogee_rc_table_t *,
                       const dsize_t,
                       const char *);
-void dump_all(opt_t *solution, prec_t *p, iteration_storage_t *st);
 void dump_result(const opt_t *opt);
 
 void dump_core_l_solution(const opt_t *);
@@ -77,7 +76,13 @@ void dump_uni_rotation_curve(const rot_curve_t *, const unsigned int);
 void dump_uni_rotation_objs(const apogee_rc_table_t *,
                             const opt_t *);
 
-double get_point_by_uni_solution(const opt_t *, const double);
+void dump_rotation_curve_vr(const opt_t *solution);
+
+double get_point_by_uni_solution(const opt_t *,
+                                 const double);
+double get_point_by_vr_solution(const opt_t *, 
+                                const double);
+
 void dump_table_parameters(const apogee_rc_table_t *,
                            const opt_t *);
 
@@ -97,6 +102,7 @@ void dump_part_rotation_curve(const opt_t *,
                               const char *,
                               const double);
 
+void dump_vr_solution(const opt_t *);
 void dump_R0_theta_ellips(const opt_t **,
                           unsigned int,
                           const opt_t *);
