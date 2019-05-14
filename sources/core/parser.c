@@ -33,6 +33,7 @@ int parser_init(void)
         __cfg->mode             = DEFAULT_MODE;
         __cfg->mksize           = DEFAULT_MKSIZE;
         __cfg->bolter           = DEFAULT_BOLTER;
+        __cfg->draw_profile     = DEFAULT_PROFILE;
         __cfg->solution_mode    = DEFAULT_SOL_MODE;
 
         return 0;
@@ -162,6 +163,13 @@ void parse_args(int argc,
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 res->bolter = atoi(*argv);
+                        } else {
+                                goto usage_ret;
+                        }
+                } else if (matches("-p", *argv) || matches("--profile", *argv)) {
+                        if (CHECK_ARGS(argc)) {
+                                NEXT_ARG(argc, argv);
+                                res->draw_profile = atoi(*argv);
                         } else {
                                 goto usage_ret;
                         }

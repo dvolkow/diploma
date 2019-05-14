@@ -65,19 +65,17 @@ static void dump_unfriendly_result(const opt_t *opt)
         FILE *fout = fopen(OUTPUT_UNFRESULT_FILENAME, "w");
         CHECK_FILE_AND_RET(fout, OUTPUT_UNFRESULT_FILENAME);
 
-        fprintf(fout, "%0.3lf %0.3lf\n",
+        fprintf(fout, "%0.3lf\n%0.3lf\n",
                         opt->r_0,
                         opt->dr_0);
-        //fprintf(fout, "%0.3lf\n",
-        //                sqrt(opt->sq / (opt->size + opt->s.size + 1)));
+        fprintf(fout, "%0.3lf\n", opt->sq);
 
-        //fprintf(fout, "%d\n", opt->s.size - BETA_QTY);
+        fprintf(fout, "%d\n", opt->size);
         unsigned int i;
         for (i = 0; i < opt->s.size; ++i) {
-                fprintf(fout, "%0.3f %0.3f %0.2lf\n",
+                fprintf(fout, "%0.3lf\n%0.3lf\n",
                         opt->s.data[i],
-                        opt->bounds[i].l,
-                        fabs(opt->bounds[i].l / opt->s.data[i]));
+                        opt->bounds[i].l);
         }
         fclose(fout);
 }
@@ -840,6 +838,40 @@ void dump_table(const apogee_rc_table_t *table)
                                 table->data[i].dist,
                                 table->data[i].dist,
                                 table->data[i].dist);
+        }
+
+        fclose(fout);
+}
+
+
+void dump_profile(linear_equation_t *eq,
+                  apogee_rc_table_t *table,
+                  opt_params_t *params,
+                  const char *fname)
+{
+        FILE *fout = fopen(fname, "w");
+        CHECK_FILE_AND_RET(fout, fname);
+
+        linear_eq_solve_t s = {
+                .data = dv_alloc(sizeof(double) * eq->size),
+                .size = eq->size
+        };
+
+        assert(params != NULL);
+        assert(params->residuals_summary != NULL);
+        assert(params->fill_mnk_matrix != NULL);
+
+        double step = ROTC_STEP_R;
+
+        table->r_0 = ROTC_LOWER_BOUND;
+
+
+        while (table->r_0 < ROTC_UPPER_BOUND) {
+                table->r_0 += step;
+                params->fill_mnk_matrix(eq, table);
+                solve(eq, &s);
+                double sq_tmp = params->residuals_summary(&s, table);
+                fprintf(fout, "%lf %lf\n", table->r_0, sq_tmp);
         }
 
         fclose(fout);

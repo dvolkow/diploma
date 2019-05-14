@@ -216,6 +216,9 @@ void get_partial_vr_solution(apogee_rc_table_t *table)
         dump_rotation_curve_vr(solution);
         dump_objects_theta_R(table, solution, TOTAL_QTY, "vr_objs.txt");
 
+        if (cfg->draw_profile)
+                dump_profile(&eq, table, &params, "vr_profile.txt");
+
         mk_params_t mk_params = {
                 .f_entry = vr_partial_entry,
                 .f_point_by_solution = get_point_by_vr_solution,
@@ -228,6 +231,7 @@ void get_partial_vr_solution(apogee_rc_table_t *table)
                                           &mk_params);
 
 
+        dump_result(mk_sol);
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         dump_objects_theta_R(dumped, solution, TOTAL_QTY, "vr_objs_err.txt");
         dump_vr_solution(mk_sol);
@@ -418,6 +422,9 @@ void get_iterate_solution(apogee_rc_table_t *table,
         else
                 solution = united_entry(table);
  
+        if (cfg->draw_profile)
+                dump_united_solution_profile(table, cfg->ord);
+
         mk_params_t mk_params = {
                 .f_entry = united_entry,
                 .f_point_by_solution = get_point_by_uni_solution,

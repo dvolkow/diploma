@@ -64,6 +64,8 @@ typedef struct {
         g_mode_t mode;
 #define DEFAULT_BOLTER          0
         int bolter;
+#define DEFAULT_PROFILE         0
+        int draw_profile;
 	solution_mode_t solution_mode;
 #define DEFAULT_SOL_MODE        INVALID_MODE
 } parser_t;

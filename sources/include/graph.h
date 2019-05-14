@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "io.h"
+#include "opt.h"
 
 #define EDGE_SPARCE_DIVISOR     10
 #define OMEGA_SUN               30.50
@@ -116,4 +117,9 @@ void dump_R0_theta_ellips(const opt_t **,
 char *name_for_obj(const unsigned int i,
                    const unsigned int n,
                    const char *prefix);
+
+void dump_profile(linear_equation_t *,
+                  apogee_rc_table_t *,
+                  opt_params_t *,
+                  const char *);
 #endif // GRAPH_H

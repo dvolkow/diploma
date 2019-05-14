@@ -103,9 +103,7 @@ static double core_b_residuals_line(const opt_t *solution,
                                     apogee_rc_t *line)
 {
         const double mod_v = core_b_get_mod_v(solution, line);
-#ifdef DEBUG
-        printf("mod_v = %lf, line->pm_b = %lf\n", mod_v, line->pm_b);
-#endif
+
         /* pm_l and pm_b already multiplied in k */
         line->eps = fabs(line->pm_b - mod_v);
         return pow_double(line->pm_b - mod_v, 2);
@@ -307,10 +305,12 @@ void get_partial_b_solution(apogee_rc_table_t *table)
         table->r_0 = solution->r_0;
         table->sigma[B_PART] = solution->sq / (table->size - eq.size - 1);
         solution->sq = sqrt(table->sigma[B_PART]);
-        printf("%s: sq = %lf\n", __func__, solution->sq);
 
         dump_rotation_curve_b(solution);
-        dump_objects_theta_R(table, solution, B_PART, "vr_objs.txt");
+        dump_objects_theta_R(table, solution, B_PART, "b_objs.txt");
+
+        if (cfg->draw_profile)
+                dump_profile(&eq, table, &params, "b_profile.txt");
 
         mk_params_t mk_params = {
                 .f_entry = core_b_opt_entry,
@@ -324,8 +324,9 @@ void get_partial_b_solution(apogee_rc_table_t *table)
                                           &mk_params);
 
 
+        dump_result(mk_sol);
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
-        dump_objects_theta_R(dumped, solution, B_PART, "vr_objs_err.txt");
+        dump_objects_theta_R(dumped, solution, B_PART, "b_objs_err.txt");
         dump_vr_solution(mk_sol);
         dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
 }

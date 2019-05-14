@@ -30,4 +30,6 @@ double get_v_generic_from_uni(const linear_eq_solve_t *,
                               const apogee_rc_t *,
                               const double,
                               const unsigned int);
+void dump_united_solution_profile(apogee_rc_table_t *table,
+                                  unsigned int ord);
 #endif // UNICORE_H  1

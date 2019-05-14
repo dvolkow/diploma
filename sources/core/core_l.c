@@ -306,10 +306,12 @@ void get_partial_l_solution(apogee_rc_table_t *table)
         table->r_0 = solution->r_0;
         table->sigma[L_PART] = solution->sq / (table->size - eq.size - 1);
         solution->sq = sqrt(table->sigma[L_PART]);
-//        printf("%s: sq = %lf\n", __func__, solution->sq);
 
         dump_rotation_curve_l(solution);
-        dump_objects_theta_R(table, solution, L_PART, "vr_objs.txt");
+        dump_objects_theta_R(table, solution, L_PART, "l_objs.txt");
+
+        if (cfg->draw_profile)
+                dump_profile(&eq, table, &params, "l_profile.txt");
 
         mk_params_t mk_params = {
                 .f_entry = core_l_opt_entry,
@@ -323,8 +325,9 @@ void get_partial_l_solution(apogee_rc_table_t *table)
                                           &mk_params);
 
 
+        dump_result(mk_sol);
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
-        dump_objects_theta_R(dumped, solution, L_PART, "vr_objs_err.txt");
+        dump_objects_theta_R(dumped, solution, L_PART, "l_objs_err.txt");
         dump_vr_solution(mk_sol);
         dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
 }

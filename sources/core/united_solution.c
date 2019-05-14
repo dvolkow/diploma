@@ -352,6 +352,7 @@ static double residuals_summary_nerr(const linear_eq_solve_t *solution,
 
 
 
+#if 0
 void uni_get_errors(opt_t *solution, apogee_rc_table_t *table)
 {
         linear_equation_t m, invm;
@@ -393,6 +394,7 @@ void uni_nerr_get_errors(opt_t *solution, apogee_rc_table_t *table)
         }
 }
 
+#endif
 
 
 static opt_t *united_solution(linear_equation_t *eq,
@@ -440,10 +442,31 @@ opt_t *united_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_solution(&eq, table);
-        uni_get_errors(opt, table);
         table->r_0 = opt->r_0;
 
         return opt;
+}
+
+void dump_united_solution_profile(apogee_rc_table_t *table,
+                                  unsigned int ord) 
+{
+        unsigned int size = ord;
+        unsigned int dim = size + TOTAL_QTY + 1;
+        double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
+
+        linear_equation_t eq = {
+                .data = matrix,
+                .right = (double *)dv_alloc(sizeof(double) * dim),
+                .size = dim,
+                .ord = size
+        };
+
+        opt_params_t params = {
+                .residuals_summary = residuals_summary_nerr,
+                .fill_mnk_matrix = uni_fill_mnk_matrix_nerr,
+        };
+
+        dump_profile(&eq, table, &params, "uni_profile.txt");
 }
 
 opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
@@ -462,7 +485,6 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_with_nerr_solution(&eq, table);
-        uni_nerr_get_errors(opt, table);
         table->r_0 = opt->r_0;
 
         return opt;
