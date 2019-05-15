@@ -153,6 +153,70 @@ void fill_table_by_l_solution(const opt_t *solution,
         dv_rand_release(rng);
 }
 
+void fill_table_by_uni_solution_sigma_0(const opt_t *solution,
+					const apogee_rc_table_t *src_table,
+					apogee_rc_table_t *dst_table)
+{
+        gsl_rng *rng = dv_rand_acquire(MT);
+        assert(rng != NULL);
+
+        const unsigned int ssize = solution->size;
+        dst_table->r_0 = solution->r_0;
+        dst_table->size = ssize;
+	dst_table->sigma_0 = src_table->sigma_0;
+
+        unsigned int i;
+
+        for (i = 0; i < ssize; ++i) {
+                dst_table->data[i].l = src_table->data[i].l;
+                dst_table->data[i].b = src_table->data[i].b;
+                dst_table->data[i].cos_l = src_table->data[i].cos_l;
+                dst_table->data[i].cos_b = src_table->data[i].cos_b;
+                dst_table->data[i].sin_b = src_table->data[i].sin_b;
+                dst_table->data[i].sin_l = src_table->data[i].sin_l;
+                dst_table->data[i].dist = src_table->data[i].dist;
+                dst_table->data[i].pm_match = src_table->data[i].pm_match;
+
+		dst_table->data[i].pm_b_err = src_table->data[i].pm_b_err;
+		dst_table->data[i].pm_l_err = src_table->data[i].pm_l_err;
+                double vr_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       solution->r_0,
+                                                       VR_PART);
+
+                double mu_b_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       solution->r_0,
+                                                       B_PART);
+
+                double mu_l_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       solution->r_0,
+                                                       L_PART);
+
+		double vr_sd = sqrt(sigma_for_k(VR_PART,
+						&src_table->data[i],
+						src_table->sigma_0));
+                dst_table->data[i].v_helio = __gen_gauss_d(rng,
+                                                        vr_mod,
+                                                        vr_sd);
+		double pm_b_sd = sqrt(sigma_for_k(B_PART,
+				      &src_table->data[i],
+				      src_table->sigma_0));
+                dst_table->data[i].pm_b = __gen_gauss_d(rng,
+                                                        mu_b_mod,
+                                                        pm_b_sd);
+		double pm_l_sd = sqrt(sigma_for_k(L_PART,
+				      &src_table->data[i],
+				      src_table->sigma_0));
+                dst_table->data[i].pm_l = __gen_gauss_d(rng,
+                                                        mu_l_mod,
+                                                        pm_l_sd);
+        }
+
+        dv_rand_release(rng);
+}
+
 
 
 void fill_table_by_uni_solution(const opt_t *solution,
@@ -367,7 +431,7 @@ apogee_rc_table_t *gen_table_by_solution(const opt_t *solution)
 #define BHIGH   90
 
 #define RLOW    0.39
-#define RHIGH   12.83    
+#define RHIGH   12.83
 
         for (i = 0; i < ssize; ++i) {
                 //table->data[i].id = i;

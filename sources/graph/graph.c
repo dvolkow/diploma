@@ -17,16 +17,19 @@
 #include "mem.h"
 
 
-#define OUTPUT_RESULT_FILENAME  \
+#define OUTPUT_RESULT_FILENAME		\
         "result.txt"
 
-#define OUTPUT_UNFRESULT_FILENAME  \
+#define OUTPUT_UNFRESULT_FILENAME	\
         "unfresult.txt"
 
-#define OUTPUT_RESULT_LINE      \
+#define OUTPUT_RESIDUALS_FILENAME	\
+        "residuals.txt"
+
+#define OUTPUT_RESULT_LINE		\
         "+---------------------------------------------+"
 
-#define PRINT_OUTPUT_LINE(f)    \
+#define PRINT_OUTPUT_LINE(f)		\
         fprintf((f), "%s\n", OUTPUT_RESULT_LINE)
 
 
@@ -58,6 +61,22 @@ static char *__get_name_by_idx(const unsigned int idx)
 
         sprintf(__g_graph_buffer, "th[%u]", idx - known + 2);
         return __g_graph_buffer;
+}
+
+void dump_residuals(const apogee_rc_table_t *table)
+{
+        FILE *fout = fopen(OUTPUT_RESIDUALS_FILENAME, "w");
+        CHECK_FILE_AND_RET(fout, OUTPUT_RESIDUALS_FILENAME);
+
+	unsigned int i;
+	for (i = 0; i < table->size; ++i) {
+		fprintf(fout, "%lf %lf %lf\n",
+			table->data[i].vsd[VR_PART],
+			table->data[i].vsd[B_PART],
+			table->data[i].vsd[L_PART]);
+	}
+
+	fclose(fout);
 }
 
 static void dump_unfriendly_result(const opt_t *opt, const char *filename)

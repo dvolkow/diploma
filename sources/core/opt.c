@@ -279,7 +279,9 @@ opt_t *exception_algorithm(apogee_rc_table_t *table,
         unsigned int old_size = table->size;
         opt_t *solution = f(table);
 
+	unsigned int i = 0;
         while (true) {
+		printf("%s: #%u\n", __func__, i++);
                 precalc_errors(table, get_limit_by_eps(table->size));
                 filter_get_and_apply(table);
                 if (table->size == old_size)

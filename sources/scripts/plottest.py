@@ -18,9 +18,9 @@ import sys
 
 # View general and partial solutions:
 PATH='../../build/test/'
-i = str(sys.argv[1])
 
 def view_partial_sequences():
+    i = str(sys.argv[2])
     vr_pt = pd.read_csv(PATH + i + "/vr_unfresult.txt", delimiter=" ", names = ['N', 'R_0', 'SD', 'u', 'v', 'A', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6', 'theta7', 'theta8', 'theta9', 'theta10'])
     b_pt = pd.read_csv(PATH + i + "/b_unfresult.txt", delimiter=" ", names = ['N', 'R_0', 'SD', 'u', 'v', 'w', 'A', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6', 'theta7', 'theta8', 'theta9', 'theta10'])
     l_pt = pd.read_csv(PATH + i + "/l_unfresult.txt", delimiter=" ", names = ['N', 'R_0', 'SD', 'u', 'v', 'omega_0', 'A', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6', 'theta7', 'theta8', 'theta9', 'theta10'])
@@ -37,10 +37,26 @@ def view_united_sequences(size):
         sol = pd.concat([sol, u_pt], axis = 0, sort=False, ignore_index=True)
     print(sol)
 
-if len(sys.argv) > 2:
-    view_united_sequences(int(sys.argv[2]))
-else:
+def view_residuals():
+    pt = pd.read_csv('../../build/test/residuals.txt', delimiter = " ", names = ['V_R', 'mu_b', 'mu_l'])
+    g = sns.distplot(pt['V_R'], kde = True, rug = True, bins = 100)
+    plt.savefig("VR.png")
+    plt.clf()
+    g = sns.distplot(pt['mu_b'], kde = True, rug = True, bins = 100)
+    plt.savefig("mu_b.png")
+    plt.clf()
+    g = sns.distplot(pt['mu_l'], kde = True, rug = True, bins = 100)
+    plt.savefig("mu_l.png")
+
+if sys.argv[1] == "s":
     view_partial_sequences()
+elif sys.argv[1] == "v":
+    view_united_sequences(int(sys.argv[2]))
+elif sys.argv[1] == "r":
+    view_residuals()
+else: 
+    print("Nothing. Keys: s, v, r.")
+
 
 
 

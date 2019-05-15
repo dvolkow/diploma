@@ -141,7 +141,7 @@ void parse_args(int argc,
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 sscanf(*argv, "%lf", &readbuff);
-                                res->n_err = readbuff;
+                                res->sigma_0 = readbuff;
                         } else {
                                 goto usage_ret;
                         }

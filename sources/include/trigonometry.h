@@ -13,9 +13,8 @@
 #define K_PM                    4.7406
 
 
-double mu_b_from_pa_dec_pm(const apogee_rc_t *);
-double mu_l_from_pa_dec_pm(const apogee_rc_t *);
-double errors_ecliptic_to_gal(const apogee_rc_t *);
+double errors_ecliptic_to_gal_mu_l(const apogee_rc_t *);
+double errors_ecliptic_to_gal_mu_b(const apogee_rc_t *);
 
 double mu_b_from_pa_dec_pm_II(const apogee_rc_t *);
 double mu_l_from_pa_dec_pm_II(const apogee_rc_t *);

@@ -55,7 +55,7 @@ typedef struct {
         double l;
 #define DEFAULT_H               0
         double h;
-        double n_err;
+        double sigma_0;
 #define DEFAULT_MKSIZE          10
         unsigned int mksize;
 #define DEFAULT_FILTER          BAD_FILTER

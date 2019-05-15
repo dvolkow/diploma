@@ -49,6 +49,9 @@ opt_t *monte_carlo_entry(const opt_t *,
 void fill_table_by_uni_solution(const opt_t *,
                                 const apogee_rc_table_t *,
                                 apogee_rc_table_t *);
+void fill_table_by_uni_solution_sigma_0(const opt_t *,
+					const apogee_rc_table_t *,
+					apogee_rc_table_t *);
 void fill_table_by_vr_solution(const opt_t *,
                                const apogee_rc_table_t *,
                                apogee_rc_table_t *);

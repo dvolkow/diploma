@@ -22,14 +22,22 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *);
 
 void precalc_errors_uni(apogee_rc_table_t *,
                         const double);
+void precalc_errors_uni_sigma_0(apogee_rc_table_t *,
+                        const double);
 void filter_get_and_apply(apogee_rc_table_t *);
 void get_united_solution(apogee_rc_table_t *);
+void get_united_sigma_0_solution(apogee_rc_table_t *);
 void get_partial_vr_solution(apogee_rc_table_t *);
+
+void precalc_vsd_to_dump(apogee_rc_table_t *);
 
 double get_v_generic_from_uni(const linear_eq_solve_t *,
                               const apogee_rc_t *,
                               const double,
                               const unsigned int);
-void dump_united_solution_profile(apogee_rc_table_t *table,
-                                  unsigned int ord);
+void dump_united_solution_profile(apogee_rc_table_t *,
+                                  unsigned int);
+double sigma_for_k(const unsigned int,
+                   const apogee_rc_t *,
+                   const double);
 #endif // UNICORE_H  1
