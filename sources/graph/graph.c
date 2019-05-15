@@ -60,23 +60,76 @@ static char *__get_name_by_idx(const unsigned int idx)
         return __g_graph_buffer;
 }
 
-static void dump_unfriendly_result(const opt_t *opt)
+static void dump_unfriendly_result(const opt_t *opt, const char *filename)
 {
-        FILE *fout = fopen(OUTPUT_UNFRESULT_FILENAME, "w");
-        CHECK_FILE_AND_RET(fout, OUTPUT_UNFRESULT_FILENAME);
+        FILE *fout = fopen(filename, "w");
+        CHECK_FILE_AND_RET(fout, filename);
 
-        fprintf(fout, "%d\n", opt->size);
-        fprintf(fout, "%0.3lf\n%0.3lf\n",
+        fprintf(fout, "%u ", opt->size);
+        fprintf(fout, "%0.3lf %0.3lf ",
                         opt->r_0,
                         opt->dr_0);
-        fprintf(fout, "%0.3lf\n", opt->sq);
+        fprintf(fout, "%0.3lf ", opt->sq);
 
         unsigned int i;
-        for (i = 0; i < opt->s.size; ++i) {
-                fprintf(fout, "%0.3lf\n%0.3lf\n",
+        for (i = 0; i < opt->s.size && i < MAX_PRINTF_COLS; ++i) {
+                fprintf(fout, "%0.3lf %0.3lf ",
                         opt->s.data[i],
                         opt->bounds[i].l);
         }
+
+	for (i = opt->s.size; i < MAX_PRINTF_COLS; ++i) {
+		fprintf(fout, "None None ");
+	}
+	fprintf(fout, "\n");
+        fclose(fout);
+}
+
+void partial_dump_unfriendly_result(const opt_t *opt,
+				    unsigned int nmax,
+				    const char *filename)
+{
+        FILE *fout = fopen(filename, "w");
+        CHECK_FILE_AND_RET(fout, filename);
+
+        fprintf(fout, "%u ", opt->size);
+        fprintf(fout, "%0.3lf ",
+                        opt->r_0);
+        fprintf(fout, "%0.3lf ", opt->sq);
+
+        unsigned int i;
+        for (i = 0; i < opt->s.size && i < nmax; ++i) {
+                fprintf(fout, "%0.3lf ",
+                        opt->s.data[i]);
+        }
+
+	for (i = opt->s.size; i < nmax; ++i) {
+		fprintf(fout, "None ");
+	}
+	fprintf(fout, "\n");
+        fclose(fout);
+}
+
+void multiply_dump_unfriendly_result(const opt_t **res,
+				     const unsigned int count,
+				     const char *filename)
+{
+        FILE *fout = fopen(filename, "w");
+        CHECK_FILE_AND_RET(fout, filename);
+
+        unsigned int i, j;
+	for (j = 0; j < count; ++j) {
+		fprintf(fout, "%u ", res[j]->size);
+		fprintf(fout, "%0.3lf ",
+                        res[j]->r_0);
+		fprintf(fout, "%d ", (int)res[j]->sq);
+
+		for (i = 0; i < res[j]->s.size; ++i) {
+			fprintf(fout, "%0.3lf ",
+				res[j]->s.data[i]);
+		}
+		fprintf(fout, "\n");
+	}
         fclose(fout);
 }
 
@@ -142,7 +195,7 @@ void dump_result(const opt_t *opt)
         PRINT_OUTPUT_LINE(fout);
         fclose(fout);
 
-        dump_unfriendly_result(opt);
+        dump_unfriendly_result(opt, OUTPUT_UNFRESULT_FILENAME);
 }
 
 

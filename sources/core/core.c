@@ -403,25 +403,29 @@ void get_iterate_solution(apogee_rc_table_t *table,
         sd[L_PART] = table->sigma[L_PART];
         dump_objects_theta_R(table, solution, L_PART, "L_PART_OBJ.txt");
         dump_part_rotation_curve(solution, L_PART, "l_cur.txt", table->omega_0);
+	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS, "l_unfresult.txt");
 
 
         solution = core_vr_entry(table);
         dump_objects_theta_R(table, solution, VR_PART, "VR_PART_OBJ.txt");
         dump_part_rotation_curve(solution, VR_PART, "vr_cur.txt", table->omega_0);
+	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS - 1, "vr_unfresult.txt");
 
         solution = core_b_entry(table);
         dump_objects_theta_R(table, solution, B_PART, "B_PART_OBJ.txt");
         dump_part_rotation_curve(solution, B_PART, "b_cur.txt", table->omega_0);
+	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS, "b_unfresult.txt");
 
         uni_g_sd_init(sd);
         // TODO: need modify dispersion?
         if (cfg->bolter > 0)
                 solution = exception_algorithm(table,
                                                united_entry,
-                                               precalc_errors_uni); 
+                                               precalc_errors_uni);
         else
                 solution = united_entry(table);
- 
+
+	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
         if (cfg->draw_profile)
                 dump_united_solution_profile(table, cfg->ord);
 
@@ -430,6 +434,7 @@ void get_iterate_solution(apogee_rc_table_t *table,
                 .f_point_by_solution = get_point_by_uni_solution,
                 .f_table_by_solution = fill_table_by_uni_solution,
                 .count = cfg->mksize,
+		.mul_unfres_name = "u_result_sample.txt",
         };
 
         opt_t *mk_sol = monte_carlo_entry(solution,

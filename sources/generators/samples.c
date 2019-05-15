@@ -280,6 +280,12 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                 }
         }
 
+	if (params->mul_unfres_name != NULL) {
+		multiply_dump_unfriendly_result(results,
+						count,
+						params->mul_unfres_name);
+	}
+
 #ifdef DEBUG_GEN
         printf("%s: test_vr %lf pm %lf, test_l %lf pm %lf, test_b %lf pm %lf\n", __func__,
                         get_mean(test_vr, count), get_sd(test_vr, count),
@@ -295,7 +301,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                         tmp_line[i] = results[i]->s.data[j];
                 }
                 main_res.bounds[j].l = get_sd(tmp_line, count);
-                main_res.s.data[j] = get_mean(tmp_line, count);
+                main_res.s.data[j] = solution->s.data[j]; // get_mean(tmp_line, count);
         }
 
         for (i = 0; i < fits_count; ++i) {
@@ -312,15 +318,18 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                 tmp_line[j] = results[j]->r_0;
         }
 
-        main_res.r_0 = get_mean(tmp_line, count);
+        main_res.r_0 = solution->r_0;
         main_res.dr_0 = get_sd(tmp_line, count);
+	/**
+	 * MK found only errors:
         for (j = 0; j < count; ++j) {
                 tmp_line[j] = results[j]->sq;
         }
+	*/
 
         dump_R0_theta_ellips(results, count, solution);
 
-        main_res.sq = get_mean(tmp_line, count);
+        main_res.sq = solution->sq; // get_mean(tmp_line, count);
         opt_t *ret = dv_alloc(sizeof(opt_t));
         *ret = main_res;
         /**

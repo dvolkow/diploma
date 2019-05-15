@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "asserts.h"
 #include "math.h"
 #include "types.h"
@@ -20,17 +21,17 @@
 
 static double __factorial_storage[PRECACHED_FACTORIAL_LEN];
 
-void *make_linear_struct(double *data, int size, 
+void *make_linear_struct(double *data, int size,
                                 linear_type_t type)
 {
         void *block;
 
         switch(type) {
         case EQUATION:
-                block = dv_alloc(sizeof(linear_equation_t)); 
+                block = dv_alloc(sizeof(linear_equation_t));
                 break;
         case SOLUTION:
-                block = dv_alloc(sizeof(linear_eq_solve_t)); 
+                block = dv_alloc(sizeof(linear_eq_solve_t));
                 break;
         default:
                 printf("%s: warning: unknown type\n",
@@ -71,7 +72,7 @@ void solve(linear_equation_t *eq, linear_eq_solve_t *x)
 }
 
 
-static void copy_diagonal(linear_equation_t *dst, 
+static void copy_diagonal(linear_equation_t *dst,
                                 const gsl_matrix *src)
 {
         unsigned int i;
@@ -100,7 +101,7 @@ void add_matrix_to_matrix(const linear_equation_t *src,
 
 /*
  * Get inverse matrix for @eq->data, and get only
- * diagonal elems. 
+ * diagonal elems.
  */
 void inverse_and_diag(linear_equation_t *eq, linear_equation_t *res)
 {
@@ -127,14 +128,14 @@ double dv_factorial(const unsigned int n)
         return __factorial_storage[n];
 }
 
-double dot_prod(double *a, double *b, int size) 
+double dot_prod(double *a, double *b, int size)
 {
         int i = 0;
         double res = 0;
         for (i = 0; i < size; ++i) {
                 res += a[i] * b[i];
         }
-        return res; 
+        return res;
 }
 
 double get_error_mnk_estimated(const double p, __attribute__((__unused__)) const unsigned int nfree,
@@ -152,7 +153,7 @@ double get_median(const double *data, const unsigned int size)
 
 double get_mean(const double *data, const unsigned int size)
 {
-        return gsl_stats_mean(data, 1, size); 
+        return gsl_stats_mean(data, 1, size);
 }
 
 double get_sd(const double *data, const unsigned int size)
@@ -166,9 +167,21 @@ static double __psi(const double kappa)
         return 1 - 2 * gsl_sf_erf_Q(kappa);
 }
 
+/**
+ * [a, b] include res point. res->x must be between a->x, b->x
+ */
+void linear_interpolation(const xy_t *a,
+			  const xy_t *b,
+			  xy_t *res)
+{
+	assert(res->x < b->x && res->x > a->x);
+
+	res->y = a->y + (res->x - a->x) * (b->y - a->y) / (b->x - a->x);
+}
+
 double get_limit_by_eps(const unsigned int size)
 {
-        const double left = 1 -  1. / size; 
+        const double left = 1 -  1. / size;
         const double step = 1e-4;
         double kappa = 2;
         while (__psi(kappa) < left) {
@@ -177,7 +190,7 @@ double get_limit_by_eps(const unsigned int size)
         return kappa - step;
 }
 
-int math_init(void) 
+int math_init(void)
 {
         __factorial_storage[0] = 1;
         int i;

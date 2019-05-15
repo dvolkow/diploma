@@ -24,6 +24,7 @@ typedef struct {
                                     const apogee_rc_table_t *,
                                     apogee_rc_table_t *);
         unsigned int count;
+	char *mul_unfres_name;
 } mk_params_t;
 
 double *gen_vector_by_mean_and_sd(const gsl_rng *r,

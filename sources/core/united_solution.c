@@ -313,7 +313,7 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
         return res;
 }
 
-static double residuals_summary(const linear_eq_solve_t *solution, 
+static double residuals_summary(const linear_eq_solve_t *solution,
                                 apogee_rc_table_t *table)
 {
         double sum = 0;
@@ -324,9 +324,9 @@ static double residuals_summary(const linear_eq_solve_t *solution,
                 for (j = 0; j < TOTAL_QTY; ++j)
                         table->sigma[j] += table->data[i].vsd[j] * table->data[i].vsd[j];
         }
-        
+
         for (j = 0; j < TOTAL_QTY; ++j) {
-                table->sigma[j] = table->sigma[j] / n_free; 
+                table->sigma[j] = table->sigma[j] / n_free;
         }
 
         for (i = 0; i < table->size; ++i) {
@@ -337,7 +337,7 @@ static double residuals_summary(const linear_eq_solve_t *solution,
         return sum;
 }
 
-static double residuals_summary_nerr(const linear_eq_solve_t *solution, 
+static double residuals_summary_nerr(const linear_eq_solve_t *solution,
                                      apogee_rc_table_t *table)
 {
         double sum = 0;
@@ -448,7 +448,7 @@ opt_t *united_entry(apogee_rc_table_t *table)
 }
 
 void dump_united_solution_profile(apogee_rc_table_t *table,
-                                  unsigned int ord) 
+                                  unsigned int ord)
 {
         unsigned int size = ord;
         unsigned int dim = size + TOTAL_QTY + 1;
