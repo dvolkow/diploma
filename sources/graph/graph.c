@@ -65,12 +65,12 @@ static void dump_unfriendly_result(const opt_t *opt)
         FILE *fout = fopen(OUTPUT_UNFRESULT_FILENAME, "w");
         CHECK_FILE_AND_RET(fout, OUTPUT_UNFRESULT_FILENAME);
 
+        fprintf(fout, "%d\n", opt->size);
         fprintf(fout, "%0.3lf\n%0.3lf\n",
                         opt->r_0,
                         opt->dr_0);
         fprintf(fout, "%0.3lf\n", opt->sq);
 
-        fprintf(fout, "%d\n", opt->size);
         unsigned int i;
         for (i = 0; i < opt->s.size; ++i) {
                 fprintf(fout, "%0.3lf\n%0.3lf\n",
