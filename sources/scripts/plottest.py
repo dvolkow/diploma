@@ -72,6 +72,7 @@ def view_residuals():
 
 def view_xyz():
     PATH=sys.argv[2]
+    NAME = sys.argv[3]
     fig = plt.figure()
     ax1 = fig.add_subplot()
 
@@ -89,7 +90,7 @@ def view_xyz():
     ax1.set_axis_labels("Y", "Z")
     plt.savefig("YZobj.png")
 
-    perrors = pd.read_table(PATH + '/ERROR_LIMITED', delimiter = " ", names = ['X', 'Y', 'Z'])
+    perrors = pd.read_table(NAME, delimiter = " ", names = ['X', 'Y', 'Z'])
 
     ax2 = fig.add_subplot()
 

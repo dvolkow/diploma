@@ -345,6 +345,9 @@ void find_united_sigma_0_solution(apogee_rc_table_t *table)
 
         dump_result(mk_sol);
         dump_united_solution(mk_sol);
+
+        apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
+        dump_objects_xyz(dumped, dumped->size, "missing_xyz.txt");
 }
 
 
@@ -383,6 +386,8 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
                                           &mk_params);
         dump_result(mk_sol);
         dump_united_solution(mk_sol);
+        apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
+        dump_objects_xyz(dumped, dumped->size, "missing_xyz.txt");
 }
 
 
@@ -514,4 +519,5 @@ void get_iterate_solution(apogee_rc_table_t *table,
         dump_uni_rotation_objs_named(dumped,
                                      solution,
                                      "ERROR_LIMITED_R_THETA");
+        dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
 }
