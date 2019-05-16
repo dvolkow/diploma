@@ -5,17 +5,11 @@ IN_FILE=$2
 H=$3
 
 if [[ -n "$4" ]]; then
-        ./diploma -f ${IN_FILE} --ord ${ORD} --mksize ${H} -b $4
+        ./diploma -f ${IN_FILE} --ord ${ORD} --mksize ${H} -s $4 -b 0 -p 1
         NEW_DIR=$(echo "result_${ORD}_${H}_$(echo ${IN_FILE}_$4 | sed 's/.txt//')")
-elif [[ -n "$3" ]]; then
-        ./diploma -f ${IN_FILE} --ord ${ORD} --mksize ${H} -b 1
-        NEW_DIR=$(echo "result_${ORD}_${H}_$(echo ${IN_FILE} | sed 's/.txt//')")
-else 
-        ./diploma -f ${IN_FILE} --ord ${ORD} -b 1 
-        NEW_DIR=$(echo "result_${ORD}_$(echo ${IN_FILE} | sed 's/.txt//')")
 fi
 
-#mv get_solution_180_0 get_solution_178_0
+#mv get_untited_solution_178_0 get_solution_178_0
 
 ./plot.sh
 
@@ -46,6 +40,7 @@ mv ./result.txt ${NEW_DIR}
 mv ./sun.txt ${NEW_DIR}
 
 mv ./rotc.eps ${NEW_DIR}/${PREFIX}.eps
+mv ./profile.eps ${NEW_DIR}/${PREFIX}_profile.eps
 mv ./rotc.txt ${NEW_DIR}
 
 mv ./unfresult.txt ${NEW_DIR}

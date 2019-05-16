@@ -100,6 +100,8 @@ int main(int argc, const char *argv[])
                 get_united_solution(table);
                 break;
         case UNINAT_MODE:
+                get_united_sigma_0_solution(table);
+		break;
         default:
 		printf("Use -s [--solution] option to set solution mode.\nExit.\n");
 		break;

@@ -8,6 +8,13 @@
 #define M_PI            3.14159265358979323846
 #define YR_TO_SEC       3.154e7
 
+#define DRVT_STEP	1e-5
+
+typedef struct {
+	double x;
+	double y;
+} xy_t;
+
 
 static inline double deg_to_rad(const double deg)
 {
@@ -34,15 +41,20 @@ static inline double rad_to_deg(const double rad)
         return rad * 180 / M_PI;
 }
 
-static inline double pow_double(const double m, const unsigned int n) 
+static inline double pow_double(const double m, const unsigned int n)
 {
         unsigned int i;
         double _m = m;
-        for (i = 0; i < n - 1; ++i) 
+        for (i = 0; i < n - 1; ++i)
                 _m *= m;
         return _m;
 }
 
+
+#define DOUBLE_COMPARE_EPSILON          (1e-8)
+
+#define DOUBLE_EQUAL_EPS(a, b)          \
+        (fabs((a) - (b)) < DOUBLE_COMPARE_EPSILON)
 
 
 typedef enum {
@@ -80,6 +92,8 @@ typedef struct {
         unsigned int size;
 } opt_t;
 
+#define GET_SOLUTION_R0(p_opt)  \
+        ((p_opt)->r_0)
 
 typedef struct {
         double x;
@@ -112,5 +126,8 @@ void add_matrix_to_matrix(const linear_equation_t *src,
 int math_init(void);
 void math_exit(void);
 
+void linear_interpolation(const xy_t *,
+			  const xy_t *,
+			  xy_t *);
 #endif // MATH_H
 

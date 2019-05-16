@@ -58,7 +58,9 @@ static void __fill_part_mnk_matrix(linear_equation_t *tmp,
                 }
 
                 for (i = BETA_QTY + 1; i < len; ++i) {
-                        line->_[i] = filler[k].alpha_n(&table->data[j], i - BETA_QTY, table->r_0);
+                        line->_[i] = filler[k].alpha_n(&table->data[j], 
+                                                        i - BETA_QTY, 
+                                                        GET_TABLE_R0(table));
                 }
 
                 for (i = 0; i < len; ++i) {
@@ -118,27 +120,43 @@ void precalc_errors_uni(apogee_rc_table_t *table,
 
         for (i = 0; i < table->size; ++i) {
                 for (j = 0; j < TOTAL_QTY; ++j) {
-                        if (table->data[i].vsd[j] / l_sq[j] > limit) {
+                        if (fabs(table->data[i].vsd[j]) / l_sq[j] > limit) {
                                 table->data[i].pm_match = 0;
                         }
                 }
         }
 }
 
-static double sigma_for_k(const unsigned int p,
-                          const apogee_rc_t *line,
-                          const double n_err)
+
+void precalc_errors_uni_sigma_0(apogee_rc_table_t *table,
+				const double limit)
+{
+        unsigned int i, j;
+
+        for (i = 0; i < table->size; ++i) {
+                for (j = 0; j < TOTAL_QTY; ++j) {
+			double s = sigma_for_k(j, &table->data[i], table->sigma_0);
+                        if (fabs(table->data[i].vsd[j]) / s > limit) {
+                                table->data[i].pm_match = 0;
+                        }
+                }
+        }
+}
+
+double sigma_for_k(const unsigned int p,
+                   const apogee_rc_t *line,
+                   const double sigma_0)
 {
         if (p == VR_PART) {
-                return n_err + pow_double(line->v_err, 2);
+                return pow_double(sigma_0, 2) + pow_double(line->v_err, 2);
         }
 
         if (p == L_PART) {
-                return n_err / pow_double(line->dist, 2) + pow_double(K_PM * line->pm_l_err, 2);
+                return pow_double(sigma_0 / line->dist, 2) + pow_double(K_PM * line->pm_l_err, 2);
         }
 
         if (p == B_PART) {
-                return n_err / pow_double(line->dist, 2) + pow_double(K_PM * line->pm_b_err, 2);
+                return pow_double(sigma_0 / line->dist, 2) + pow_double(K_PM * line->pm_b_err, 2);
         }
 
         printf("%s: bad k %d\n", __func__, p);
@@ -165,13 +183,15 @@ static void uni_fill_mnk_matrix_nerr(linear_equation_t *eq,
                 memset(tmp.data, 0, sizeof(double) * len * len);
                 memset(tmp.right, 0, sizeof(double) * len);
                 for (j = 0; j < table->size; ++j) {
-                        double s = sigma_for_k(k, &table->data[j], table->n_err);
+                        double s = sigma_for_k(k, &table->data[j], table->sigma_0);
                         for (i = 0; i < BETA_QTY + 1; ++i) {
                                 line->_[i] = filler[k].beta_n(&table->data[j], i);
                         }
 
                         for (i = BETA_QTY + 1; i < len; ++i) {
-                                line->_[i] = filler[k].alpha_n(&table->data[j], i - BETA_QTY, table->r_0);
+                                line->_[i] = filler[k].alpha_n(&table->data[j],
+                                                                i - BETA_QTY,
+                                                                GET_TABLE_R0(table));
                         }
 
                         for (i = 0; i < len; ++i) {
@@ -226,17 +246,17 @@ static void _residuals_line(const linear_eq_solve_t *v,
                 double mod_v = get_v_generic_from_uni(v, line, r_0, k);
 
                 if (k == VR_PART) {
-                        line->vsd[k] = fabs(line->v_helio - mod_v);
+                        line->vsd[k] = line->v_helio - mod_v;
                         continue;
                 }
 
                 if (k == L_PART) {
-                        line->vsd[k] = fabs(line->pm_l - mod_v);
+                        line->vsd[k] = line->pm_l - mod_v;
                         continue;
                 }
 
                 if (k == B_PART) {
-                        line->vsd[k] = fabs(line->pm_b - mod_v);
+                        line->vsd[k] = line->pm_b - mod_v;
                         continue;
                 }
         }
@@ -277,7 +297,7 @@ static double _chi_line(const linear_eq_solve_t *v,
 static double _residuals_line_nerr(const linear_eq_solve_t *v,
                                    apogee_rc_t *line,
                                    const double r_0,
-                                   const double n_err)
+                                   const double sigma_0)
 {
         unsigned int i, k;
         double res = 0;
@@ -285,7 +305,7 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
 
         for (k = 0; k < TOTAL_QTY; ++k) {
                 double mod_v = 0;
-                double s = sigma_for_k(k, line, n_err);
+                double s = sigma_for_k(k, line, sigma_0);
                 for (i = 0; i < BETA_QTY + 1; ++i) {
                         mod_v += v->data[i] * filler[k].beta_n(line, i);
                 }
@@ -296,16 +316,19 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
 
                 if (k == VR_PART) {
                         res += pow_double(line->v_helio - mod_v, 2) / s;
+                        line->vsd[k] = line->v_helio - mod_v;
                         continue;
                 }
 
                 if (k == L_PART) {
                         res += pow_double(line->pm_l - mod_v, 2) / s;
+                        line->vsd[k] = line->pm_l - mod_v;
                         continue;
                 }
 
                 if (k == B_PART) {
                         res += pow_double(line->pm_b - mod_v, 2) / s;
+                        line->vsd[k] = line->pm_b - mod_v;
                         continue;
                 }
         }
@@ -313,38 +336,69 @@ static double _residuals_line_nerr(const linear_eq_solve_t *v,
         return res;
 }
 
-static double residuals_summary(const linear_eq_solve_t *solution, 
+static double residuals_summary(const linear_eq_solve_t *solution,
                                 apogee_rc_table_t *table)
 {
         double sum = 0;
         unsigned int i, j;
         const unsigned int n_free = table->size - solution->size - 1;
         for (i = 0; i < table->size; ++i) {
-                _residuals_line(solution, &table->data[i], table->r_0);
+                _residuals_line(solution,
+                                &table->data[i],
+                                GET_TABLE_R0(table));
                 for (j = 0; j < TOTAL_QTY; ++j)
                         table->sigma[j] += table->data[i].vsd[j] * table->data[i].vsd[j];
         }
-        
+
         for (j = 0; j < TOTAL_QTY; ++j) {
-                table->sigma[j] = table->sigma[j] / n_free; 
+                table->sigma[j] = table->sigma[j] / n_free;
         }
 
         for (i = 0; i < table->size; ++i) {
-                sum += _chi_line(solution, &table->data[i],
-                                 table->r_0, table->sigma);
+                sum += _chi_line(solution,
+                                 &table->data[i],
+                                 GET_TABLE_R0(table),
+                                 table->sigma);
         }
         assert(sum > 0);
         return sum;
 }
 
-static double residuals_summary_nerr(const linear_eq_solve_t *solution, 
+void precalc_vsd_to_dump(apogee_rc_table_t *table)
+{
+        unsigned int i, j;
+	parser_t *cfg = get_parser();
+        solution_mode_t mode = GET_SOLUTION_MODE(cfg);
+
+        for (i = 0; i < table->size; ++i) {
+		for (j = 0; j < TOTAL_QTY; ++j) {
+			switch(mode) {
+			case UNINAT_MODE:
+				table->data[i].vsd[j] /= sigma_for_k(j,
+								     &table->data[i],
+								     cfg->sigma_0);
+				break;
+			case UNI_MODE:
+				table->data[i].vsd[j] /= sqrt(g_sq[j]);
+				break;
+			default:
+				// TODO: warnings
+				return;
+			}
+		}
+	}
+}
+
+static double residuals_summary_nerr(const linear_eq_solve_t *solution,
                                      apogee_rc_table_t *table)
 {
         double sum = 0;
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                sum += _residuals_line_nerr(solution, &table->data[i],
-                                            table->r_0, table->n_err);
+                sum += _residuals_line_nerr(solution,
+                                            &table->data[i],
+                                            GET_TABLE_R0(table),
+                                            table->sigma_0);
         }
         assert(sum > 0);
         return sum;
@@ -352,6 +406,8 @@ static double residuals_summary_nerr(const linear_eq_solve_t *solution,
 
 
 
+#if 0 // Here errors from LSE matrixes. Now it all from M.-K.
+      // TODO: replace to deadcode
 void uni_get_errors(opt_t *solution, apogee_rc_table_t *table)
 {
         linear_equation_t m, invm;
@@ -371,28 +427,7 @@ void uni_get_errors(opt_t *solution, apogee_rc_table_t *table)
                         get_error_mnk_estimated(invm.data[i * invm.size + i], invm.size + table->size + 1, solution->sq / (table->size + 1));
         }
 }
-
-
-void uni_nerr_get_errors(opt_t *solution, apogee_rc_table_t *table)
-{
-        linear_equation_t m, invm;
-        m.data = dv_alloc(sizeof(double) * solution->s.size * solution->s.size);
-        m.right = dv_alloc(sizeof(double) * solution->s.size);
-        m.size = solution->s.size;
-        invm.data = dv_alloc(sizeof(double) * solution->s.size * solution->s.size);
-        invm.size = solution->s.size;
-
-        uni_fill_mnk_matrix_nerr(&m, table);
-        inverse_and_diag(&m, &invm);
-
-        solution->bounds = dv_alloc(sizeof(prec_t) * solution->s.size);
-        unsigned int i;
-        for (i = 0; i < solution->s.size; ++i) {
-                solution->bounds[i].l =
-                        get_error_mnk_estimated(invm.data[i * invm.size + i], invm.size + table->size + 1, solution->sq / (table->size + 1));
-        }
-}
-
+#endif
 
 
 static opt_t *united_solution(linear_equation_t *eq,
@@ -440,10 +475,32 @@ opt_t *united_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_solution(&eq, table);
-        uni_get_errors(opt, table);
-        table->r_0 = opt->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(opt));
 
+        vr_b_iterations(table);
         return opt;
+}
+
+void dump_united_solution_profile(apogee_rc_table_t *table,
+                                  unsigned int ord)
+{
+        unsigned int size = ord;
+        unsigned int dim = size + TOTAL_QTY + 1;
+        double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
+
+        linear_equation_t eq = {
+                .data = matrix,
+                .right = (double *)dv_alloc(sizeof(double) * dim),
+                .size = dim,
+                .ord = size
+        };
+
+        opt_params_t params = {
+                .residuals_summary = residuals_summary,
+                .fill_mnk_matrix = uni_fill_mnk_matrix,
+        };
+
+        dump_profile(&eq, table, &params, "uni_profile.txt");
 }
 
 opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
@@ -452,7 +509,7 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
         unsigned int size = cfg->ord;
         unsigned int dim = size + TOTAL_QTY + 1;
         double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
-        table->n_err = cfg->n_err;
+        table->sigma_0 = cfg->sigma_0;
 
         linear_equation_t eq = {
                 .data = matrix,
@@ -462,8 +519,7 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_with_nerr_solution(&eq, table);
-        uni_nerr_get_errors(opt, table);
-        table->r_0 = opt->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(opt));
 
         return opt;
 }

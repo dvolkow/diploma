@@ -1,4 +1,4 @@
-#ifndef TYPES_H  
+#ifndef TYPES_H
 #define TYPES_H  1
 
 #include <stdlib.h>
@@ -12,12 +12,12 @@ typedef unsigned int dsize_t;
 
 /**
  * TODO: description for fields
- * @l:          longtitude, give by degress and transform 
+ * @l:          longtitude, give by degress and transform
  *              to radians for using into dipmloma project
  *
- * @b:          latitude, as l also read and make radins 
+ * @b:          latitude, as l also read and make radins
  *
- * @v_helio:    average velocity (kmps) 
+ * @v_helio:    average velocity (kmps)
  * @dist:       distance (pc)
  * @pm_ra:      proper motion to right ascention
  * @pm_dec:     proper motion to declination
@@ -26,7 +26,7 @@ typedef unsigned int dsize_t;
  */
 typedef struct {
         // readable data:
-        double  l; 
+        double  l;
 #define __mem_1 offsetof(apogee_rc_t, l)
         double  b;
 #define __mem_2 offsetof(apogee_rc_t, b)
@@ -49,12 +49,15 @@ typedef struct {
         double  pm_b;
         double  pm_l_err;
         double  pm_b_err;
-        
+
         double  sin_l;
         double  cos_l;
         double  sin_b;
         double  cos_b;
-        
+#ifdef PRECACHED_TABLE_R
+        double  R;
+#endif
+
         // solution data:
         double  eps;
         double  vsd[3];
@@ -65,9 +68,19 @@ typedef struct {
 } apogee_rc_t;
 
 
-#define get_param(n, addr)         \
+#define get_param(n, addr)                      \
         (*(double *)(addr + __mem_##n))
 
+#define GET_TABLE_R0(p_table)                   \
+        ((p_table)->r_0)
+
+#ifdef PRECACHED_TABLE_R
+        #define GET_TABLE_R(p_table, i)         \
+        ((p_table)->data[i].R)
+
+        #define GET_LINE_R(p_line)              \
+        ((p_line)->R)
+#endif
 
 /**
  * TODO: Special container structure needed for it
@@ -78,7 +91,7 @@ typedef struct {
         double r_0;
         double w_sun;
         double omega_0;
-        double n_err; // natural errors ^ 2
+        double sigma_0; // <<natural>>
         double sigma[3];
         unsigned int size;
 } apogee_rc_table_t;

@@ -76,8 +76,8 @@ void fill_table_by_vr_solution(const opt_t *solution,
         gsl_rng *rng = dv_rand_acquire(MT);
         assert(rng != NULL);
 
-        dst_table->r_0 = solution->r_0;
         dst_table->size = src_table->size;
+        dst_table->r_0 = GET_SOLUTION_R0(solution);
 
         const double sd = sqrt(src_table->sigma[VR_PART]);
         unsigned int i;
@@ -94,6 +94,10 @@ void fill_table_by_vr_solution(const opt_t *solution,
                                                 get_mod_vr(solution, &src_table->data[i]),
                                                   sd);
         }
+
+#ifdef PRECACHED_TABLE_R
+        update_table_R0(dst_table, GET_SOLUTION_R0(solution));
+#endif
         dv_rand_release(rng);
 }
 
@@ -104,8 +108,8 @@ void fill_table_by_b_solution(const opt_t *solution,
         gsl_rng *rng = dv_rand_acquire(MT);
         assert(rng != NULL);
 
-        dst_table->r_0 = solution->r_0;
         dst_table->size = src_table->size;
+        dst_table->r_0 = GET_SOLUTION_R0(solution);
 
         const double sd = sqrt(src_table->sigma[B_PART]);
         unsigned int i;
@@ -122,6 +126,10 @@ void fill_table_by_b_solution(const opt_t *solution,
                                                 get_mod_b(solution, &src_table->data[i]),
                                                   sd);
         }
+
+#ifdef PRECACHED_TABLE_R
+        update_table_R0(dst_table, GET_SOLUTION_R0(solution));
+#endif
         dv_rand_release(rng);
 }
 
@@ -132,8 +140,8 @@ void fill_table_by_l_solution(const opt_t *solution,
         gsl_rng *rng = dv_rand_acquire(MT);
         assert(rng != NULL);
 
-        dst_table->r_0 = solution->r_0;
         dst_table->size = src_table->size;
+        dst_table->r_0 = GET_SOLUTION_R0(solution);
 
         const double sd = sqrt(src_table->sigma[L_PART]);
         unsigned int i;
@@ -150,6 +158,75 @@ void fill_table_by_l_solution(const opt_t *solution,
                                                 get_mod_l(solution, &src_table->data[i]),
                                                   sd);
         }
+
+#ifdef PRECACHED_TABLE_R
+        update_table_R0(dst_table, GET_SOLUTION_R0(solution));
+#endif
+        dv_rand_release(rng);
+}
+
+void fill_table_by_uni_solution_sigma_0(const opt_t *solution,
+					const apogee_rc_table_t *src_table,
+					apogee_rc_table_t *dst_table)
+{
+        gsl_rng *rng = dv_rand_acquire(MT);
+        assert(rng != NULL);
+
+        const unsigned int ssize = solution->size;
+        dst_table->r_0 = GET_SOLUTION_R0(solution);
+        dst_table->size = ssize;
+	dst_table->sigma_0 = src_table->sigma_0;
+
+        unsigned int i;
+
+        for (i = 0; i < ssize; ++i) {
+                dst_table->data[i].l = src_table->data[i].l;
+                dst_table->data[i].b = src_table->data[i].b;
+                dst_table->data[i].cos_l = src_table->data[i].cos_l;
+                dst_table->data[i].cos_b = src_table->data[i].cos_b;
+                dst_table->data[i].sin_b = src_table->data[i].sin_b;
+                dst_table->data[i].sin_l = src_table->data[i].sin_l;
+                dst_table->data[i].dist = src_table->data[i].dist;
+                dst_table->data[i].pm_match = src_table->data[i].pm_match;
+		dst_table->data[i].pm_b_err = src_table->data[i].pm_b_err;
+		dst_table->data[i].pm_l_err = src_table->data[i].pm_l_err;
+                double vr_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       GET_SOLUTION_R0(solution),
+                                                       VR_PART);
+
+                double mu_b_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       GET_SOLUTION_R0(solution),
+                                                       B_PART);
+
+                double mu_l_mod = get_v_generic_from_uni(&solution->s,
+                                                       &src_table->data[i],
+                                                       GET_SOLUTION_R0(solution),
+                                                       L_PART);
+
+		double vr_sd = sqrt(sigma_for_k(VR_PART,
+						&src_table->data[i],
+						src_table->sigma_0));
+                dst_table->data[i].v_helio = __gen_gauss_d(rng,
+                                                        vr_mod,
+                                                        vr_sd);
+		double pm_b_sd = sqrt(sigma_for_k(B_PART,
+				      &src_table->data[i],
+				      src_table->sigma_0));
+                dst_table->data[i].pm_b = __gen_gauss_d(rng,
+                                                        mu_b_mod,
+                                                        pm_b_sd);
+		double pm_l_sd = sqrt(sigma_for_k(L_PART,
+				      &src_table->data[i],
+				      src_table->sigma_0));
+                dst_table->data[i].pm_l = __gen_gauss_d(rng,
+                                                        mu_l_mod,
+                                                        pm_l_sd);
+        }
+#ifdef PRECACHED_TABLE_R
+        update_table_R0(dst_table, GET_SOLUTION_R0(solution));
+#endif
         dv_rand_release(rng);
 }
 
@@ -163,7 +240,7 @@ void fill_table_by_uni_solution(const opt_t *solution,
         assert(rng != NULL);
 
         const unsigned int ssize = solution->size;
-        dst_table->r_0 = solution->r_0;
+        dst_table->r_0 = GET_SOLUTION_R0(solution);
         dst_table->size = ssize;
 
         unsigned int i;
@@ -182,22 +259,19 @@ void fill_table_by_uni_solution(const opt_t *solution,
                 dst_table->data[i].dist = src_table->data[i].dist;
                 dst_table->data[i].pm_match = src_table->data[i].pm_match;
 
-//              TODO: Variable for solutions:
-//              dst_table->data[i].pm_b_err = src_table->data[i].pm_b_err;
-//              dst_table->data[i].pm_l_err = src_table->data[i].pm_l_err;
                 double vr_mod = get_v_generic_from_uni(&solution->s,
                                                        &src_table->data[i],
-                                                       solution->r_0,
+                                                       GET_SOLUTION_R0(solution),
                                                        VR_PART);
 
                 double mu_b_mod = get_v_generic_from_uni(&solution->s,
                                                        &src_table->data[i],
-                                                       solution->r_0,
+                                                       GET_SOLUTION_R0(solution),
                                                        B_PART);
 
                 double mu_l_mod = get_v_generic_from_uni(&solution->s,
                                                        &src_table->data[i],
-                                                       solution->r_0,
+                                                       GET_SOLUTION_R0(solution),
                                                        L_PART);
 
                 dst_table->data[i].v_helio = __gen_gauss_d(rng,
@@ -211,6 +285,9 @@ void fill_table_by_uni_solution(const opt_t *solution,
                                                         sd[L_PART]);
         }
 
+#ifdef PRECACHED_TABLE_R
+        update_table_R0(dst_table, GET_SOLUTION_R0(solution));
+#endif
         dv_rand_release(rng);
         // TODO: Need it?
         // vr_b_iterations(dst_table);
@@ -228,7 +305,6 @@ opt_t *monte_carlo_entry(const opt_t *solution,
         const unsigned int ssize = data->size;
         const unsigned int n = solution->s.size;
         tmp_table->data = dv_alloc(sizeof(apogee_rc_t) * ssize);
-        tmp_table->r_0 = solution->r_0;
 
         opt_t main_res = {
                 .s = { 0 },
@@ -280,6 +356,12 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                 }
         }
 
+	if (params->mul_unfres_name != NULL) {
+		multiply_dump_unfriendly_result(results,
+						count,
+						params->mul_unfres_name);
+	}
+
 #ifdef DEBUG_GEN
         printf("%s: test_vr %lf pm %lf, test_l %lf pm %lf, test_b %lf pm %lf\n", __func__,
                         get_mean(test_vr, count), get_sd(test_vr, count),
@@ -295,7 +377,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                         tmp_line[i] = results[i]->s.data[j];
                 }
                 main_res.bounds[j].l = get_sd(tmp_line, count);
-                main_res.s.data[j] = get_mean(tmp_line, count);
+                main_res.s.data[j] = solution->s.data[j]; // get_mean(tmp_line, count);
         }
 
         for (i = 0; i < fits_count; ++i) {
@@ -309,18 +391,21 @@ opt_t *monte_carlo_entry(const opt_t *solution,
         dump_uni_rotation_curve(curve, fits_count);
 
         for (j = 0; j < count; ++j) {
-                tmp_line[j] = results[j]->r_0;
+                tmp_line[j] = GET_SOLUTION_R0(results[j]);
         }
 
-        main_res.r_0 = get_mean(tmp_line, count);
+        main_res.r_0 = GET_SOLUTION_R0(solution);
         main_res.dr_0 = get_sd(tmp_line, count);
+	/**
+	 * MK found only errors:
         for (j = 0; j < count; ++j) {
                 tmp_line[j] = results[j]->sq;
         }
+	*/
 
         dump_R0_theta_ellips(results, count, solution);
 
-        main_res.sq = get_mean(tmp_line, count);
+        main_res.sq = solution->sq; // get_mean(tmp_line, count);
         opt_t *ret = dv_alloc(sizeof(opt_t));
         *ret = main_res;
         /**
@@ -338,6 +423,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
 }
 
 
+#if 0
 apogee_rc_table_t *gen_table_by_solution(const opt_t *solution)
 {
         apogee_rc_table_t *table = dv_alloc(sizeof(apogee_rc_table_t));
@@ -358,7 +444,7 @@ apogee_rc_table_t *gen_table_by_solution(const opt_t *solution)
 #define BHIGH   90
 
 #define RLOW    0.39
-#define RHIGH   12.83    
+#define RHIGH   12.83
 
         for (i = 0; i < ssize; ++i) {
                 //table->data[i].id = i;
@@ -372,6 +458,7 @@ apogee_rc_table_t *gen_table_by_solution(const opt_t *solution)
         dv_rand_release(rng);
         return table;
 }
+#endif
 
 double *gen_vector_by_bounds_uni(const gsl_rng *r,
                                  const double l,
@@ -436,6 +523,7 @@ apogee_rc_table_t *generic_table(void)
 }
 
 
+#if 0
 void generate(void)
 {
         parser_t *cfg = get_parser();
@@ -450,6 +538,7 @@ void generate(void)
         dump_table(table);
         dump_objects_xyz(table, table->size, name_for_obj(__LINE__, 0, "xyz"));
 }
+#endif
 
 int random_seed_init()
 {

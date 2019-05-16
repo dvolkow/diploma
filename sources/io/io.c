@@ -11,9 +11,10 @@
 #include "generators.h"
 
 
-/*
+/**
+ * TODO: update this
  * Table format:
- * 
+ *
  * RA - DEC - GLON - GLAT - NVIS - VHELIO - RC_DIST - PM_RA - PM_DEC - PMMATCH
  */
 apogee_rc_table_t *read_table(const char *input_file_name)
@@ -59,8 +60,8 @@ apogee_rc_table_t *read_table(const char *input_file_name)
                 //apogee_rc[i].id = i;
                 apogee_rc[i].pm_l = K_PM * mu_l_from_pa_dec_pm_II(apogee_rc + i) * apogee_rc[i].cos_b;
                 apogee_rc[i].pm_b = K_PM * mu_b_from_pa_dec_pm_II(apogee_rc + i);
-                apogee_rc[i].pm_l_err = errors_ecliptic_to_gal(apogee_rc + i);
-                apogee_rc[i].pm_b_err = errors_ecliptic_to_gal(apogee_rc + i);
+                apogee_rc[i].pm_l_err = errors_ecliptic_to_gal_mu_l(apogee_rc + i);
+                apogee_rc[i].pm_b_err = errors_ecliptic_to_gal_mu_b(apogee_rc + i);
 #ifdef DEBUG
                 printf("%u (%d): pm_l_I = %lf pm_b_I = %lf | pm_l_II = %lf pm_b_II = %lf\n", i,
                                 apogee_rc[i].pm_match,
@@ -69,7 +70,7 @@ apogee_rc_table_t *read_table(const char *input_file_name)
                                 mu_l_from_pa_dec_pm_II(apogee_rc + i),
                                 mu_b_from_pa_dec_pm_II(apogee_rc + i)
                                 );
-                printf("%u: l_cat = %lf b_cat = %lf | l = %lf b = %lf\n", i, 
+                printf("%u: l_cat = %lf b_cat = %lf | l = %lf b = %lf\n", i,
                                 rad_to_deg(apogee_rc[i].l),
                                 rad_to_deg(apogee_rc[i].b),
                                 l_from_radec(&apogee_rc[i]),
@@ -81,7 +82,7 @@ apogee_rc_table_t *read_table(const char *input_file_name)
         return table;
 }
 
-unsigned int countlines(const char *filename) 
+unsigned int countlines(const char *filename)
 {
         FILE *f;
         f = fopen(filename, "a+");
@@ -125,11 +126,11 @@ opt_t *read_solution(const char *input_file_name)
         fscanf(fin, "%d", &solution->s.size); // 3 + ord!
         solution->s.data = dv_alloc(sizeof(double) * solution->s.size);
 
-        fscanf(fin, "%lf", &solution->r_0); 
-        fscanf(fin, "%lf", &solution->sq); 
+        fscanf(fin, "%lf", &solution->r_0);
+        fscanf(fin, "%lf", &solution->sq);
         unsigned int i;
         for (i = 0; i < solution->s.size; ++i) {
-                fscanf(fin, "%lf", &solution->s.data[i]); 
+                fscanf(fin, "%lf", &solution->s.data[i]);
         }
 
         fscanf(fin, "%u", &solution->size);

@@ -40,7 +40,7 @@ static double residuals_line(const linear_eq_solve_t *v,
 double get_mod_vr(const opt_t *solution,
                   const apogee_rc_t *line)
 {
-        const double r_0 = solution->r_0;
+        const double r_0 = GET_SOLUTION_R0(solution);
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i) {
@@ -57,7 +57,8 @@ double get_mod_vr(const opt_t *solution,
 double get_mod_b(const opt_t *solution,
                  const apogee_rc_t *line)
 {
-        const double r_0 = solution->r_0;
+        const double r_0 = GET_SOLUTION_R0(solution);
+
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i) {
@@ -74,7 +75,8 @@ double get_mod_b(const opt_t *solution,
 double get_mod_l(const opt_t *solution,
                  const apogee_rc_t *line)
 {
-        const double r_0 = solution->r_0;
+        const double r_0 = GET_SOLUTION_R0(solution);
+
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i) {
@@ -94,7 +96,8 @@ static double residuals_summary(const linear_eq_solve_t *v,
         double sum = 0;
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                sum += residuals_line(v, &table->data[i], table->r_0);
+                sum += residuals_line(v, &table->data[i],
+                                         GET_TABLE_R0(table));
         }
         assert(sum > 0);
         return sum;
@@ -121,10 +124,10 @@ static inline void step_forward(apogee_rc_table_t *table,
 {
         switch (type) {
                 case LOWER:
-                        table->r_0 -= step;
+                        update_table_R0(table, GET_TABLE_R0(table) - step);
                         break;
                 case UPPER:
-                        table->r_0 += step;
+                        update_table_R0(table, GET_TABLE_R0(table) + step);
                         break;
                 default:
                         printf("%s: error bound type!\n",
@@ -149,7 +152,7 @@ static double __bound_parameter(linear_equation_t *eq,
         };
 
         double step = (UPPER_BOUND_R0 - LOWER_BOUND_R0) / 16;
-        table->r_0 = r_0;
+        update_table_R0(table, r_0);
 
         fill_mnk_matrix_vr(eq, table);
         solve(eq, &s);
@@ -168,7 +171,7 @@ static double __bound_parameter(linear_equation_t *eq,
                         sq = residuals_summary(&s, table);
                 #ifdef DEBUG
                         printf("%s: r_0 = %lf, sq = %lf, need >= %lf\n",
-                                __func__, table->r_0, sq, thr_sq);
+                                __func__, GET_TABLE_R0(table), sq, thr_sq);
                 #endif
                         if (sq >= thr_sq)
                                 break;
@@ -176,7 +179,7 @@ static double __bound_parameter(linear_equation_t *eq,
                 step_backward(table, step, type);
         }
 
-        return table->r_0;
+        return GET_TABLE_R0(table);
 }
 
 double lower_bound_search(linear_equation_t *eq,
@@ -210,7 +213,7 @@ opt_t *opt_linear(linear_equation_t *eq,
         double high_r = UPPER_BOUND_R0;
         double step = (high_r - low_r) / 32;
 
-        table->r_0 = low_r;
+        update_table_R0(table, low_r);
 
         params->fill_mnk_matrix(eq, table);
         solve(eq, &s);
@@ -222,15 +225,15 @@ opt_t *opt_linear(linear_equation_t *eq,
 
         opt_t opt_params = {
                 .s = { 0 },
-                .r_0 = table->r_0,
+                .r_0 = GET_TABLE_R0(table),
                 .sq = sq,
                 .size = table->size
         };
         opt_params.s.data = dv_alloc(sizeof(double) * s.size);
 
         while (step > SEARCH_PRECISION) {
-                while (table->r_0 < high_r) {
-                        table->r_0 += step;
+                while (GET_TABLE_R0(table) < high_r) {
+                        update_table_R0(table, GET_TABLE_R0(table) + step);
                         params->fill_mnk_matrix(eq, table);
                         solve(eq, &s);
 
@@ -240,11 +243,12 @@ opt_t *opt_linear(linear_equation_t *eq,
                         double sq_tmp = params->residuals_summary(&s, table);
         #ifdef DEBUG
                         printf("%s: sd = %lf, r_0 = %lf\n",
-                                        __func__, sq_tmp, table->r_0);
+                                        __func__, sq_tmp,
+                                        GET_TABLE_R0(table));
         #endif
                         if (sq_tmp < opt_params.sq) {
                                 opt_params.s = s;
-                                opt_params.r_0 = table->r_0;
+                                opt_params.r_0 = GET_TABLE_R0(table);
                                 opt_params.sq = sq_tmp;
                                 opt_params.s.data = dv_alloc(sizeof(double) * s.size);
                                 memcpy(opt_params.s.data, s.data, s.size * sizeof(double));
@@ -254,7 +258,7 @@ opt_t *opt_linear(linear_equation_t *eq,
                 low_r = opt_params.r_0 - step;
                 high_r = opt_params.r_0 + step;
                 step /= STEP_DIVISOR;
-                table->r_0 = low_r;
+                update_table_R0(table, low_r);
         }
 
 

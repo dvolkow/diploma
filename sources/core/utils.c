@@ -10,8 +10,6 @@
 #include "utils.h"
 #include "unicore.h"
 
-double get_beta_n(const apogee_rc_t *line, beta_ord_t type);
-
 int r_comparator(const void *p1, const void *p2)
 {
         const iteration_storage_t *i1 = p1;
@@ -31,8 +29,9 @@ void sort_iteration_storage_by_r(iteration_storage_t *storage, const size_t size
 }
 
 
+#if 0
 iteration_storage_t *iteration_storage_create(const apogee_rc_table_t *table,
-                                                const opt_t *solution)
+                                              const opt_t *solution)
 {
 #ifdef DEBUG
 	printf("%s: size = %u\n", __func__, table->size);
@@ -41,18 +40,20 @@ iteration_storage_t *iteration_storage_create(const apogee_rc_table_t *table,
                                         table->size);
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                double r = get_R_distance(&table->data[i], solution->r_0);
+                double r = get_R_distance(&table->data[i],
+                                          GET_SOLUTION_R0(solution));
                 storage[i].data = table->data[i];
                 storage[i].r = r;
                 storage[i].theta = r * ((table->data[i].v_helio -
                                      solution->s.data[U_P] * core_vr_get_beta_n(&table->data[i], FIRST) 
                                     + solution->s.data[W_P] * sin(table->data[i].b)) / 
-                                        (solution->r_0 * sin(table->data[i].l) *
+                                        (GET_SOLUTION_R0(solution) * sin(table->data[i].l) *
                                                              cos(table->data[i].b)) + OMEGA_SUN);
         }
 
         return storage;
 }
+#endif
 
 
 /**
@@ -65,14 +66,14 @@ static inline double __get_c(const iteration_storage_t *st_part,
         return st_part->data.v_helio +
                         solution->s.data[U_P] * cos(st_part->data.l) * cos(st_part->data.b)
                         + solution->s.data[W_P] * sin(st_part->data.b) +
-                                        OMEGA_SUN * solution->r_0 * sin(st_part->data.l) *
+                                        OMEGA_SUN * GET_SOLUTION_R0(solution) * sin(st_part->data.l) *
                                                         cos(st_part->data.b);
 }
 
 static inline double __get_a(const iteration_storage_t *st_part,
                                 const opt_t *solution)
 {
-        return sin(st_part->data.l) * cos(st_part->data.b) * solution->r_0 / st_part->r;
+        return sin(st_part->data.l) * cos(st_part->data.b) * GET_SOLUTION_R0(solution) / st_part->r;
 }
 
 average_res_t *get_average_theta(const iteration_storage_t *st_part,
@@ -209,3 +210,25 @@ apogee_rc_table_t *get_limited_generic(const void *table,
 }
 
 
+#ifdef PRECACHED_TABLE_R
+static void recalculate_table_R(apogee_rc_table_t *table)
+{
+        unsigned int i;
+        for (i = 0; i < table->size; ++i) {
+                table->data[i].R = get_R_distance(&table->data[i],
+                                                  GET_TABLE_R0(table));
+        }
+}
+#endif
+
+
+void update_table_R0(apogee_rc_table_t *table, double r_0)
+{
+        if (DOUBLE_EQUAL_EPS(GET_TABLE_R0(table), r_0))
+                return;
+
+        table->r_0 = r_0;
+#ifdef PRECACHED_TABLE_R
+        recalculate_table_R(table);
+#endif
+}

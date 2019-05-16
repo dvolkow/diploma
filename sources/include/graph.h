@@ -3,12 +3,15 @@
 
 #include "types.h"
 #include "io.h"
+#include "opt.h"
 
 #define EDGE_SPARCE_DIVISOR     10
 #define OMEGA_SUN               30.50
 #define ROTC_STEP_R             0.1
 #define ROTC_LOWER_BOUND        2
 #define ROTC_UPPER_BOUND        15
+
+#define MAX_PRINTF_COLS		12
 
 #define RC_OUT_FILE_NAME        \
         "rotc.txt"
@@ -57,7 +60,7 @@ typedef struct {
 } rot_curve_t;
 
 #define DEFAULT_BACKGROUND_COUNT        127
-void dump_rand_test(const double *, 
+void dump_rand_test(const double *,
                     const dsize_t);
 
 void dump_table(const apogee_rc_table_t *);
@@ -97,7 +100,7 @@ void dump_objects_theta_R(const apogee_rc_table_t *,
                           unsigned int,
                           const char *);
 
-double get_c_point_by_part_solution(const opt_t *, 
+double get_c_point_by_part_solution(const opt_t *,
                                     const double,
                                     unsigned int,
                                     const double,
@@ -116,4 +119,16 @@ void dump_R0_theta_ellips(const opt_t **,
 char *name_for_obj(const unsigned int i,
                    const unsigned int n,
                    const char *prefix);
+
+void dump_profile(linear_equation_t *,
+                  apogee_rc_table_t *,
+                  opt_params_t *,
+                  const char *);
+
+void multiply_dump_unfriendly_result(const opt_t **,
+				     const unsigned int,
+				     const char *);
+void partial_dump_unfriendly_result(const opt_t *,
+				    unsigned int,
+				    const char *);
 #endif // GRAPH_H

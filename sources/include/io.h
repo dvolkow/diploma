@@ -1,4 +1,4 @@
-#ifndef IO_H  
+#ifndef IO_H
 #define IO_H  1
 
 #include "types.h"

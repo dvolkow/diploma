@@ -24,6 +24,7 @@ typedef struct {
                                     const apogee_rc_table_t *,
                                     apogee_rc_table_t *);
         unsigned int count;
+	char *mul_unfres_name;
 } mk_params_t;
 
 double *gen_vector_by_mean_and_sd(const gsl_rng *r,
@@ -48,6 +49,10 @@ opt_t *monte_carlo_entry(const opt_t *,
 void fill_table_by_uni_solution(const opt_t *,
                                 const apogee_rc_table_t *,
                                 apogee_rc_table_t *);
+void fill_table_by_uni_solution_sigma_0(const opt_t *,
+					const apogee_rc_table_t *,
+					apogee_rc_table_t *);
+
 void fill_table_by_vr_solution(const opt_t *,
                                const apogee_rc_table_t *,
                                apogee_rc_table_t *);

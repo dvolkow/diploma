@@ -37,7 +37,11 @@ double core_b_get_alpha_n(const apogee_rc_t *line,
                           const unsigned int n,
                           const double r0)
 {
+#ifndef PRECACHED_TABLE_R
         const double R = get_R_distance(line, r0);
+#else
+        const double R = GET_LINE_R(line);
+#endif
         const double r = line->dist;
         const double delta_R = R - r0;
 
@@ -66,7 +70,7 @@ void core_b_fill_mnk_matrix(linear_equation_t *eq,
                 }
 
                 for (i = BETA_QTY; i < eq->size; ++i) {
-                        line->_[i] = core_b_get_alpha_n(&table->data[j], i - BETA_QTY + 1, table->r_0);
+                        line->_[i] = core_b_get_alpha_n(&table->data[j], i - BETA_QTY + 1, GET_TABLE_R0(table));
                 }
 
                 for (i = 0; i < len; ++i) {
@@ -83,7 +87,7 @@ void core_b_fill_mnk_matrix(linear_equation_t *eq,
 static double core_b_get_mod_v(const opt_t *solution,
                                const apogee_rc_t *line)
 {
-        const double r_0 = solution->r_0;
+        const double r_0 = GET_SOLUTION_R0(solution);
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i) {
@@ -103,9 +107,7 @@ static double core_b_residuals_line(const opt_t *solution,
                                     apogee_rc_t *line)
 {
         const double mod_v = core_b_get_mod_v(solution, line);
-#ifdef DEBUG
-        printf("mod_v = %lf, line->pm_b = %lf\n", mod_v, line->pm_b);
-#endif
+
         /* pm_l and pm_b already multiplied in k */
         line->eps = fabs(line->pm_b - mod_v);
         return pow_double(line->pm_b - mod_v, 2);
@@ -147,7 +149,7 @@ static double residuals_summary_opt(const linear_eq_solve_t *v,
         double sum = 0;
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                sum += residuals_line(v, &table->data[i], table->r_0);
+                sum += residuals_line(v, &table->data[i], GET_TABLE_R0(table));
         }
         assert(sum > 0);
         return sum;
@@ -207,7 +209,7 @@ opt_t *core_b_get_linear_solution(linear_equation_t *eq,
 
         opt_t opt_params = {
                 .s = s,
-                .r_0 = table->r_0,
+                .r_0 = GET_TABLE_R0(table),
                 .size = table->size
         };
 
@@ -259,8 +261,9 @@ static opt_t *core_b_opt_entry(apogee_rc_table_t *table)
         };
         opt_t *solution = opt_linear(&eq, table, &params);
 
-        table->omega_0 = OMEGA_SUN - solution->s.data[V_P] / solution->r_0;
-        table->r_0 = solution->r_0;
+        table->omega_0 = OMEGA_SUN - solution->s.data[V_P] / GET_SOLUTION_R0(solution);
+        update_table_R0(table, GET_SOLUTION_R0(solution));
+
         table->sigma[B_PART] = solution->sq / (table->size - eq.size - 1);
         solution->sq = sqrt(table->sigma[B_PART]);
 	return solution;
@@ -302,15 +305,17 @@ void get_partial_b_solution(apogee_rc_table_t *table)
                 old_size = table->size;
         }
 
-        table->omega_0 = OMEGA_SUN - solution->s.data[V_P] / solution->r_0;
+        table->omega_0 = OMEGA_SUN - solution->s.data[V_P] / GET_SOLUTION_R0(solution);
 
-        table->r_0 = solution->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(solution));
         table->sigma[B_PART] = solution->sq / (table->size - eq.size - 1);
         solution->sq = sqrt(table->sigma[B_PART]);
-        printf("%s: sq = %lf\n", __func__, solution->sq);
 
         dump_rotation_curve_b(solution);
-        dump_objects_theta_R(table, solution, B_PART, "vr_objs.txt");
+        dump_objects_theta_R(table, solution, B_PART, "b_objs.txt");
+
+        if (cfg->draw_profile)
+                dump_profile(&eq, table, &params, "b_profile.txt");
 
         mk_params_t mk_params = {
                 .f_entry = core_b_opt_entry,
@@ -324,8 +329,10 @@ void get_partial_b_solution(apogee_rc_table_t *table)
                                           &mk_params);
 
 
+        dump_result(mk_sol);
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
-        dump_objects_theta_R(dumped, solution, B_PART, "vr_objs_err.txt");
+        dump_objects_theta_R(dumped, solution, B_PART, "b_objs_err.txt");
+
         dump_vr_solution(mk_sol);
         dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
 }
