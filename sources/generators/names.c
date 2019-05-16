@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "mem.h"
 #define MAX_NAME_LENGH          32

@@ -10,6 +10,11 @@
 #include "debug.h"
 #include "generators.h"
 
+//#include "core.h"
+//#include "core_b.h"
+//#include "core_l.h"
+//#include "core_vr.h"
+
 
 /**
  * TODO: update this
@@ -32,6 +37,7 @@ apogee_rc_table_t *read_table(const char *input_file_name)
 
         unsigned int i;
         for (i = 0; i < size; ++i) {
+//		TODO: double ra, dec, pm_ra, pm_dec, pm_ra_err, pm_dec_err;
                 fscanf(inp_f, "%lf %lf %lf %lf %d %lf %lf %lf %lf %lf %lf %lf %d",
                                 &(apogee_rc[i].ra),
                                 &(apogee_rc[i].dec),
@@ -57,7 +63,6 @@ apogee_rc_table_t *read_table(const char *input_file_name)
                 apogee_rc[i].cos_l = cos(apogee_rc[i].l);
                 apogee_rc[i].cos_b = cos(apogee_rc[i].b);
                 apogee_rc[i].sin_b = sin(apogee_rc[i].b);
-                //apogee_rc[i].id = i;
                 apogee_rc[i].pm_l = K_PM * mu_l_from_pa_dec_pm_II(apogee_rc + i) * apogee_rc[i].cos_b;
                 apogee_rc[i].pm_b = K_PM * mu_b_from_pa_dec_pm_II(apogee_rc + i);
                 apogee_rc[i].pm_l_err = errors_ecliptic_to_gal_mu_l(apogee_rc + i);

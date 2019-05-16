@@ -58,8 +58,8 @@ static void __fill_part_mnk_matrix(linear_equation_t *tmp,
                 }
 
                 for (i = BETA_QTY + 1; i < len; ++i) {
-                        line->_[i] = filler[k].alpha_n(&table->data[j], 
-                                                        i - BETA_QTY, 
+                        line->_[i] = filler[k].alpha_n(&table->data[j],
+                                                        i - BETA_QTY,
                                                         GET_TABLE_R0(table));
                 }
 

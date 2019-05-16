@@ -47,7 +47,7 @@ static void core_vr_fill_mnk_matrix(linear_equation_t *eq,
                         line->_[i] = __core_vr_get_beta_n(&table->data[j], i);
                 }
 
-                for (i = BETA_QTY_FIX; i < eq->size; ++i) {
+                for (i = BETA_QTY_FIX; i < len; ++i) {
                         line->_[i] = core_vr_get_alpha_n(&table->data[j], i - BETA_QTY_FIX + 1, GET_TABLE_R0(table));
                 }
 

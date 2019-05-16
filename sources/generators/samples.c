@@ -2,6 +2,7 @@
 #include <gsl/gsl_randist.h>
 
 #include <assert.h>
+#include <math.h>
 
 #include "math.h"
 #include "mem.h"
@@ -50,7 +51,7 @@ static double __gen_dist_d(const gsl_rng *r,
         double res;
         do {
                 res = fabs(__gen_gauss_d(r, mean, sd));
-        } 
+        }
         while (res > 12);
         return res;
 }

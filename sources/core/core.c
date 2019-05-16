@@ -44,10 +44,10 @@ static inline double s_alpha_n(const double R,
                                const double cosb,
                                const double r_0, const unsigned int n)
 {
-        if (n == 1)
-                return -2 * (R - r_0) * r_0 * sinl * cosb / R;
-        else 
+        if (n > 1)
                 return r_0 * pow_double(R - r_0, n) * sinl * cosb / (R * dv_factorial(n));
+        else
+                return -2 * (R - r_0) * r_0 * sinl * cosb / R;
 }
 
 double core_vr_get_alpha_n(const apogee_rc_t *line,
