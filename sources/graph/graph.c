@@ -393,24 +393,7 @@ static double obs_theta_R_by_vr_free(const opt_t *solution,
         return ((line->v_helio - vr_sun) / (GET_SOLUTION_R0(solution) * line->sin_l * line->cos_b) + omega_0) * R;
 }
 
-static double obs_theta_R_by_vr_free(const opt_t *solution,
-                                     const apogee_rc_t *line,
-                                     const double omega_0)
-{
-        double R = get_R_distance(line, solution->r_0);
-        double vr_sun = get_mu_sun(line, &solution->s, core_vr_get_beta_n, BETA_QTY);
-        return ((line->v_helio - vr_sun) / (solution->r_0 * line->sin_l * line->cos_b) + omega_0) * R;
-}
 
-double theta_by_R_vr(const opt_t *solution, const double r)
-{
-        return 0;
-}
-
-double theta_by_R_vr(const opt_t *solution, const double r)
-{
-        return 0;
-}
 
 /**
  * Generic dumper for objects.

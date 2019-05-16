@@ -294,8 +294,8 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
 
         if (cfg->bolter > 0)
                 solution = exception_algorithm(table,
-					                                     united_with_nature_errs_entry,
-					                                     precalc_errors_uni_sigma_0);
+                                               united_with_nature_errs_entry,
+					       precalc_errors_uni_sigma_0);
 
 	      partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
 
@@ -313,9 +313,7 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
                                           table,
                                           &mk_params);
         dump_united_solution(mk_sol);
-
 }
-#endif
 
 
 void vr_b_iterations(apogee_rc_table_t *table)
@@ -418,13 +416,6 @@ void get_iterate_solution(apogee_rc_table_t *table,
         else
                 solution = united_entry(table);
  
-        mk_params_t mk_params = {
-                .f_entry = united_entry,
-                .f_point_by_solution = get_point_by_uni_solution,
-                .f_table_by_solution = fill_table_by_uni_solution,
-                .count = cfg->mksize,
-        };
-
 	precalc_vsd_to_dump(table);
 	dump_residuals(table);
 
@@ -437,7 +428,7 @@ void get_iterate_solution(apogee_rc_table_t *table,
                 .f_point_by_solution = get_point_by_uni_solution,
                 .f_table_by_solution = fill_table_by_uni_solution,
                 .count = cfg->mksize,
-		.mul_unfres_name = "u_result_sample.txt",
+//		.mul_unfres_name = "u_result_sample.txt",
         };
 
         opt_t *mk_sol = monte_carlo_entry(solution,
