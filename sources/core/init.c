@@ -110,6 +110,7 @@ int main(int argc, const char *argv[])
         }
 
         dump_objects_xyz(table, table->size, "final_xyz.txt");
+        dump_table(table);
         deinitialization_process();
 #ifdef DEBUG
         dump_memory_usage();

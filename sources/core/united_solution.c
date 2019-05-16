@@ -482,6 +482,29 @@ opt_t *united_entry(apogee_rc_table_t *table)
         return opt;
 }
 
+
+void dump_united_sigma0_solution_profile(apogee_rc_table_t *table,
+                                         unsigned int ord)
+{
+        unsigned int size = ord;
+        unsigned int dim = size + TOTAL_QTY + 1;
+        double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
+
+        linear_equation_t eq = {
+                .data = matrix,
+                .right = (double *)dv_alloc(sizeof(double) * dim),
+                .size = dim,
+                .ord = size
+        };
+
+        opt_params_t params = {
+                .residuals_summary = residuals_summary_nerr,
+                .fill_mnk_matrix = uni_fill_mnk_matrix_nerr,
+        };
+
+        dump_profile(&eq, table, &params, "uni_profile.txt");
+}
+
 void dump_united_solution_profile(apogee_rc_table_t *table,
                                   unsigned int ord)
 {

@@ -41,6 +41,8 @@ double get_v_generic_from_uni(const linear_eq_solve_t *,
                               const unsigned int);
 void dump_united_solution_profile(apogee_rc_table_t *,
                                   unsigned int);
+void dump_united_sigma0_solution_profile(apogee_rc_table_t *,
+                                         unsigned int);
 double sigma_for_k(const unsigned int,
                    const apogee_rc_t *,
                    const double);

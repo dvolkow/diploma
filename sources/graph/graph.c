@@ -829,14 +829,16 @@ static double sin_beta_uni(const apogee_rc_t *line,
         return line->dist * cos_beta_uni(line, r_0) * line->sin_l / R;
 }
 
+
+
 static double get_v_l(const apogee_rc_t *line)
 {
-        return K_PM * line->dist * line->pm_l * line->cos_b;
+        return line->dist * line->pm_l;
 }
 
 static double get_v_b(const apogee_rc_t *line)
 {
-        return K_PM * line->dist * line->pm_b;
+        return line->dist * line->pm_b;
 }
 
 static double get_u_g(const apogee_rc_t *line,
@@ -938,7 +940,7 @@ void dump_profile(linear_equation_t *eq,
         assert(params->fill_mnk_matrix != NULL);
 
         update_table_R0(table, ROTC_LOWER_BOUND);
-
+                
         while (GET_TABLE_R0(table) < ROTC_UPPER_BOUND) {
                 params->fill_mnk_matrix(eq, table);
                 solve(eq, &s);
