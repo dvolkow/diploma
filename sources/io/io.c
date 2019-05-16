@@ -10,7 +10,7 @@
 #include "debug.h"
 #include "generators.h"
 
-//#include "core.h"
+#include "core.h"
 //#include "core_b.h"
 //#include "core_l.h"
 //#include "core_vr.h"
@@ -81,11 +81,61 @@ apogee_rc_table_t *read_table(const char *input_file_name)
                                 l_from_radec(&apogee_rc[i]),
                                 b_from_radec(&apogee_rc[i])
                       );
+                printf("%u: a_err = %lf d_err = %lf | l_err = %lf b_err = %lf | SD %lf vs %lf\n", i,
+                                apogee_rc[i].pm_ra_err,
+                                apogee_rc[i].pm_dec_err,
+                                apogee_rc[i].pm_l_err,
+                                apogee_rc[i].pm_b_err,
+				sqrt(pow_double(apogee_rc[i].pm_ra_err, 2) + pow_double(apogee_rc[i].pm_dec_err, 2)),
+				sqrt(pow_double(apogee_rc[i].pm_l_err, 2) + pow_double(apogee_rc[i].pm_b_err, 2))
+                      );
 #endif
         }
 
         return table;
 }
+
+
+void dump_table(const apogee_rc_table_t *table)
+{
+        parser_t *cfg = get_parser();
+        const char *fname = cfg->dump_file_name;
+        if (!strcmp(fname, cfg->input_file_name)) {
+		PR_ERR("input and dump files are equals!");
+		return;
+        }
+
+	if (fname == NULL) {
+		PR_ERR("dump file option is empty! Use -d (--dump) arg.");
+		return;
+	}
+
+
+        FILE *fout = fopen(fname, "w");
+        CHECK_FILE_AND_RET(fout, fname);
+
+        dsize_t i;
+        for (i = 0; i < table->size; ++i) {
+                fprintf(fout, "%.10e %.10e %.10e %.10e %d %.10e %.10e %.10e %.10e %.10e %.10e %.10e %d",
+                                rad_to_deg(table->data[i].ra),
+                                rad_to_deg(table->data[i].dec),
+                                rad_to_deg(table->data[i].l),
+                                rad_to_deg(table->data[i].b),
+                                table->data[i].nvis,
+                                table->data[i].v_helio,
+                                table->data[i].v_err,
+                                table->data[i].dist,
+				table->data[i].pm_ra * cos(table->data[i].dec),
+				table->data[i].pm_dec,
+				table->data[i].pm_ra_err,
+				table->data[i].pm_dec_err,
+				table->data[i].pm_match);
+        }
+
+        fclose(fout);
+}
+
+
 
 unsigned int countlines(const char *filename)
 {
@@ -140,9 +190,4 @@ opt_t *read_solution(const char *input_file_name)
 
         fscanf(fin, "%u", &solution->size);
         return solution;
-}
-
-void output_result()
-{
-        return;
 }

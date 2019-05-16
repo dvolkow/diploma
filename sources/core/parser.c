@@ -35,6 +35,8 @@ int parser_init(void)
         __cfg->bolter           = DEFAULT_BOLTER;
         __cfg->draw_profile     = DEFAULT_PROFILE;
         __cfg->solution_mode    = DEFAULT_SOL_MODE;
+        __cfg->sigma_0_l	= DEFAULT_S0L;
+        __cfg->sigma_0_h	= DEFAULT_S0H;
 
         return 0;
 }
@@ -44,13 +46,29 @@ static void show_usage()
 {
         printf("\e[1mSYNOPSIS\e[0m\n");
         printf("                \e[1mdiploma\e[0m -f IN_FILE --ord ORD [\e[4m--filter\e[0m] \e[4mFILTER L H\e[0m \n");
-        printf("For more information and samples type 'diploma -h'.\n\n");
+        printf("For more information and samples type 'diploma --help'.\n\n");
         printf("\e[1mAUTHOR\e[0m\n");
-        printf("               Written by Daniel Wolkow (2018).\n");
+        printf("               Written by Daniel Wolkow (2018-2019).\n");
         printf("\e[1mVERSION\e[0m\n");
         printf("               Your copy is %s, ", __VERSION);
         printf("newest version by address \n");
         printf("               \e[4mhttps://github.com/dvolkow/diploma\e[0m\n");
+}
+
+static void show_args()
+{
+	printf("Use <diploma> with next args:\n");
+	printf("-f, --file	: source file\n");
+	printf("-o, --ord	: order for polynomial model\n");
+	printf("-d, --dump	: output dump filename\n");
+	printf("-e, --err	: sigma_0 for <nu> mode\n");
+	printf("-m, --mode	: mode solution (deprecated)\n");
+	printf("-s, --solution  : mode solution, may be next of \n");
+	printf("                  vr, l, b, u, nu, f \n");
+	printf("-b, --bolter    : error's exception\n");
+	printf("-p, --profile   : draw profiles\n");
+	printf("--mksize	: length sample for Monte-Karlo\n");
+	printf("--filter	: filters before solution\n");
 }
 
 bool parser_t_is_valid(const parser_t *cfg)
@@ -99,6 +117,8 @@ static void solution_mode_assigner(const char *argv)
                 __cfg->solution_mode = UNI_MODE;
         if (matches("nu", argv))
                 __cfg->solution_mode = UNINAT_MODE;
+        if (matches("f", argv))
+                __cfg->solution_mode = FIND_SIGMA0_MODE;
 }
 
 void parse_args(int argc,
@@ -116,7 +136,7 @@ void parse_args(int argc,
                         } else {
                                 goto usage_ret;
                         }
-                } else if (matches("--ord", *argv)) {
+                } else if (matches("-o", *argv) || matches("--ord", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
                                 res->ord = (unsigned int)atoi(*argv);
@@ -159,6 +179,20 @@ void parse_args(int argc,
                         } else {
                                 goto usage_ret;
                         }
+                } else if (matches("-l", *argv) || matches("--low-bound", *argv)) {
+                        if (CHECK_ARGS(argc)) {
+                                NEXT_ARG(argc, argv);
+                                res->sigma_0_l = atoi(*argv);
+                        } else {
+                                goto usage_ret;
+                        }
+                } else if (matches("-h", *argv) || matches("--upper-bound", *argv)) {
+                        if (CHECK_ARGS(argc)) {
+                                NEXT_ARG(argc, argv);
+                                res->sigma_0_h = atoi(*argv);
+                        } else {
+                                goto usage_ret;
+                        }
                 } else if (matches("-b", *argv) || matches("--bolter", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
@@ -173,6 +207,9 @@ void parse_args(int argc,
                         } else {
                                 goto usage_ret;
                         }
+                } else if (matches("--help", *argv)) {
+			show_args();
+			return;
                 } else if (matches("--filter", *argv)) {
                         if (CHECK_ARGS(argc)) {
                                 NEXT_ARG(argc, argv);
@@ -186,11 +223,11 @@ void parse_args(int argc,
                                         NEXT_ARG(argc, argv);
                                         sscanf(*argv, "%lf", &readbuff);
                                         res->h = readbuff;
-                                } 
+                                }
                         } else {
                                 goto usage_ret;
                         }
-                } 
+                }
         }
 
         return;

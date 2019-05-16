@@ -16,8 +16,8 @@
 static gsl_rng *g_gauss_rg_p;
 
 
-double *gen_vector_by_mean_and_sd(const gsl_rng *r, 
-                                  const double mean, 
+double *gen_vector_by_mean_and_sd(const gsl_rng *r,
+                                  const double mean,
                                   const double sigma,
                                   const unsigned int size)
 {
@@ -30,8 +30,8 @@ double *gen_vector_by_mean_and_sd(const gsl_rng *r,
         return res;
 }
 
-static inline double __gen_gauss_d(const gsl_rng *r, 
-                                   const double mean, 
+static inline double __gen_gauss_d(const gsl_rng *r,
+                                   const double mean,
                                    const double sigma)
 {
         return mean + gsl_ran_gaussian(r, sigma);
@@ -45,7 +45,7 @@ static inline double __gen_flat_d(const gsl_rng *r,
 }
 
 static double __gen_dist_d(const gsl_rng *r,
-                           const double mean, 
+                           const double mean,
                            const double sd)
 {
         double res;
@@ -378,7 +378,7 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                         tmp_line[i] = results[i]->s.data[j];
                 }
                 main_res.bounds[j].l = get_sd(tmp_line, count);
-                main_res.s.data[j] = solution->s.data[j]; // get_mean(tmp_line, count);
+                main_res.s.data[j] = solution->s.data[j];
         }
 
         for (i = 0; i < fits_count; ++i) {
@@ -397,29 +397,12 @@ opt_t *monte_carlo_entry(const opt_t *solution,
 
         main_res.r_0 = GET_SOLUTION_R0(solution);
         main_res.dr_0 = get_sd(tmp_line, count);
-	/**
-	 * MK found only errors:
-        for (j = 0; j < count; ++j) {
-                tmp_line[j] = results[j]->sq;
-        }
-	*/
 
         dump_R0_theta_ellips(results, count, solution);
 
-        main_res.sq = solution->sq; // get_mean(tmp_line, count);
+        main_res.sq = solution->sq;
         opt_t *ret = dv_alloc(sizeof(opt_t));
         *ret = main_res;
-        /**
-         * Test:
-        double *tmp_nums = dv_alloc(sizeof(double) * count);
-        gsl_rng *rng = dv_rand_acquire(MT);
-        for (i = 0; i < count; i++) {
-                tmp_nums[i] = __gen_gauss_d(rng, 10, 32);
-        }
-        printf("%s: mean %lf, sd %lf\n", __func__, get_mean(tmp_nums, count),
-                                                   get_sd(tmp_nums, count));
-        dv_rand_release(rng);
-         */
         return ret;
 }
 

@@ -63,7 +63,6 @@ typedef struct {
 void dump_rand_test(const double *,
                     const dsize_t);
 
-void dump_table(const apogee_rc_table_t *);
 void dump_objects_xyz(const apogee_rc_table_t *,
                       const dsize_t,
                       const char *);

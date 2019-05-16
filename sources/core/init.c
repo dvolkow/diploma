@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "jtest.h"
 #include "generators.h"
+#include "graph.h"
 #include "core.h"
 #include "core_l.h"
 #include "core_b.h"
@@ -69,8 +70,6 @@ int main(int argc, const char *argv[])
         parse_args(argc, (char **)argv);
         parser_t *cfg = get_parser();
         if (cfg == NULL || !parser_t_is_valid(cfg)) {
-                printf("%s: invalid parameters!\n",
-                                __func__);
                 return -1;
         }
 
@@ -102,11 +101,15 @@ int main(int argc, const char *argv[])
         case UNINAT_MODE:
                 get_united_sigma_0_solution(table);
 		break;
+        case FIND_SIGMA0_MODE:
+                find_united_sigma_0_solution(table);
+		break;
         default:
 		printf("Use -s [--solution] option to set solution mode.\nExit.\n");
 		break;
         }
 
+        dump_objects_xyz(table, table->size, "final_xyz.txt");
         deinitialization_process();
 #ifdef DEBUG
         dump_memory_usage();

@@ -123,7 +123,7 @@ double mu_l_from_pa_dec_pm_II(const apogee_rc_t *line)
         apogee_rc_t new_line = *line;
         new_line.ra = new_ra;
         new_line.dec = new_dec;
-        double res = deg_to_mas(l_from_radec(&new_line) - l_from_radec(line)) * cos(line->b);
+        double res = deg_to_mas(l_from_radec(&new_line) - l_from_radec(line));
         return res;
 }
 
@@ -142,7 +142,7 @@ double mu_b_from_pa_dec_pm_II(const apogee_rc_t *line)
 static double delta_mu_b_by_ra_step(const apogee_rc_t *line)
 {
 	apogee_rc_t tmp = *line;
-	tmp.ra += DRVT_STEP;
+	tmp.pm_ra += DRVT_STEP;
 
 	return mu_b_from_pa_dec_pm_II(&tmp) - mu_b_from_pa_dec_pm_II(line);
 }
@@ -150,7 +150,7 @@ static double delta_mu_b_by_ra_step(const apogee_rc_t *line)
 static double delta_mu_b_by_dec_step(const apogee_rc_t *line)
 {
 	apogee_rc_t tmp = *line;
-	tmp.dec += DRVT_STEP;
+	tmp.pm_dec += DRVT_STEP;
 
 	return mu_b_from_pa_dec_pm_II(&tmp) - mu_b_from_pa_dec_pm_II(line);
 }
@@ -158,7 +158,7 @@ static double delta_mu_b_by_dec_step(const apogee_rc_t *line)
 static double delta_mu_l_by_ra_step(const apogee_rc_t *line)
 {
 	apogee_rc_t tmp = *line;
-	tmp.ra += DRVT_STEP;
+	tmp.pm_ra += DRVT_STEP;
 
 	return mu_l_from_pa_dec_pm_II(&tmp) - mu_l_from_pa_dec_pm_II(line);
 }
@@ -166,7 +166,7 @@ static double delta_mu_l_by_ra_step(const apogee_rc_t *line)
 static double delta_mu_l_by_dec_step(const apogee_rc_t *line)
 {
 	apogee_rc_t tmp = *line;
-	tmp.dec += DRVT_STEP;
+	tmp.pm_dec += DRVT_STEP;
 
 	return mu_l_from_pa_dec_pm_II(&tmp) - mu_l_from_pa_dec_pm_II(line);
 }
@@ -176,16 +176,33 @@ static double delta_mu_l_by_dec_step(const apogee_rc_t *line)
  */
 double errors_ecliptic_to_gal_mu_l(const apogee_rc_t *line)
 {
+#ifdef ERRORS_TRANSLATE
 	const double drv_mu_l_ra = delta_mu_l_by_ra_step(line) / DRVT_STEP;
+#if 0
+	printf("%s: delta_mu_l_by_ra_step = %lf, drv_mu_l_ra %lf\n",
+		__func__,
+		delta_mu_l_by_ra_step(line),
+		drv_mu_l_ra
+		);
+#endif
 	const double drv_mu_l_dec = delta_mu_l_by_dec_step(line) / DRVT_STEP;
         return sqrt(pow_double(drv_mu_l_ra * line->pm_ra_err, 2) +
 		    pow_double(drv_mu_l_dec * line->pm_dec_err, 2));
+#else
+	double res = sqrt(pow_double(line->pm_ra_err, 2) + pow_double(line->pm_dec_err, 2));
+        return res / sqrt(2.0);
+#endif
 }
 
 double errors_ecliptic_to_gal_mu_b(const apogee_rc_t *line)
 {
+#ifdef ERRORS_TRANSLATE
 	const double drv_mu_b_ra = delta_mu_b_by_ra_step(line) / DRVT_STEP;
 	const double drv_mu_b_dec = delta_mu_b_by_dec_step(line) / DRVT_STEP;
         return sqrt(pow_double(drv_mu_b_ra * line->pm_ra_err, 2) +
 		    pow_double(drv_mu_b_dec * line->pm_dec_err, 2));
+#else
+	double res = sqrt(pow_double(line->pm_ra_err, 2) + pow_double(line->pm_dec_err, 2));
+        return res / sqrt(2.0);
+#endif
 }

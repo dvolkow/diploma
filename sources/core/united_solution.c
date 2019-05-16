@@ -152,11 +152,11 @@ double sigma_for_k(const unsigned int p,
         }
 
         if (p == L_PART) {
-                return pow_double(sigma_0 / line->dist, 2) + pow_double(K_PM * line->pm_l_err, 2);
+                return pow_double(K_PM * sigma_0 / line->dist, 2) + pow_double(K_PM * line->pm_l_err, 2);
         }
 
         if (p == B_PART) {
-                return pow_double(sigma_0 / line->dist, 2) + pow_double(K_PM * line->pm_b_err, 2);
+                return pow_double(K_PM * sigma_0 / line->dist, 2) + pow_double(K_PM * line->pm_b_err, 2);
         }
 
         printf("%s: bad k %d\n", __func__, p);
@@ -374,6 +374,7 @@ void precalc_vsd_to_dump(apogee_rc_table_t *table)
 		for (j = 0; j < TOTAL_QTY; ++j) {
 			switch(mode) {
 			case UNINAT_MODE:
+			case FIND_SIGMA0_MODE:
 				table->data[i].vsd[j] /= sigma_for_k(j,
 								     &table->data[i],
 								     cfg->sigma_0);

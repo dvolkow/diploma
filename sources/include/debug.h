@@ -1,13 +1,24 @@
-#ifndef DEBUG_H  
+#ifndef DEBUG_H
 #define DEBUG_H  1
 
 #include <stdio.h>
 #include "types.h"
 #include "math.h"
-#define PRINTOK()       \
+#define PRINTOK()					\
         printf("%s: line %d OK!\n", __func__, __LINE__)
 
-static inline void print_table(const apogee_rc_table_t *table) 
+#define PR_WARN(message)				\
+	printf("%s[%d]: WARNING: %s\n", __func__,	\
+					__LINE__,	\
+					(message))
+
+#define PR_ERR(message)					\
+	printf("%s[%d]: ERROR: %s\n",   __func__,	\
+					__LINE__,	\
+					(message))
+
+
+static inline void print_table(const apogee_rc_table_t *table)
 {
         int i = 0;
         if (table == NULL)
@@ -25,13 +36,13 @@ static inline void print_table(const apogee_rc_table_t *table)
                                 );
 }
 
-static inline void print_vector(const double *data, 
+static inline void print_vector(const double *data,
                                 const unsigned int size)
 {
 #if 0
         unsigned int i;
         for (i = 0; i < size; ++i) {
-                printf("%s: [debug] %lf\n", __func__, 
+                printf("%s: [debug] %lf\n", __func__,
                                         data[i]);
         }
 #endif

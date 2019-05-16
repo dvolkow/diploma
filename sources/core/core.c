@@ -5,6 +5,7 @@
 
 
 #include "db.h"
+#include "debug.h"
 #include "core.h"
 #include "core_b.h"
 #include "core_l.h"
@@ -32,9 +33,6 @@ double core_vr_get_beta_n(const apogee_rc_t *line, beta_ord_t type)
                 case THIRD:
                         return -line->sin_b;
                 default:
-#ifdef DEBUG
-                        printf("%s: type error!\n", __func__);
-#endif
                         return 0;
         }
 }
@@ -93,9 +91,6 @@ void fill_mnk_matrix_vr(linear_equation_t *eq,
                         eq->right[i] += table->data[j].v_helio * m;
                 }
         }
-#ifdef DEBUG
-        print_matrix(eq->data, len);
-#endif
 }
 
 void fill_mnk_matrix(linear_equation_t *eq,
@@ -227,6 +222,7 @@ void get_partial_vr_solution(apogee_rc_table_t *table)
                 .f_point_by_solution = get_point_by_vr_solution,
                 .f_table_by_solution = fill_table_by_vr_solution,
                 .count = cfg->mksize,
+		.mul_unfres_name = "mk_results.txt"
         };
 
         opt_t *mk_sol = monte_carlo_entry(solution,
@@ -235,7 +231,7 @@ void get_partial_vr_solution(apogee_rc_table_t *table)
 
 
         dump_result(mk_sol);
-        
+
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         dump_objects_theta_R(dumped, solution, TOTAL_QTY, "vr_objs_err.txt");
         dump_vr_solution(mk_sol);
@@ -283,6 +279,67 @@ void get_united_solution(apogee_rc_table_t *table)
         dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
 }
 
+void find_united_sigma_0_solution(apogee_rc_table_t *table)
+{
+        parser_t *cfg = get_parser();
+        cfg->filter = MATCH_FILTER;
+        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
+
+	double sigma_0_opt = cfg->sigma_0;
+        opt_t *solution = united_with_nature_errs_entry(table);
+
+	double chi_opt = solution->sq;
+	// warning: not -b option here!
+	const double n_free = 3 * table->size - solution->s.size - 1;
+	double step = 1;
+
+	double start = cfg->sigma_0_l;
+	double end = cfg->sigma_0_h;
+
+	opt_t opt_solution = *solution;
+	double diff_opt = fabs(chi_opt - n_free);
+
+	while (step > SEARCH_PRECISION) {
+		while(start < end) {
+			cfg->sigma_0 = start;
+			solution = united_with_nature_errs_entry(table);
+			double diff = fabs(solution->sq - n_free);
+			if (diff < diff_opt) {
+				printf("%s: old diff %lf, new diff %lf\n",
+				       __func__, diff_opt, diff);
+				diff_opt = diff;
+				chi_opt = solution->sq;
+				opt_solution = *solution;
+				sigma_0_opt = cfg->sigma_0;
+			}
+			start += step;
+		}
+
+		start = sigma_0_opt - step;
+		end = sigma_0_opt + step;
+		step /= STEP_DIVISOR;
+	}
+
+	printf("%s: optimal sigma_0 %lf\n", __func__, sigma_0_opt);
+	partial_dump_unfriendly_result(&opt_solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
+
+	precalc_vsd_to_dump(table);
+	dump_residuals(table);
+
+        mk_params_t mk_params = {
+                .f_entry = united_with_nature_errs_entry,
+                .f_point_by_solution = get_point_by_uni_solution,
+                .f_table_by_solution = fill_table_by_uni_solution_sigma_0,
+                .count = cfg->mksize,
+		.mul_unfres_name = "mk_results.txt"
+        };
+
+        opt_t *mk_sol = monte_carlo_entry(&opt_solution,
+                                          table,
+                                          &mk_params);
+        dump_united_solution(mk_sol);
+
+}
 
 void get_united_sigma_0_solution(apogee_rc_table_t *table)
 {
@@ -292,21 +349,22 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
 
         opt_t *solution = united_with_nature_errs_entry(table);
 
-        if (cfg->bolter > 0)
+	if (cfg->bolter > 0)
                 solution = exception_algorithm(table,
                                                united_with_nature_errs_entry,
 					       precalc_errors_uni_sigma_0);
 
-	      partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
+	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
 
-	      precalc_vsd_to_dump(table);
-	      dump_residuals(table);
+	precalc_vsd_to_dump(table);
+	dump_residuals(table);
 
         mk_params_t mk_params = {
                 .f_entry = united_with_nature_errs_entry,
                 .f_point_by_solution = get_point_by_uni_solution,
                 .f_table_by_solution = fill_table_by_uni_solution_sigma_0,
                 .count = cfg->mksize,
+		.mul_unfres_name = "mk_results.txt"
         };
 
         opt_t *mk_sol = monte_carlo_entry(solution,
@@ -415,7 +473,7 @@ void get_iterate_solution(apogee_rc_table_t *table,
                                                precalc_errors_uni);
         else
                 solution = united_entry(table);
- 
+
 	precalc_vsd_to_dump(table);
 	dump_residuals(table);
 
@@ -428,7 +486,7 @@ void get_iterate_solution(apogee_rc_table_t *table,
                 .f_point_by_solution = get_point_by_uni_solution,
                 .f_table_by_solution = fill_table_by_uni_solution,
                 .count = cfg->mksize,
-//		.mul_unfres_name = "u_result_sample.txt",
+		.mul_unfres_name = "mk_results.txt"
         };
 
         opt_t *mk_sol = monte_carlo_entry(solution,

@@ -168,6 +168,7 @@ void precalc_errors_mu_l(apogee_rc_table_t *table,
 
 
 
+/**
 void core_l_get_errors(opt_t *solution, apogee_rc_table_t *table)
 {
         linear_equation_t m, invm;
@@ -187,6 +188,7 @@ void core_l_get_errors(opt_t *solution, apogee_rc_table_t *table)
                         get_error_mnk_estimated(invm.data[i * invm.size + i], invm.size + table->size + 1, solution->sq / (table->size + 1));
         }
 }
+*/
 
 static opt_t *core_l_opt_entry(apogee_rc_table_t *table)
 {
@@ -235,7 +237,7 @@ opt_t *core_l_get_linear_solution(linear_equation_t *eq,
                 .size = table->size
         };
         opt_params.sq = residuals_summary(&opt_params, table);
-        core_l_get_errors(&opt_params, table);
+        // core_l_get_errors(&opt_params, table);
         /* To dump get sd: */
         opt_params.sq = sqrt(opt_params.sq / (table->size - s.size - 1));
 
