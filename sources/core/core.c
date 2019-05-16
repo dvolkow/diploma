@@ -56,7 +56,11 @@ double core_vr_get_alpha_n(const apogee_rc_t *line,
 {
         assert(n > 0);
 
-        double R = get_R_distance(line, r_0);
+#ifndef PRECACHED_TABLE_R
+        const double R = get_R_distance(line, r_0);
+#else
+        const double R = GET_LINE_R(line);
+#endif
         return s_alpha_n(R, line->sin_l, line->cos_b, r_0, n);
 }
 
@@ -78,7 +82,7 @@ void fill_mnk_matrix_vr(linear_equation_t *eq,
                 }
 
                 for (i = BETA_QTY; i < eq->size; ++i) {
-                        line->_[i] = core_vr_get_alpha_n(&table->data[j], i - BETA_QTY + 1, table->r_0);
+                        line->_[i] = core_vr_get_alpha_n(&table->data[j], i - BETA_QTY + 1, GET_TABLE_R0(table));
                 }
 
                 for (i = 0; i < len; ++i) {
@@ -167,7 +171,7 @@ static opt_t *vr_partial_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = opt_linear(&eq, table, &params);
-        table->r_0 = opt->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(opt));
         opt->sq = sqrt(opt->sq / (table->size - opt->s.size - 1));
 
         return opt;
@@ -206,9 +210,9 @@ void get_partial_vr_solution(apogee_rc_table_t *table)
                 old_size = table->size;
         }
 
-        table->omega_0 = OMEGA_SUN - solution->s.data[V_P] / solution->r_0;
+        table->omega_0 = OMEGA_SUN - solution->s.data[V_P] / GET_SOLUTION_R0(solution);
 
-        table->r_0 = solution->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(solution));
         table->sigma[VR_PART] = solution->sq / (table->size - eq.size - 1);
         solution->sq = sqrt(table->sigma[VR_PART]);
         printf("%s: sq = %lf\n", __func__, solution->sq);
@@ -320,28 +324,39 @@ void vr_b_iterations(apogee_rc_table_t *table)
         double sd[TOTAL_QTY];
         table->w_sun = W_SUN_START;
         double w_old = W_SUN_START;
-        double r_old = table->r_0;
+        double r_old = GET_TABLE_R0(table);
 
-        core_vr_entry(table);
-        double r_new = table->r_0;
-        core_b_entry(table);
+        opt_t *solution = core_vr_entry(table);
+        double r_new = GET_TABLE_R0(table);
+        solution = core_b_entry(table);
         double w_new = table->w_sun;
         sd[B_PART] = table->sigma[B_PART];
 
         while (ITER_CONDITION(w_old, w_new, r_old, r_new)) {
                 r_old = r_new;
                 w_old = w_new;
-                core_vr_entry(table);
-                r_new = table->r_0;
-                core_b_entry(table);
+                solution = core_vr_entry(table);
+                r_new = GET_TABLE_R0(table);
+                solution = core_b_entry(table);
                 w_new = table->w_sun;
                 sd[B_PART] = table->sigma[B_PART];
         }
 
-        core_vr_entry(table);
+        dump_objects_theta_R(table, solution, B_PART, "B_PART_OBJ.txt");
+        dump_part_rotation_curve(solution, B_PART, "b_cur.txt", table->omega_0);
+	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS, "b_unfresult.txt");
+
+        solution = core_vr_entry(table);
         sd[VR_PART] = table->sigma[VR_PART];
-        core_l_entry(table);
+        dump_objects_theta_R(table, solution, VR_PART, "VR_PART_OBJ.txt");
+        dump_part_rotation_curve(solution, VR_PART, "vr_cur.txt", table->omega_0);
+	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS - 1, "vr_unfresult.txt");
+
+        solution = core_l_entry(table);
         sd[L_PART] = table->sigma[L_PART];
+        dump_objects_theta_R(table, solution, L_PART, "L_PART_OBJ.txt");
+        dump_part_rotation_curve(solution, L_PART, "l_cur.txt", table->omega_0);
+	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS, "l_unfresult.txt");
         uni_g_sd_init(sd);
 }
 
@@ -357,12 +372,12 @@ void get_iterate_solution(apogee_rc_table_t *table,
 
         table->w_sun = W_SUN_START;
         double w_old = W_SUN_START;
-        double r_old = table->r_0;
+        double r_old = GET_TABLE_R0(table);
         solution = exception_algorithm(table,
                                        core_vr_entry,
                                        precalc_errors_vr);
         sd[VR_PART] = table->sigma[VR_PART];
-        double r_new = solution->r_0;
+        double r_new = GET_SOLUTION_R0(solution);
         solution = exception_algorithm(table,
                                        core_b_entry,
                                        precalc_errors_mu_b);
@@ -375,14 +390,15 @@ void get_iterate_solution(apogee_rc_table_t *table,
                 solution = exception_algorithm(table,
                                                core_vr_entry,
                                                precalc_errors_vr);
-                r_new = table->r_0;
+                r_new = GET_TABLE_R0(table);
                 sd[VR_PART] = table->sigma[VR_PART];
                 solution = exception_algorithm(table,
                                                core_b_entry,
                                                precalc_errors_mu_b);
-                sd[B_PART] = table->sigma[B_PART];
                 w_new = table->w_sun;
         }
+
+        sd[B_PART] = table->sigma[B_PART];
 
         solution = core_vr_entry(table);
         sd[VR_PART] = table->sigma[VR_PART];
@@ -392,21 +408,6 @@ void get_iterate_solution(apogee_rc_table_t *table,
 
         solution = core_l_entry(table);
         sd[L_PART] = table->sigma[L_PART];
-        dump_objects_theta_R(table, solution, L_PART, "L_PART_OBJ.txt");
-        dump_part_rotation_curve(solution, L_PART, "l_cur.txt", table->omega_0);
-	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS, "l_unfresult.txt");
-
-
-        solution = core_vr_entry(table);
-        dump_objects_theta_R(table, solution, VR_PART, "VR_PART_OBJ.txt");
-        dump_part_rotation_curve(solution, VR_PART, "vr_cur.txt", table->omega_0);
-	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS - 1, "vr_unfresult.txt");
-
-        solution = core_b_entry(table);
-        dump_objects_theta_R(table, solution, B_PART, "B_PART_OBJ.txt");
-        dump_part_rotation_curve(solution, B_PART, "b_cur.txt", table->omega_0);
-	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS, "b_unfresult.txt");
-
         uni_g_sd_init(sd);
         // TODO: need modify dispersion?
         if (cfg->bolter > 0)

@@ -10,17 +10,23 @@
 #include "debug.h"
 #endif
 
+
 double get_R_distance(const apogee_rc_t *line, const double r_0)
 {
         double dist = line->dist;
+#ifdef DEBUG
         assert(dist > 0);
         assert(r_0 > 0);
+#endif
         double root = dist * dist * line->cos_b * line->cos_b +
                 r_0 * r_0 - 2 * r_0 * dist * line->cos_l * line->cos_b;
 
+#ifdef DEBUG
         assert(root >= 0);
+#endif
         return sqrt(root);
 }
+
 
 static double get_x(const apogee_rc_t *line)
 {

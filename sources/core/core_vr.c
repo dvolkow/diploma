@@ -48,7 +48,7 @@ static void core_vr_fill_mnk_matrix(linear_equation_t *eq,
                 }
 
                 for (i = BETA_QTY_FIX; i < eq->size; ++i) {
-                        line->_[i] = core_vr_get_alpha_n(&table->data[j], i - BETA_QTY_FIX + 1, table->r_0);
+                        line->_[i] = core_vr_get_alpha_n(&table->data[j], i - BETA_QTY_FIX + 1, GET_TABLE_R0(table));
                 }
 
                 for (i = 0; i < len; ++i) {
@@ -64,7 +64,7 @@ static void core_vr_fill_mnk_matrix(linear_equation_t *eq,
 static double core_vr_get_mod_v(const opt_t *solution,
                                 const apogee_rc_t *line)
 {
-        const double r_0 = solution->r_0;
+        const double r_0 = GET_SOLUTION_R0(solution);
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY_FIX; ++i) {
@@ -104,8 +104,9 @@ static double residuals_summary(const linear_eq_solve_t *solution,
         double sum = 0;
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                sum += _residuals_line(solution, &table->data[i],
-                                        table->r_0);
+                sum += _residuals_line(solution,
+                                       &table->data[i],
+                                       GET_TABLE_R0(table));
         }
         assert(sum > 0);
         return sum;
@@ -151,7 +152,7 @@ opt_t *core_vr_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = core_vr_get_solution(&eq, table);
-        table->r_0 = opt->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(opt));
         table->sigma[VR_PART] = opt->sq / (table->size - eq.size - 1);
         opt->sq = sqrt(table->sigma[VR_PART]);
 

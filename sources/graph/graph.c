@@ -86,7 +86,7 @@ static void dump_unfriendly_result(const opt_t *opt, const char *filename)
 
         fprintf(fout, "%u ", opt->size);
         fprintf(fout, "%0.3lf %0.3lf ",
-                        opt->r_0,
+                        GET_SOLUTION_R0(opt),
                         opt->dr_0);
         fprintf(fout, "%0.3lf ", opt->sq);
 
@@ -113,7 +113,7 @@ void partial_dump_unfriendly_result(const opt_t *opt,
 
         fprintf(fout, "%u ", opt->size);
         fprintf(fout, "%0.3lf ",
-                        opt->r_0);
+                        GET_SOLUTION_R0(opt));
         fprintf(fout, "%0.3lf ", opt->sq);
 
         unsigned int i;
@@ -140,7 +140,7 @@ void multiply_dump_unfriendly_result(const opt_t **res,
 	for (j = 0; j < count; ++j) {
 		fprintf(fout, "%u ", res[j]->size);
 		fprintf(fout, "%0.3lf ",
-                        res[j]->r_0);
+                        GET_SOLUTION_R0(res[j]));
 		fprintf(fout, "%d ", (int)res[j]->sq);
 
 		for (i = 0; i < res[j]->s.size; ++i) {
@@ -162,7 +162,7 @@ void dump_vr_solution(const opt_t *opt)
                         opt->size);
         PRINT_OUTPUT_LINE(fout);
         fprintf(fout, "R_0: \t%0.3lf \t+%0.3lf\n",
-                        opt->r_0, opt->dr_0);
+                        GET_SOLUTION_R0(opt), opt->dr_0);
         fprintf(fout, "SD: \t%0.3lf\n",
                         opt->sq);
         PRINT_OUTPUT_LINE(fout);
@@ -190,7 +190,7 @@ void dump_result(const opt_t *opt)
                         opt->size);
         PRINT_OUTPUT_LINE(fout);
         fprintf(fout, "R_0: \t%0.3lf \t+%0.3lf\n",
-                        opt->r_0, opt->dr_0);
+                        GET_SOLUTION_R0(opt), opt->dr_0);
         fprintf(fout, "\t\t-%0.3lf\n", opt->dr_0);
         fprintf(fout, "SD: \t%0.3lf\n",
                         sqrt(opt->sq / (3 * opt->size - opt->s.size - 1)));
@@ -222,11 +222,11 @@ double get_point_by_uni_solution(const opt_t *solution,
                                  const double r)
 {
         double theta = r * solution->s.data[BETA_QTY] -
-                                        2 * solution->s.data[BETA_QTY + 1] * (r - solution->r_0);
+                                        2 * solution->s.data[BETA_QTY + 1] * (r - GET_SOLUTION_R0(solution));
         unsigned int i;
         for (i = BETA_QTY + 2; i < solution->s.size; ++i) {
                 theta += solution->s.data[i] / dv_factorial(i - BETA_QTY) *
-                                        pow_double(r - solution->r_0, i - BETA_QTY);
+                                        pow_double(r - GET_SOLUTION_R0(solution), i - BETA_QTY);
         }
 
         return theta;
@@ -235,12 +235,12 @@ double get_point_by_uni_solution(const opt_t *solution,
 double get_point_by_vr_solution(const opt_t *solution,
                                 const double r)
 {
-        double theta = r * (OMEGA_SUN - solution->s.data[V_P] / solution->r_0) -
-                                        2 * solution->s.data[BETA_QTY] * (r - solution->r_0);
+        double theta = r * (OMEGA_SUN - solution->s.data[V_P] / GET_SOLUTION_R0(solution)) -
+                                        2 * solution->s.data[BETA_QTY] * (r - GET_SOLUTION_R0(solution));
         unsigned int i;
         for (i = BETA_QTY + 1; i < solution->s.size; ++i) {
                 theta += solution->s.data[i] / dv_factorial(i - BETA_QTY + 1) *
-                                        pow_double(r - solution->r_0, i - BETA_QTY + 1);
+                                        pow_double(r - GET_SOLUTION_R0(solution), i - BETA_QTY + 1);
         }
 
         return theta;
@@ -249,12 +249,12 @@ double get_point_by_vr_solution(const opt_t *solution,
 double get_point_by_b_solution(const opt_t *solution,
                                const double r)
 {
-        double theta = r * (OMEGA_SUN - solution->s.data[V_P] / solution->r_0) +
-                                        2 * solution->s.data[BETA_QTY] * (r - solution->r_0);
+        double theta = r * (OMEGA_SUN - solution->s.data[V_P] / GET_SOLUTION_R0(solution)) +
+                                        2 * solution->s.data[BETA_QTY] * (r - GET_SOLUTION_R0(solution));
         unsigned int i;
         for (i = BETA_QTY + 1; i < solution->s.size; ++i) {
                 theta -= solution->s.data[i] / dv_factorial(i - BETA_QTY + 1) *
-                                        pow_double(r - solution->r_0, i - BETA_QTY + 1);
+                                        pow_double(r - GET_SOLUTION_R0(solution), i - BETA_QTY + 1);
         }
 
         return theta;
@@ -264,11 +264,11 @@ double get_point_by_l_solution(const opt_t *solution,
                                const double r)
 {
         double theta = r * solution->s.data[W_P] -
-                                        2 * solution->s.data[BETA_QTY] * (r - solution->r_0);
+                                        2 * solution->s.data[BETA_QTY] * (r - GET_SOLUTION_R0(solution));
         unsigned int i;
         for (i = BETA_QTY + 1; i < solution->s.size; ++i) {
                 theta += solution->s.data[i] / dv_factorial(i - BETA_QTY + 1) *
-                                        pow_double(r - solution->r_0, i - BETA_QTY + 1);
+                                        pow_double(r - GET_SOLUTION_R0(solution), i - BETA_QTY + 1);
         }
 
         return theta;
@@ -282,13 +282,13 @@ double get_c_point_by_part_solution(const opt_t *solution,
                                     const double omega_0,
                                     unsigned int A_idx)
 {
-        double theta = 2 * solution->s.data[A_idx] * (r - solution->r_0);
+        double theta = 2 * solution->s.data[A_idx] * (r - GET_SOLUTION_R0(solution));
         double theta_s = 0;
 
         unsigned int i;
         for (i = A_idx + 1; i < solution->s.size; ++i) {
                 theta_s += solution->s.data[i] / dv_factorial(i - A_idx + 1) * 
-                                        pow_double(r - solution->r_0, i - A_idx + 1);
+                                        pow_double(r - GET_SOLUTION_R0(solution), i - A_idx + 1);
         }
 
         double theta_omega = r * omega_0;
@@ -325,10 +325,14 @@ static double obs_theta_R_by_l(const opt_t *solution,
                                const apogee_rc_t *line,
                                const double omega_0)
 {
-        double R = get_R_distance(line, solution->r_0);
-        double mu_l = get_mu_sun(line, &solution->s, core_l_get_beta_n, BETA_QTY);
+#ifndef PRECACHED_TABLE_R
+        const double R = get_R_distance(line, GET_SOLUTION_R0(solution));
+#else
+        const double R = GET_LINE_R(line);
+#endif
+        const double mu_l = get_mu_sun(line, &solution->s, core_l_get_beta_n, BETA_QTY);
         return ((line->pm_l - mu_l) /
-                        (solution->r_0 * line->cos_l / line->dist - line->cos_b) + omega_0) * R;
+                        (GET_SOLUTION_R0(solution) * line->cos_l / line->dist - line->cos_b) + omega_0) * R;
 }
 
 
@@ -336,9 +340,19 @@ static double obs_theta_R_by_b(const opt_t *solution,
                                const apogee_rc_t *line,
                                const double omega_0)
 {
-        double R = get_R_distance(line, solution->r_0);
-        double mu_b = get_mu_sun(line, &solution->s, core_b_get_beta_n, BETA_QTY);
-        return ((-line->pm_b + mu_b) / (solution->r_0 * line->sin_l * line->sin_b) * line->dist + omega_0) * R;
+#ifndef PRECACHED_TABLE_R
+        const double R = get_R_distance(line, GET_SOLUTION_R0(solution));
+#else
+        const double R = GET_LINE_R(line);
+#endif
+        const double mu_b = get_mu_sun(line,
+                                       &solution->s,
+                                       core_b_get_beta_n,
+                                       BETA_QTY);
+
+        return ((-line->pm_b + mu_b) / 
+                (GET_SOLUTION_R0(solution) * line->sin_l * line->sin_b) * 
+                                line->dist + omega_0) * R;
 }
 
 
@@ -346,19 +360,39 @@ static double obs_theta_R_by_vr(const opt_t *solution,
                                 const apogee_rc_t *line,
                                 const double omega_0)
 {
-        double R = get_R_distance(line, solution->r_0);
-        double vr_sun = get_mu_sun(line, &solution->s, __core_vr_get_beta_n, BETA_QTY_FIX);
-        return ((line->v_helio - vr_sun - __core_vr_get_beta_n(line, THIRD)) / (solution->r_0 * line->sin_l * line->cos_b) + omega_0) * R;
+#ifndef PRECACHED_TABLE_R
+        const double R = get_R_distance(line, GET_SOLUTION_R0(solution));
+#else
+        const double R = GET_LINE_R(line);
+#endif
+        const double vr_sun = get_mu_sun(line,
+                                         &solution->s, 
+                                         __core_vr_get_beta_n,
+                                         BETA_QTY_FIX);
+
+        return ((line->v_helio - vr_sun - 
+                __core_vr_get_beta_n(line, THIRD)) / 
+                (GET_SOLUTION_R0(solution) * line->sin_l * line->cos_b) + 
+                                                omega_0) * R;
 }
 
 static double obs_theta_R_by_vr_free(const opt_t *solution,
                                      const apogee_rc_t *line,
                                      const double omega_0)
 {
-        double R = get_R_distance(line, solution->r_0);
-        double vr_sun = get_mu_sun(line, &solution->s, core_vr_get_beta_n, BETA_QTY);
-        return ((line->v_helio - vr_sun) / (solution->r_0 * line->sin_l * line->cos_b) + omega_0) * R;
+#ifndef PRECACHED_TABLE_R
+        const double R = get_R_distance(line, GET_SOLUTION_R0(solution));
+#else
+        const double R = GET_LINE_R(line);
+#endif
+        const double vr_sun = get_mu_sun(line,
+                                         &solution->s,
+                                         core_vr_get_beta_n,
+                                         BETA_QTY);
+
+        return ((line->v_helio - vr_sun) / (GET_SOLUTION_R0(solution) * line->sin_l * line->cos_b) + omega_0) * R;
 }
+
 
 double theta_by_R_vr(const opt_t *solution, const double r)
 {
@@ -401,7 +435,11 @@ void dump_objects_theta_R(const apogee_rc_table_t *table,
         }
 
         for (i = 0; i < size; ++i) {
-                double R = get_R_distance(&table->data[i], solution->r_0);
+#ifndef PRECACHED_TABLE_R
+                double R = get_R_distance(&table->data[i], GET_SOLUTION_R0(solution));
+#else
+                double R = GET_TABLE_R(table, i);
+#endif
                 double theta = f(solution, &table->data[i], table->omega_0);
                 fprintf(fout, "%lf %lf\n", R, theta);
         }
@@ -462,18 +500,18 @@ void dump_rotation_curve_vr(const opt_t *solution)
 
         r = ROTC_LOWER_BOUND;
         while (r < ROTC_UPPER_BOUND) {
-                double theta = r * (OMEGA_SUN - solution->s.data[V_P] / solution->r_0) -
-                                        2 * solution->s.data[A_P] * (r - solution->r_0);
+                double theta = r * (OMEGA_SUN - solution->s.data[V_P] / GET_SOLUTION_R0(solution)) -
+                                        2 * solution->s.data[A_P] * (r - GET_SOLUTION_R0(solution));
                 for (i = BETA_QTY + 1; i < solution->s.size; ++i) {
                         theta += solution->s.data[i] / dv_factorial(i - BETA_QTY + 1) * 
-                                        pow_double(r - solution->r_0, i - BETA_QTY + 1);
+                                        pow_double(r - GET_SOLUTION_R0(solution), i - BETA_QTY + 1);
                 }
 
                 fprintf(fout, "%lf %lf\n", r, theta);
                 r += ROTC_STEP_R;
         }
 
-        fprintf(sout, "%lf %lf\n", solution->r_0, solution->r_0 * OMEGA_SUN);
+        fprintf(sout, "%lf %lf\n", GET_SOLUTION_R0(solution), GET_SOLUTION_R0(solution) * OMEGA_SUN);
 
         fclose(sout);
         fclose(fout);
@@ -495,18 +533,18 @@ void dump_rotation_curve_b(const opt_t *solution)
 
         r = ROTC_LOWER_BOUND;
         while (r < ROTC_UPPER_BOUND) {
-                double theta = r * (OMEGA_SUN - solution->s.data[V_P] / solution->r_0) +
-                                        2 * solution->s.data[A_P] * (r - solution->r_0);
+                double theta = r * (OMEGA_SUN - solution->s.data[V_P] / GET_SOLUTION_R0(solution)) +
+                                        2 * solution->s.data[A_P] * (r - GET_SOLUTION_R0(solution));
                 for (i = BETA_QTY + 1; i < solution->s.size; ++i) {
                         theta -= solution->s.data[i] / dv_factorial(i - BETA_QTY + 1) *
-                                        pow_double(r - solution->r_0, i - BETA_QTY + 1);
+                                        pow_double(r - GET_SOLUTION_R0(solution), i - BETA_QTY + 1);
                 }
 
                 fprintf(fout, "%lf %lf\n", r, theta);
                 r += ROTC_STEP_R;
         }
 
-        fprintf(sout, "%lf %lf\n", solution->r_0, solution->r_0 * OMEGA_SUN);
+        fprintf(sout, "%lf %lf\n", GET_SOLUTION_R0(solution), GET_SOLUTION_R0(solution) * OMEGA_SUN);
 
         fclose(sout);
         fclose(fout);
@@ -529,17 +567,17 @@ void dump_rotation_curve_l(const opt_t *solution)
         r = ROTC_LOWER_BOUND;
         while (r < ROTC_UPPER_BOUND) {
                 double theta = r * solution->s.data[W_P] -
-                                        2 * solution->s.data[A_P] * (r - solution->r_0);
+                                        2 * solution->s.data[A_P] * (r - GET_SOLUTION_R0(solution));
                 for (i = BETA_QTY + 1; i < solution->s.size; ++i) {
                         theta += solution->s.data[i] / dv_factorial(i - BETA_QTY + 1) *
-                                        pow_double(r - solution->r_0, i - BETA_QTY + 1);
+                                        pow_double(r - GET_SOLUTION_R0(solution), i - BETA_QTY + 1);
                 }
 
                 fprintf(fout, "%lf %lf\n", r, theta);
                 r += ROTC_STEP_R;
         }
 
-        fprintf(sout, "%lf %lf\n", solution->r_0, solution->r_0 * (solution->s.data[W_P] + solution->s.data[V_P] / solution->r_0));
+        fprintf(sout, "%lf %lf\n", GET_SOLUTION_R0(solution), GET_SOLUTION_R0(solution) * (solution->s.data[W_P] + solution->s.data[V_P] / GET_SOLUTION_R0(solution)));
 
         fclose(sout);
         fclose(fout);
@@ -618,14 +656,15 @@ void dump_R0_theta_ellips(const opt_t **res,
 
         for (i = 0; i < size; ++i) {
                 fprintf(aout, "%lf %lf\n",
-                        res[i]->r_0, res[i]->s.data[BETA_QTY] * res[i]->r_0);
+                        GET_SOLUTION_R0(res[i]),
+                        res[i]->s.data[BETA_QTY] * GET_SOLUTION_R0(res[i]));
         }
 
         FILE *cout = fopen(R0THETA0_MAIN_FILE_NAME, "w");
         CHECK_FILE_AND_RET(aout, R0THETA0_MAIN_FILE_NAME);
 
-        fprintf(cout, "%lf %lf", solution->r_0, 
-                                 solution->r_0 * solution->s.data[BETA_QTY]);
+        fprintf(cout, "%lf %lf", GET_SOLUTION_R0(solution), 
+                                 GET_SOLUTION_R0(solution) * solution->s.data[BETA_QTY]);
         fclose(cout);
         fclose(aout);
 }
@@ -649,7 +688,7 @@ void dump_core_l_solution(const opt_t *solution)
 void dump_core_vr_solution(const opt_t *solution)
 {
         printf("Vr Core Solution:\n");
-        printf("R_0: %lf \n", solution->r_0);
+        printf("R_0: %lf \n", GET_SOLUTION_R0(solution));
         printf("u_sun: %lf \n", solution->s.data[0]);
         printf("v_sun: %lf \n", solution->s.data[1]);
         printf("A: %lf \n", solution->s.data[2]);
@@ -661,7 +700,7 @@ void dump_core_vr_solution(const opt_t *solution)
 void dump_united_solution(const opt_t *solution)
 {
         printf("United Solution:\n");
-        printf("R_0: %lf\n", solution->r_0);
+        printf("R_0: %lf\n", GET_SOLUTION_R0(solution));
         printf("u_sun: %lf pm %lf\n", solution->s.data[0],
                                       solution->bounds[0].l);
         printf("v_sun: %lf pm %lf\n", solution->s.data[1],
@@ -680,7 +719,7 @@ void dump_united_solution(const opt_t *solution)
 void dump_united_solution_points(const opt_t *solution)
 {
         printf("United Solution:\n");
-        printf("R_0: %lf\n", solution->r_0);
+        printf("R_0: %lf\n", GET_SOLUTION_R0(solution));
         printf("u_sun: %lf\n", solution->s.data[0]);
         printf("v_sun: %lf\n", solution->s.data[1]);
         printf("w_sun: %lf\n", solution->s.data[2]);
@@ -786,18 +825,28 @@ void dump_rand_test(const double *array,
 static double cos_beta_uni(const apogee_rc_t *line,
                            const double r_0)
 {
-        return (r_0 - line->dist * cos(line->b) * cos(line->l)) / get_R_distance(line, r_0);
+#ifndef PRECACHED_TABLE_R
+        double R = get_R_distance(line, r_0);
+#else
+        double R = GET_LINE_R(line);
+#endif
+        return (r_0 - line->dist * line->cos_b * line->cos_l) / R;
 }
 
 static double sin_beta_uni(const apogee_rc_t *line,
                            const double r_0)
 {
-        return line->dist * cos_beta_uni(line, r_0) * sin(line->l) / get_R_distance(line, r_0);
+#ifndef PRECACHED_TABLE_R
+        double R = get_R_distance(line, r_0);
+#else
+        double R = GET_LINE_R(line);
+#endif
+        return line->dist * cos_beta_uni(line, r_0) * line->sin_l / R;
 }
 
 static double get_v_l(const apogee_rc_t *line)
 {
-        return K_PM * line->dist * line->pm_l * cos(line->b);
+        return K_PM * line->dist * line->pm_l * line->cos_b;
 }
 
 static double get_v_b(const apogee_rc_t *line)
@@ -808,22 +857,23 @@ static double get_v_b(const apogee_rc_t *line)
 static double get_u_g(const apogee_rc_t *line,
                       const opt_t *solution)
 {
-        return solution->s.data[0] + cos(line->l) * (line->v_helio * cos(line->b) - 
-                        get_v_b(line) * sin(line->b)) - get_v_l(line) * sin(line->l);
+        return solution->s.data[0] + line->cos_l * (line->v_helio * line->cos_b - 
+                        get_v_b(line) * line->sin_b) - get_v_l(line) * sin(line->l);
 }
 
 static double get_v_g(const apogee_rc_t *line,
                       const opt_t *solution)
 {
-        return solution->s.data[BETA_QTY] * solution->r_0 + solution->s.data[1] + sin(line->l) * (line->v_helio * cos(line->b) - 
-                        get_v_b(line) * sin(line->b)) + get_v_l(line) * cos(line->l);
+        return solution->s.data[BETA_QTY] * GET_SOLUTION_R0(solution) + 
+                solution->s.data[1] + line->sin_l * (line->v_helio * line->cos_b - 
+                        get_v_b(line) * line->sin_b) + get_v_l(line) * line->cos_l;
 }
 
 static double get_theta_uni_obj(const apogee_rc_t *line,
                                 const opt_t *solution)
 {
-        return get_v_g(line, solution) * cos_beta_uni(line, solution->r_0) +
-                get_u_g(line, solution) * sin_beta_uni(line, solution->r_0);
+        return get_v_g(line, solution) * cos_beta_uni(line, GET_SOLUTION_R0(solution)) +
+                get_u_g(line, solution) * sin_beta_uni(line, GET_SOLUTION_R0(solution));
 }
 
 void dump_uni_rotation_objs_named(const apogee_rc_table_t *table,
@@ -834,9 +884,15 @@ void dump_uni_rotation_objs_named(const apogee_rc_table_t *table,
         CHECK_FILE_AND_RET(oout, filename);
 
         unsigned int i;
+        double R;
         for (i = 0; i < table->size; ++i) {
+#ifndef PRECACHED_TABLE_R
+                R = get_R_distance(&table->data[i], GET_SOLUTION_R0(solution));
+#else
+                R = GET_TABLE_R(table, i);
+#endif
                 fprintf(oout, "%lf %lf\n",
-                                get_R_distance(&table->data[i], solution->r_0),
+                                R,
                                 get_theta_uni_obj(&table->data[i], solution));
         }
         fclose(oout);
@@ -852,23 +908,13 @@ void dump_uni_rotation_objs(const apogee_rc_table_t *table,
         FILE *sout = fopen(SUN_POINT_FILE_NAME, "w");
         CHECK_FILE_AND_RET(sout, SUN_POINT_FILE_NAME);
 
-        fprintf(sout, "%lf %lf\n", solution->r_0, solution->r_0 * solution->s.data[BETA_QTY] + solution->s.data[1]);
+        fprintf(sout, "%lf %lf\n", GET_SOLUTION_R0(solution),
+                                   GET_SOLUTION_R0(solution) * solution->s.data[BETA_QTY]
+                                                                + solution->s.data[1]);
 
         fclose(sout);
 }
 
-void dump_line_xyz(const apogee_rc_t *line)
-{
-        // TODO: implement
-        return;
-}
-
-
-void dump_objects_xyz_is(const iteration_storage_t *storage)
-{
-        // TODO: implement
-        return;
-}
 
 
 void dump_objects_xyz(const apogee_rc_table_t *table,
@@ -933,17 +979,14 @@ void dump_profile(linear_equation_t *eq,
         assert(params->residuals_summary != NULL);
         assert(params->fill_mnk_matrix != NULL);
 
-        double step = ROTC_STEP_R;
+        update_table_R0(table, ROTC_LOWER_BOUND);
 
-        table->r_0 = ROTC_LOWER_BOUND;
-
-
-        while (table->r_0 < ROTC_UPPER_BOUND) {
-                table->r_0 += step;
+        while (GET_TABLE_R0(table) < ROTC_UPPER_BOUND) {
                 params->fill_mnk_matrix(eq, table);
                 solve(eq, &s);
                 double sq_tmp = params->residuals_summary(&s, table);
-                fprintf(fout, "%lf %lf\n", table->r_0, sq_tmp);
+                fprintf(fout, "%lf %lf\n", GET_TABLE_R0(table), sq_tmp);
+                update_table_R0(table, GET_TABLE_R0(table) + ROTC_STEP_R);
         }
 
         fclose(fout);

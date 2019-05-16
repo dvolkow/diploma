@@ -179,6 +179,8 @@ void linear_interpolation(const xy_t *a,
 	res->y = a->y + (res->x - a->x) * (b->y - a->y) / (b->x - a->x);
 }
 
+
+
 double get_limit_by_eps(const unsigned int size)
 {
         const double left = 1 -  1. / size;

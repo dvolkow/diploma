@@ -56,7 +56,7 @@ typedef struct {
 #define DEFAULT_H               0
         double h;
         double sigma_0;
-#define DEFAULT_MKSIZE          10
+#define DEFAULT_MKSIZE          1
         unsigned int mksize;
 #define DEFAULT_FILTER          BAD_FILTER
         filter_mode_t filter;

@@ -58,7 +58,9 @@ static void __fill_part_mnk_matrix(linear_equation_t *tmp,
                 }
 
                 for (i = BETA_QTY + 1; i < len; ++i) {
-                        line->_[i] = filler[k].alpha_n(&table->data[j], i - BETA_QTY, table->r_0);
+                        line->_[i] = filler[k].alpha_n(&table->data[j], 
+                                                        i - BETA_QTY, 
+                                                        GET_TABLE_R0(table));
                 }
 
                 for (i = 0; i < len; ++i) {
@@ -187,7 +189,9 @@ static void uni_fill_mnk_matrix_nerr(linear_equation_t *eq,
                         }
 
                         for (i = BETA_QTY + 1; i < len; ++i) {
-                                line->_[i] = filler[k].alpha_n(&table->data[j], i - BETA_QTY, table->r_0);
+                                line->_[i] = filler[k].alpha_n(&table->data[j],
+                                                                i - BETA_QTY,
+                                                                GET_TABLE_R0(table));
                         }
 
                         for (i = 0; i < len; ++i) {
@@ -339,7 +343,9 @@ static double residuals_summary(const linear_eq_solve_t *solution,
         unsigned int i, j;
         const unsigned int n_free = table->size - solution->size - 1;
         for (i = 0; i < table->size; ++i) {
-                _residuals_line(solution, &table->data[i], table->r_0);
+                _residuals_line(solution,
+                                &table->data[i],
+                                GET_TABLE_R0(table));
                 for (j = 0; j < TOTAL_QTY; ++j)
                         table->sigma[j] += table->data[i].vsd[j] * table->data[i].vsd[j];
         }
@@ -349,8 +355,10 @@ static double residuals_summary(const linear_eq_solve_t *solution,
         }
 
         for (i = 0; i < table->size; ++i) {
-                sum += _chi_line(solution, &table->data[i],
-                                 table->r_0, table->sigma);
+                sum += _chi_line(solution,
+                                 &table->data[i],
+                                 GET_TABLE_R0(table),
+                                 table->sigma);
         }
         assert(sum > 0);
         return sum;
@@ -387,8 +395,10 @@ static double residuals_summary_nerr(const linear_eq_solve_t *solution,
         double sum = 0;
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                sum += _residuals_line_nerr(solution, &table->data[i],
-                                            table->r_0, table->sigma_0);
+                sum += _residuals_line_nerr(solution,
+                                            &table->data[i],
+                                            GET_TABLE_R0(table),
+                                            table->sigma_0);
         }
         assert(sum > 0);
         return sum;
@@ -465,8 +475,9 @@ opt_t *united_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_solution(&eq, table);
-        table->r_0 = opt->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(opt));
 
+        vr_b_iterations(table);
         return opt;
 }
 
@@ -485,8 +496,8 @@ void dump_united_solution_profile(apogee_rc_table_t *table,
         };
 
         opt_params_t params = {
-                .residuals_summary = residuals_summary_nerr,
-                .fill_mnk_matrix = uni_fill_mnk_matrix_nerr,
+                .residuals_summary = residuals_summary,
+                .fill_mnk_matrix = uni_fill_mnk_matrix,
         };
 
         dump_profile(&eq, table, &params, "uni_profile.txt");
@@ -508,7 +519,7 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_with_nerr_solution(&eq, table);
-        table->r_0 = opt->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(opt));
 
         return opt;
 }

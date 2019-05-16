@@ -51,6 +51,11 @@ static inline double pow_double(const double m, const unsigned int n)
 }
 
 
+#define DOUBLE_COMPARE_EPSILON          (1e-8)
+
+#define DOUBLE_EQUAL_EPS(a, b)          \
+        (fabs((a) - (b)) < DOUBLE_COMPARE_EPSILON)
+
 
 typedef enum {
         EQUATION,
@@ -87,6 +92,8 @@ typedef struct {
         unsigned int size;
 } opt_t;
 
+#define GET_SOLUTION_R0(p_opt)  \
+        ((p_opt)->r_0)
 
 typedef struct {
         double x;

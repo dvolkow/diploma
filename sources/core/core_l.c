@@ -36,7 +36,11 @@ double core_l_get_alpha_n(const apogee_rc_t *line,
                           const unsigned int n,
                           const double r0)
 {
+#ifndef PRECACHED_TABLE_R
         const double R = get_R_distance(line, r0);
+#else
+        const double R = GET_LINE_R(line);
+#endif
         const double r = line->dist;
         const double delta_R = R - r0;
 
@@ -65,7 +69,7 @@ void core_l_fill_mnk_matrix(linear_equation_t *eq,
                 }
 
                 for (i = BETA_QTY; i < len; ++i) {
-                        line->_[i] = core_l_get_alpha_n(&table->data[j], i - BETA_QTY + 1, table->r_0);
+                        line->_[i] = core_l_get_alpha_n(&table->data[j], i - BETA_QTY + 1, GET_TABLE_R0(table));
                 }
 
                 for (i = 0; i < len; ++i) {
@@ -82,7 +86,7 @@ void core_l_fill_mnk_matrix(linear_equation_t *eq,
 static double core_l_get_mod_v(const opt_t *solution,
                                const apogee_rc_t *line)
 {
-        const double r_0 = solution->r_0;
+        const double r_0 = GET_SOLUTION_R0(solution);
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i) {
@@ -120,7 +124,7 @@ static double residuals_summary_opt(const linear_eq_solve_t *v,
         double sum = 0;
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                sum += residuals_line(v, &table->data[i], table->r_0);
+                sum += residuals_line(v, &table->data[i], GET_TABLE_R0(table));
         }
         assert(sum > 0);
         return sum;
@@ -204,7 +208,7 @@ static opt_t *core_l_opt_entry(apogee_rc_table_t *table)
         opt_t *solution = opt_linear(&eq, table, &params);
 
         table->omega_0 = solution->s.data[BETA_QTY - 1];
-        table->r_0 = solution->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(solution));
         table->sigma[L_PART] = solution->sq / (table->size - eq.size - 1);
         solution->sq = sqrt(table->sigma[L_PART]);
 	return solution;
@@ -226,7 +230,7 @@ opt_t *core_l_get_linear_solution(linear_equation_t *eq,
 
         opt_t opt_params = {
                 .s = s,
-                .r_0 = table->r_0,
+                .r_0 = GET_TABLE_R0(table),
                 .size = table->size
         };
         opt_params.sq = residuals_summary(&opt_params, table);
@@ -303,7 +307,7 @@ void get_partial_l_solution(apogee_rc_table_t *table)
 
         table->omega_0 = solution->s.data[BETA_QTY - 1];
 
-        table->r_0 = solution->r_0;
+        update_table_R0(table, GET_SOLUTION_R0(solution));
         table->sigma[L_PART] = solution->sq / (table->size - eq.size - 1);
         solution->sq = sqrt(table->sigma[L_PART]);
 

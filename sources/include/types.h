@@ -54,6 +54,9 @@ typedef struct {
         double  cos_l;
         double  sin_b;
         double  cos_b;
+#ifdef PRECACHED_TABLE_R
+        double  R;
+#endif
 
         // solution data:
         double  eps;
@@ -65,9 +68,19 @@ typedef struct {
 } apogee_rc_t;
 
 
-#define get_param(n, addr)         \
+#define get_param(n, addr)                      \
         (*(double *)(addr + __mem_##n))
 
+#define GET_TABLE_R0(p_table)                   \
+        ((p_table)->r_0)
+
+#ifdef PRECACHED_TABLE_R
+        #define GET_TABLE_R(p_table, i)         \
+        ((p_table)->data[i].R)
+
+        #define GET_LINE_R(p_line)              \
+        ((p_line)->R)
+#endif
 
 /**
  * TODO: Special container structure needed for it

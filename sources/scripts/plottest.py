@@ -17,9 +17,9 @@ import sys
 
 
 # View general and partial solutions:
-PATH='../../build/test/'
 
 def view_partial_sequences():
+    PATH=str(sys.argv[3])
     i = str(sys.argv[2])
     vr_pt = pd.read_csv(PATH + i + "/vr_unfresult.txt", delimiter=" ", names = ['N', 'R_0', 'SD', 'u', 'v', 'A', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6', 'theta7', 'theta8', 'theta9', 'theta10'])
     b_pt = pd.read_csv(PATH + i + "/b_unfresult.txt", delimiter=" ", names = ['N', 'R_0', 'SD', 'u', 'v', 'w', 'A', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6', 'theta7', 'theta8', 'theta9', 'theta10'])
@@ -31,6 +31,7 @@ def view_partial_sequences():
 
 
 def view_united_sequences(size):
+    PATH=str(sys.argv[3])
     sol = pd.DataFrame({'R_0': []})
     for j in range(1,size):
         u_pt = pd.read_csv(PATH + str(j) + "/u_unfresult.txt", delimiter=" ", names = ['N', 'R_0', 'SD', 'u', 'v', 'w', 'omega_0', 'A', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6', 'theta7', 'theta8', 'theta9', 'theta10'])
@@ -38,7 +39,8 @@ def view_united_sequences(size):
     print(sol)
 
 def view_residuals():
-    pt = pd.read_csv('../../build/test/residuals.txt', delimiter = " ", names = ['V_R', 'mu_b', 'mu_l'])
+    PATH=sys.argv[2]
+    pt = pd.read_csv(PATH + '/residuals.txt', delimiter = " ", names = ['V_R', 'mu_b', 'mu_l'])
     g = sns.distplot(pt['V_R'], kde = True, rug = True, bins = 100)
     plt.savefig("VR.png")
     plt.clf()
@@ -47,6 +49,12 @@ def view_residuals():
     plt.clf()
     g = sns.distplot(pt['mu_l'], kde = True, rug = True, bins = 100)
     plt.savefig("mu_l.png")
+
+    plt.clf()
+    pt = pd.read_csv(PATH + '/uni_profile.txt', delimiter = " ", names = ['R_0', 'Sigma'])
+    print(pt)
+    g = sns.lineplot(x = "R_0", y="Sigma", data=pt, markers=True, linewidth=1.5, palette="tab10")
+    plt.savefig("profile.png")
 
 if sys.argv[1] == "s":
     view_partial_sequences()
