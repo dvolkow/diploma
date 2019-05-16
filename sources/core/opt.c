@@ -58,6 +58,7 @@ double get_mod_b(const opt_t *solution,
                  const apogee_rc_t *line)
 {
         const double r_0 = GET_SOLUTION_R0(solution);
+
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i) {
@@ -75,6 +76,7 @@ double get_mod_l(const opt_t *solution,
                  const apogee_rc_t *line)
 {
         const double r_0 = GET_SOLUTION_R0(solution);
+
         double mod_v = 0;
         unsigned int i;
         for (i = 0; i < BETA_QTY; ++i) {

@@ -175,7 +175,6 @@ static opt_t *vr_partial_entry(apogee_rc_table_t *table)
         opt->sq = sqrt(opt->sq / (table->size - opt->s.size - 1));
 
         return opt;
-
 }
 
 void get_partial_vr_solution(apogee_rc_table_t *table)
@@ -236,11 +235,13 @@ void get_partial_vr_solution(apogee_rc_table_t *table)
 
 
         dump_result(mk_sol);
+        
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         dump_objects_theta_R(dumped, solution, TOTAL_QTY, "vr_objs_err.txt");
         dump_vr_solution(mk_sol);
         dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
 }
+
 
 void get_united_solution(apogee_rc_table_t *table)
 {
@@ -250,9 +251,6 @@ void get_united_solution(apogee_rc_table_t *table)
                                                    (size + BETA_QTY));
 
         filter_get_and_apply(table);
-
-        //dump_objects_xyz(table, table->size, name_for_obj(178, 0, __func__));
-        dump_table(table);
 
         linear_equation_t eq = {
                 .data = matrix,
@@ -295,14 +293,14 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
         opt_t *solution = united_with_nature_errs_entry(table);
 
         if (cfg->bolter > 0)
-		solution = exception_algorithm(table,
-					       united_with_nature_errs_entry,
-					       precalc_errors_uni_sigma_0);
+                solution = exception_algorithm(table,
+					                                     united_with_nature_errs_entry,
+					                                     precalc_errors_uni_sigma_0);
 
-	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
+	      partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
 
-	precalc_vsd_to_dump(table);
-	dump_residuals(table);
+	      precalc_vsd_to_dump(table);
+	      dump_residuals(table);
 
         mk_params_t mk_params = {
                 .f_entry = united_with_nature_errs_entry,
@@ -317,6 +315,7 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
         dump_united_solution(mk_sol);
 
 }
+#endif
 
 
 void vr_b_iterations(apogee_rc_table_t *table)
@@ -373,6 +372,7 @@ void get_iterate_solution(apogee_rc_table_t *table,
         table->w_sun = W_SUN_START;
         double w_old = W_SUN_START;
         double r_old = GET_TABLE_R0(table);
+
         solution = exception_algorithm(table,
                                        core_vr_entry,
                                        precalc_errors_vr);
@@ -408,6 +408,7 @@ void get_iterate_solution(apogee_rc_table_t *table,
 
         solution = core_l_entry(table);
         sd[L_PART] = table->sigma[L_PART];
+
         uni_g_sd_init(sd);
         // TODO: need modify dispersion?
         if (cfg->bolter > 0)
@@ -416,6 +417,13 @@ void get_iterate_solution(apogee_rc_table_t *table,
                                                precalc_errors_uni);
         else
                 solution = united_entry(table);
+ 
+        mk_params_t mk_params = {
+                .f_entry = united_entry,
+                .f_point_by_solution = get_point_by_uni_solution,
+                .f_table_by_solution = fill_table_by_uni_solution,
+                .count = cfg->mksize,
+        };
 
 	precalc_vsd_to_dump(table);
 	dump_residuals(table);

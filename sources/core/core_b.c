@@ -263,6 +263,7 @@ static opt_t *core_b_opt_entry(apogee_rc_table_t *table)
 
         table->omega_0 = OMEGA_SUN - solution->s.data[V_P] / GET_SOLUTION_R0(solution);
         update_table_R0(table, GET_SOLUTION_R0(solution));
+
         table->sigma[B_PART] = solution->sq / (table->size - eq.size - 1);
         solution->sq = sqrt(table->sigma[B_PART]);
 	return solution;
@@ -331,6 +332,7 @@ void get_partial_b_solution(apogee_rc_table_t *table)
         dump_result(mk_sol);
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         dump_objects_theta_R(dumped, solution, B_PART, "b_objs_err.txt");
+
         dump_vr_solution(mk_sol);
         dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
 }

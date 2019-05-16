@@ -4,12 +4,14 @@ ORD=$1
 IN_FILE=$2
 H=$3
 
+
 ./diploma -f ${IN_FILE} --ord ${ORD} --mksize ${H} -s $4 -p 1
 NEW_DIR=$(echo "result_${ORD}_${H}_$(echo ${IN_FILE}_$4 | sed 's/.txt//')")
 
 gnuplot -c ../sources/scripts/main_cmd.gnu 'rotc.eps' 'vr_objs.txt' 'vr_objs_err.txt'
 gnuplot ../sources/scripts/AR0.gnu
 gnuplot -c ../sources/scripts/sigma.gnu "profile.eps" 'vr_profile.txt' 'red'
+
 mkdir ${NEW_DIR}
 
 PREFIX="${IN_FILE}_${ORD}"

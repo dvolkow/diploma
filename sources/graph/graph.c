@@ -180,6 +180,34 @@ void dump_vr_solution(const opt_t *opt)
 
 }
 
+void dump_vr_solution(const opt_t *opt)
+{
+        FILE *fout = fopen(OUTPUT_RESULT_FILENAME, "w");
+        CHECK_FILE_AND_RET(fout, OUTPUT_RESULT_FILENAME);
+
+        PRINT_OUTPUT_LINE(fout);
+        fprintf(fout, "Result for APOGEE-RC dataset by %u obj:\n",
+                        opt->size);
+        PRINT_OUTPUT_LINE(fout);
+        fprintf(fout, "R_0: \t%0.3lf \t+%0.3lf\n",
+                        opt->r_0, opt->dr_0);
+        fprintf(fout, "SD: \t%0.3lf\n",
+                        opt->sq);
+        PRINT_OUTPUT_LINE(fout);
+        unsigned int i;
+        for (i = 0; i < opt->s.size; ++i) {
+                fprintf(fout, "%s:\t%6.3f\t(pm %0.3f)\t%0.2lf\n",
+                        __get_name_by_idx(i),
+                        opt->s.data[i],
+                        opt->bounds[i].l,
+                        fabs(opt->bounds[i].l / opt->s.data[i]));
+        }
+        PRINT_OUTPUT_LINE(fout);
+        fclose(fout);
+
+
+}
+
 void dump_result(const opt_t *opt)
 {
         FILE *fout = fopen(OUTPUT_RESULT_FILENAME, "w");
@@ -393,6 +421,19 @@ static double obs_theta_R_by_vr_free(const opt_t *solution,
         return ((line->v_helio - vr_sun) / (GET_SOLUTION_R0(solution) * line->sin_l * line->cos_b) + omega_0) * R;
 }
 
+static double obs_theta_R_by_vr_free(const opt_t *solution,
+                                     const apogee_rc_t *line,
+                                     const double omega_0)
+{
+        double R = get_R_distance(line, solution->r_0);
+        double vr_sun = get_mu_sun(line, &solution->s, core_vr_get_beta_n, BETA_QTY);
+        return ((line->v_helio - vr_sun) / (solution->r_0 * line->sin_l * line->cos_b) + omega_0) * R;
+}
+
+double theta_by_R_vr(const opt_t *solution, const double r)
+{
+        return 0;
+}
 
 double theta_by_R_vr(const opt_t *solution, const double r)
 {

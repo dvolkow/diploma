@@ -192,7 +192,6 @@ apogee_rc_table_t *get_limited_replace(const void *table, const filter_t *filter
         return src;
 }
 
-
 apogee_rc_table_t *get_limited_generic(const void *table,
                                        const filter_t *filter,
                                        filter_mode_t mode)

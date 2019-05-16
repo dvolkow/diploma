@@ -31,6 +31,7 @@ void get_partial_vr_solution(apogee_rc_table_t *);
 
 void precalc_vsd_to_dump(apogee_rc_table_t *);
 
+
 double get_v_generic_from_uni(const linear_eq_solve_t *,
                               const apogee_rc_t *,
                               const double,
@@ -40,4 +41,5 @@ void dump_united_solution_profile(apogee_rc_table_t *,
 double sigma_for_k(const unsigned int,
                    const apogee_rc_t *,
                    const double);
+
 #endif // UNICORE_H  1

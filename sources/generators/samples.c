@@ -227,7 +227,6 @@ void fill_table_by_uni_solution_sigma_0(const opt_t *solution,
 #ifdef PRECACHED_TABLE_R
         update_table_R0(dst_table, GET_SOLUTION_R0(solution));
 #endif
-
         dv_rand_release(rng);
 }
 
