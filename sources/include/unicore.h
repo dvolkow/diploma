@@ -25,8 +25,11 @@ void precalc_errors_uni(apogee_rc_table_t *,
 void precalc_errors_uni_sigma_0(apogee_rc_table_t *,
                         const double);
 void filter_get_and_apply(apogee_rc_table_t *);
+
 void get_united_solution(apogee_rc_table_t *);
 void get_united_sigma_0_solution(apogee_rc_table_t *);
+void find_united_sigma_0_solution(apogee_rc_table_t *);
+
 void get_partial_vr_solution(apogee_rc_table_t *);
 
 void precalc_vsd_to_dump(apogee_rc_table_t *);

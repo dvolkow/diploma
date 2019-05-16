@@ -8,12 +8,16 @@ import matplotlib.pyplot as plt
 import sys
 
 # Below code for plotting ellipsods marginal distributions:
-#pt = pd.read_table('../../build/result_1_10000_apogee-ucac_vr/R0Theta0.txt', delimiter=" ", names = ['x', 'y'], dtype = float)
-#print(pt)
-#g = (sns.jointplot(x = 'x', y = 'y', data = pt, kind = "kde", color="blue")).plot_joint(plt.scatter, c="b", s=1, linewidth=1, marker='+')
-#g.set_axis_labels("$R_0$", "$\Theta$")
-#plt.savefig("out.png")
-#print(stat.pearsonr(pt['x'], pt['y']))
+def view_one_pairplot():
+    FILE=str(sys.argv[2])
+    pt = pd.read_table(FILE, delimiter=" ", names = ['x', 'y'], dtype = float)
+    print(pt)
+    g = (sns.jointplot(x = 'x', y = 'y', data = pt, kind = "kde", color="blue")).plot_joint(plt.scatter, c="b", s=1, linewidth=1, marker='+')
+    g.set_axis_labels("$R_0$", "$\Theta$")
+    plt.savefig("out.png")
+    print(stat.pearsonr(pt['x'], pt['y']))
+
+
 
 
 # View general and partial solutions:
@@ -38,6 +42,16 @@ def view_united_sequences(size):
         sol = pd.concat([sol, u_pt], axis = 0, sort=False, ignore_index=True)
     print(sol)
 
+def view_cormatrix():
+    FILE=str(sys.argv[2])
+    pt = pd.read_csv(FILE, delimiter = " ")
+    print(pt)
+    g = sns.PairGrid(pt)
+    g.map_diag(sns.kdeplot)
+    g.map_lower(sns.kdeplot, n_levels = 6)
+    g.map_upper(plt.scatter, s = 0.5)
+    plt.savefig("pairplot.png")
+
 def view_residuals():
     PATH=sys.argv[2]
     pt = pd.read_csv(PATH + '/residuals.txt', delimiter = " ", names = ['V_R', 'mu_b', 'mu_l'])
@@ -56,12 +70,30 @@ def view_residuals():
     g = sns.lineplot(x = "R_0", y="Sigma", data=pt, markers=True, linewidth=1.5, palette="tab10")
     plt.savefig("profile.png")
 
+def view_xyz():
+    PATH=sys.argv[2]
+    fig = plt.figure()
+    ax1 = fig.add_subplot()
+    pt = pd.read_table(PATH + '/final_xyz.txt', delimiter = " ", names = ['X', 'Y', 'Z'])
+    ax1 = (sns.jointplot(x = 'X', y = 'Y', data = pt, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="b")).plot_joint(plt.scatter, c="b", s=0.1, linewidth=1, marker='+')
+    ax1.set_axis_labels("X", "Y")
+    perrors = pd.read_table(PATH + '/ERROR_LIMITED', delimiter = " ", names = ['X', 'Y', 'Z'])
+    plt.savefig("XYobj.png")
+    ax2 = fig.add_subplot()
+    ax2 = (sns.jointplot(x = 'X', y = 'Y', data = perrors, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="red")).plot_joint(plt.scatter, c="red", s=0.1, linewidth=1, marker='+')
+    ax2.set_axis_labels("X", "Y")
+    plt.savefig("XY.png")
+
 if sys.argv[1] == "s":
     view_partial_sequences()
 elif sys.argv[1] == "v":
     view_united_sequences(int(sys.argv[2]))
 elif sys.argv[1] == "r":
     view_residuals()
+elif sys.argv[1] == "mk":
+    view_cormatrix()
+elif sys.argv[1] == "xy":
+    view_xyz()
 else: 
     print("Nothing. Keys: s, v, r.")
 

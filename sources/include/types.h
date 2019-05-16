@@ -26,11 +26,9 @@ typedef unsigned int dsize_t;
  */
 typedef struct {
         // readable data:
-        double  l;
-#define __mem_1 offsetof(apogee_rc_t, l)
-        double  b;
-#define __mem_2 offsetof(apogee_rc_t, b)
         double  v_helio;
+        double  pm_l;
+        double  pm_b;
 #define __mem_3 offsetof(apogee_rc_t, v_helio)
         double  dist;
 #define __mem_4 offsetof(apogee_rc_t, dist)
@@ -38,15 +36,13 @@ typedef struct {
 #define __mem_5 offsetof(apogee_rc_t, pm_ra)
         double  pm_dec;
 #define __mem_6 offsetof(apogee_rc_t, pm_dec)
-        double  ra;
-        double  dec;
         double  v_err;
-        double  pm_ra_err;
-        double  pm_dec_err;
+
+#ifdef PRECACHED_BETA
+	double  beta[3][3];
+#endif
 
         // precalc data:
-        double  pm_l;
-        double  pm_b;
         double  pm_l_err;
         double  pm_b_err;
 
@@ -62,6 +58,14 @@ typedef struct {
         double  eps;
         double  vsd[3];
 #define __mem_7 offsetof(apogee_rc_t, eps)
+        double  ra;
+        double  dec;
+#define __mem_1 offsetof(apogee_rc_t, l)
+        double  l;
+#define __mem_2 offsetof(apogee_rc_t, b)
+        double  b;
+        double  pm_ra_err;
+        double  pm_dec_err;
         // dsize_t id;
         int     nvis;
         int     pm_match;

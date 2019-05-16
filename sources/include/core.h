@@ -9,7 +9,7 @@
 
 #define W_SUN_START             7.0
 
-#define SEARCH_PRECISION        0.001
+#define SEARCH_PRECISION        1e-5
 #define STEP_DIVISOR            4
 
 typedef enum {
@@ -40,12 +40,13 @@ typedef enum {
       , L_PART_MODE
       , UNI_MODE
       , UNINAT_MODE
+      , FIND_SIGMA0_MODE
       , INVALID_MODE
 } solution_mode_t;
 
 
 typedef struct {
-#define DEFAULT_ORD             1
+#define DEFAULT_ORD             0
         unsigned int ord;
 #define DEFAULT_INF_NAME        "apogee_rc.txt"
         char *input_file_name;
@@ -66,6 +67,10 @@ typedef struct {
         int bolter;
 #define DEFAULT_PROFILE         0
         int draw_profile;
+#define DEFAULT_S0L		20
+	int sigma_0_l;
+#define DEFAULT_S0H		30
+	int sigma_0_h;
 	solution_mode_t solution_mode;
 #define DEFAULT_SOL_MODE        INVALID_MODE
 } parser_t;

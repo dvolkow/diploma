@@ -119,6 +119,7 @@ static void fill_estimated_vector(const apogee_rc_table_t *table,
         }
 }
 
+#if 0 // TODO: Will be? Now Monte-Karlo give solutions
 static inline void step_forward(apogee_rc_table_t *table,
                                 const double step, bound_t type)
 {
@@ -195,6 +196,7 @@ double upper_bound_search(linear_equation_t *eq,
 {
         return __bound_parameter(eq, table, r_0, UPPER);
 }
+#endif
 
 opt_t *opt_linear(linear_equation_t *eq,
                   apogee_rc_table_t *table,
@@ -211,16 +213,12 @@ opt_t *opt_linear(linear_equation_t *eq,
 
         double low_r = LOWER_BOUND_R0;
         double high_r = UPPER_BOUND_R0;
-        double step = (high_r - low_r) / 32;
+        double step = (high_r - low_r) / 16;
 
         update_table_R0(table, low_r);
 
         params->fill_mnk_matrix(eq, table);
         solve(eq, &s);
-#ifdef DEBUG
-        print_vector(s.data, s.size);
-#endif
-
         double sq = params->residuals_summary(&s, table);
 
         opt_t opt_params = {
@@ -232,20 +230,12 @@ opt_t *opt_linear(linear_equation_t *eq,
         opt_params.s.data = dv_alloc(sizeof(double) * s.size);
 
         while (step > SEARCH_PRECISION) {
-                while (GET_TABLE_R0(table) < high_r) {
-                        update_table_R0(table, GET_TABLE_R0(table) + step);
+                while (low_r < high_r) {
+                        update_table_R0(table, low_r);
                         params->fill_mnk_matrix(eq, table);
                         solve(eq, &s);
 
-        #ifdef DEBUG
-                        print_vector(s.data, s.size);
-        #endif
                         double sq_tmp = params->residuals_summary(&s, table);
-        #ifdef DEBUG
-                        printf("%s: sd = %lf, r_0 = %lf\n",
-                                        __func__, sq_tmp,
-                                        GET_TABLE_R0(table));
-        #endif
                         if (sq_tmp < opt_params.sq) {
                                 opt_params.s = s;
                                 opt_params.r_0 = GET_TABLE_R0(table);
@@ -253,12 +243,13 @@ opt_t *opt_linear(linear_equation_t *eq,
                                 opt_params.s.data = dv_alloc(sizeof(double) * s.size);
                                 memcpy(opt_params.s.data, s.data, s.size * sizeof(double));
                         }
+
+			low_r += step;
                 }
 
                 low_r = opt_params.r_0 - step;
                 high_r = opt_params.r_0 + step;
                 step /= STEP_DIVISOR;
-                update_table_R0(table, low_r);
         }
 
 
@@ -295,6 +286,8 @@ opt_t *exception_algorithm(apogee_rc_table_t *table,
         return solution;
 }
 
+/**
+ * TODO: need it?
 void get_errors(opt_t *solution, apogee_rc_table_t *table)
 {
         linear_equation_t m, invm;
@@ -314,3 +307,4 @@ void get_errors(opt_t *solution, apogee_rc_table_t *table)
                         get_error_mnk_estimated(invm.data[i * invm.size + i], invm.size + table->size + 1, solution->sq / (table->size + 1));
         }
 }
+*/

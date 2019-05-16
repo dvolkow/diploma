@@ -8,7 +8,7 @@
 #define M_PI            3.14159265358979323846
 #define YR_TO_SEC       3.154e7
 
-#define DRVT_STEP	1e-5
+#define DRVT_STEP	1e-6
 
 typedef struct {
 	double x;

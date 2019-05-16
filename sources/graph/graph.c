@@ -33,14 +33,6 @@
         fprintf((f), "%s\n", OUTPUT_RESULT_LINE)
 
 
-#define CHECK_FILE_AND_RET(fdesc, name)                 \
-        do {                                            \
-                if ((fdesc) == NULL) {                  \
-                        PRINT_IO_OPEN_ERROR(name);      \
-                        return;                         \
-                }                                       \
-        } while (0)
-
 parameter_t g_ptable[] = {
         { "u" }
       , { "v" }
@@ -138,13 +130,10 @@ void multiply_dump_unfriendly_result(const opt_t **res,
 
         unsigned int i, j;
 	for (j = 0; j < count; ++j) {
-		fprintf(fout, "%u ", res[j]->size);
-		fprintf(fout, "%0.3lf ",
+		fprintf(fout, "%0.3lf",
                         GET_SOLUTION_R0(res[j]));
-		fprintf(fout, "%d ", (int)res[j]->sq);
-
 		for (i = 0; i < res[j]->s.size; ++i) {
-			fprintf(fout, "%0.3lf ",
+			fprintf(fout, " %0.3lf",
 				res[j]->s.data[i]);
 		}
 		fprintf(fout, "\n");
@@ -350,8 +339,8 @@ static double obs_theta_R_by_b(const opt_t *solution,
                                        core_b_get_beta_n,
                                        BETA_QTY);
 
-        return ((-line->pm_b + mu_b) / 
-                (GET_SOLUTION_R0(solution) * line->sin_l * line->sin_b) * 
+        return ((-line->pm_b + mu_b) /
+                (GET_SOLUTION_R0(solution) * line->sin_l * line->sin_b) *
                                 line->dist + omega_0) * R;
 }
 
@@ -366,13 +355,13 @@ static double obs_theta_R_by_vr(const opt_t *solution,
         const double R = GET_LINE_R(line);
 #endif
         const double vr_sun = get_mu_sun(line,
-                                         &solution->s, 
+                                         &solution->s,
                                          __core_vr_get_beta_n,
                                          BETA_QTY_FIX);
 
-        return ((line->v_helio - vr_sun - 
-                __core_vr_get_beta_n(line, THIRD)) / 
-                (GET_SOLUTION_R0(solution) * line->sin_l * line->cos_b) + 
+        return ((line->v_helio - vr_sun -
+                __core_vr_get_beta_n(line, THIRD)) /
+                (GET_SOLUTION_R0(solution) * line->sin_l * line->cos_b) +
                                                 omega_0) * R;
 }
 
@@ -659,7 +648,7 @@ void dump_R0_theta_ellips(const opt_t **res,
         FILE *cout = fopen(R0THETA0_MAIN_FILE_NAME, "w");
         CHECK_FILE_AND_RET(aout, R0THETA0_MAIN_FILE_NAME);
 
-        fprintf(cout, "%lf %lf", GET_SOLUTION_R0(solution), 
+        fprintf(cout, "%lf %lf", GET_SOLUTION_R0(solution),
                                  GET_SOLUTION_R0(solution) * solution->s.data[BETA_QTY]);
         fclose(cout);
         fclose(aout);
@@ -737,7 +726,7 @@ void dump_table_parameters(const apogee_rc_table_t *table,
 void dump_core_b_solution(const opt_t *solution)
 {
         printf("B Core Solution:\n");
-        printf("u_sun: %lf pm %lf\n", solution->s.data[0], 
+        printf("u_sun: %lf pm %lf\n", solution->s.data[0],
                                       solution->bounds[0].l);
         printf("v_sun: %lf pm %lf\n", solution->s.data[1],
                                       solution->bounds[1].l);
@@ -930,33 +919,6 @@ void dump_objects_xyz(const apogee_rc_table_t *table,
 
         fclose(fout);
 }
-
-void dump_table(const apogee_rc_table_t *table)
-{
-        parser_t *cfg = get_parser();
-        const char *fname = cfg->dump_file_name;
-        if (!strcmp(fname, cfg->input_file_name)) {
-                printf("%s: [warning] input and dump files are equals!\n",
-                                __func__);
-        }
-
-        FILE *fout = fopen(fname, "w");
-        CHECK_FILE_AND_RET(fout, fname);
-
-        dsize_t i;
-        for (i = 0; i < table->size; ++i) {
-                fprintf(fout, "%0.7lf %0.7lf %0.7lf %0.7lf %0.7lf %0.7lf\n",
-                                rad_to_deg(table->data[i].l),
-                                rad_to_deg(table->data[i].b),
-                                table->data[i].v_helio,
-                                table->data[i].dist,
-                                table->data[i].dist,
-                                table->data[i].dist);
-        }
-
-        fclose(fout);
-}
-
 
 void dump_profile(linear_equation_t *eq,
                   apogee_rc_table_t *table,
