@@ -116,7 +116,7 @@ void dump_table(const apogee_rc_table_t *table)
 
         dsize_t i;
         for (i = 0; i < table->size; ++i) {
-                fprintf(fout, "%.10e %.10e %.10e %.10e %d %.10e %.10e %.10e %.10e %.10e %.10e %.10e %d",
+                fprintf(fout, "%.10e %.10e %.10e %.10e %d %.10e %.10e %.10e %.10e %.10e %.10e %.10e %d\n",
                                 rad_to_deg(table->data[i].ra),
                                 rad_to_deg(table->data[i].dec),
                                 rad_to_deg(table->data[i].l),

@@ -201,12 +201,7 @@ void parse_args(int argc,
                                 goto usage_ret;
                         }
                 } else if (matches("-p", *argv) || matches("--profile", *argv)) {
-                        if (CHECK_ARGS(argc)) {
-                                NEXT_ARG(argc, argv);
-                                res->draw_profile = atoi(*argv);
-                        } else {
-                                goto usage_ret;
-                        }
+                        res->draw_profile = 1;
                 } else if (matches("--help", *argv)) {
 			show_args();
 			return;

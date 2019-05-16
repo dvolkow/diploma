@@ -322,9 +322,9 @@ void find_united_sigma_0_solution(apogee_rc_table_t *table)
 
 	printf("%s: optimal sigma_0 %lf\n", __func__, sigma_0_opt);
 	partial_dump_unfriendly_result(&opt_solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
-
 	precalc_vsd_to_dump(table);
 	dump_residuals(table);
+        dump_uni_rotation_objs(table, solution);
 
         mk_params_t mk_params = {
                 .f_entry = united_with_nature_errs_entry,
@@ -337,9 +337,16 @@ void find_united_sigma_0_solution(apogee_rc_table_t *table)
         opt_t *mk_sol = monte_carlo_entry(&opt_solution,
                                           table,
                                           &mk_params);
-        dump_united_solution(mk_sol);
 
+        if (cfg->draw_profile) {
+                dump_united_sigma0_solution_profile(table, cfg->ord);
+        }
+
+
+        dump_result(mk_sol);
+        dump_united_solution(mk_sol);
 }
+
 
 void get_united_sigma_0_solution(apogee_rc_table_t *table)
 {
@@ -355,9 +362,13 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
 					       precalc_errors_uni_sigma_0);
 
 	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
+        dump_uni_rotation_objs(table, solution);
 
 	precalc_vsd_to_dump(table);
 	dump_residuals(table);
+        if (cfg->draw_profile) {
+                dump_united_sigma0_solution_profile(table, cfg->ord);
+        }
 
         mk_params_t mk_params = {
                 .f_entry = united_with_nature_errs_entry,
@@ -370,6 +381,7 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
         opt_t *mk_sol = monte_carlo_entry(solution,
                                           table,
                                           &mk_params);
+        dump_result(mk_sol);
         dump_united_solution(mk_sol);
 }
 

@@ -74,15 +74,37 @@ def view_xyz():
     PATH=sys.argv[2]
     fig = plt.figure()
     ax1 = fig.add_subplot()
+
     pt = pd.read_table(PATH + '/final_xyz.txt', delimiter = " ", names = ['X', 'Y', 'Z'])
+
     ax1 = (sns.jointplot(x = 'X', y = 'Y', data = pt, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="b")).plot_joint(plt.scatter, c="b", s=0.1, linewidth=1, marker='+')
     ax1.set_axis_labels("X", "Y")
-    perrors = pd.read_table(PATH + '/ERROR_LIMITED', delimiter = " ", names = ['X', 'Y', 'Z'])
     plt.savefig("XYobj.png")
+
+    ax1 = (sns.jointplot(x = 'X', y = 'Z', data = pt, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="b")).plot_joint(plt.scatter, c="b", s=0.1, linewidth=1, marker='+')
+    ax1.set_axis_labels("X", "Z")
+    plt.savefig("XZobj.png")
+
+    ax1 = (sns.jointplot(x = 'Y', y = 'Z', data = pt, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="b")).plot_joint(plt.scatter, c="b", s=0.1, linewidth=1, marker='+')
+    ax1.set_axis_labels("Y", "Z")
+    plt.savefig("YZobj.png")
+
+    perrors = pd.read_table(PATH + '/ERROR_LIMITED', delimiter = " ", names = ['X', 'Y', 'Z'])
+
     ax2 = fig.add_subplot()
+
     ax2 = (sns.jointplot(x = 'X', y = 'Y', data = perrors, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="red")).plot_joint(plt.scatter, c="red", s=0.1, linewidth=1, marker='+')
     ax2.set_axis_labels("X", "Y")
-    plt.savefig("XY.png")
+    plt.savefig("XYerr.png")
+
+    ax2 = (sns.jointplot(x = 'X', y = 'Z', data = perrors, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="red")).plot_joint(plt.scatter, c="red", s=0.1, linewidth=1, marker='+')
+    ax2.set_axis_labels("X", "Z")
+    plt.savefig("XZerr.png")
+
+    ax2 = (sns.jointplot(x = 'Y', y = 'Z', data = perrors, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="red")).plot_joint(plt.scatter, c="red", s=0.1, linewidth=1, marker='+')
+    ax2.set_axis_labels("Y", "Z")
+    plt.savefig("YZerr.png")
+
 
 if sys.argv[1] == "s":
     view_partial_sequences()
@@ -94,6 +116,8 @@ elif sys.argv[1] == "mk":
     view_cormatrix()
 elif sys.argv[1] == "xy":
     view_xyz()
+elif sys.argv[1] == "th":
+    view_one_pairplot()
 else: 
     print("Nothing. Keys: s, v, r.")
 

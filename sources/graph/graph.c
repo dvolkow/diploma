@@ -938,7 +938,7 @@ void dump_profile(linear_equation_t *eq,
         assert(params->fill_mnk_matrix != NULL);
 
         update_table_R0(table, ROTC_LOWER_BOUND);
-
+                
         while (GET_TABLE_R0(table) < ROTC_UPPER_BOUND) {
                 params->fill_mnk_matrix(eq, table);
                 solve(eq, &s);
