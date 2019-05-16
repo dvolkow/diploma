@@ -180,34 +180,6 @@ void dump_vr_solution(const opt_t *opt)
 
 }
 
-void dump_vr_solution(const opt_t *opt)
-{
-        FILE *fout = fopen(OUTPUT_RESULT_FILENAME, "w");
-        CHECK_FILE_AND_RET(fout, OUTPUT_RESULT_FILENAME);
-
-        PRINT_OUTPUT_LINE(fout);
-        fprintf(fout, "Result for APOGEE-RC dataset by %u obj:\n",
-                        opt->size);
-        PRINT_OUTPUT_LINE(fout);
-        fprintf(fout, "R_0: \t%0.3lf \t+%0.3lf\n",
-                        opt->r_0, opt->dr_0);
-        fprintf(fout, "SD: \t%0.3lf\n",
-                        opt->sq);
-        PRINT_OUTPUT_LINE(fout);
-        unsigned int i;
-        for (i = 0; i < opt->s.size; ++i) {
-                fprintf(fout, "%s:\t%6.3f\t(pm %0.3f)\t%0.2lf\n",
-                        __get_name_by_idx(i),
-                        opt->s.data[i],
-                        opt->bounds[i].l,
-                        fabs(opt->bounds[i].l / opt->s.data[i]));
-        }
-        PRINT_OUTPUT_LINE(fout);
-        fclose(fout);
-
-
-}
-
 void dump_result(const opt_t *opt)
 {
         FILE *fout = fopen(OUTPUT_RESULT_FILENAME, "w");
