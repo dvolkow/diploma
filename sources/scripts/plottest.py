@@ -63,8 +63,13 @@ def view_residuals():
     plt.clf()
     g = sns.distplot(pt['mu_l'], kde = True, rug = True, bins = 100)
     plt.savefig("mu_l.png")
-
     plt.clf()
+
+    pt = pd.read_csv(PATH + '/theta_errs.txt', delimiter = " ", names = ['R', 'dT'])
+    g = sns.distplot(pt['dT'], kde = True, rug = True, bins = 100)
+    plt.savefig("theta_err.png")
+    plt.clf()
+
     pt = pd.read_csv(PATH + '/uni_profile.txt', delimiter = " ", names = ['R_0', 'Sigma'])
     print(pt)
     g = sns.lineplot(x = "R_0", y="Sigma", data=pt, markers=True, linewidth=1.5, palette="tab10")
@@ -73,10 +78,11 @@ def view_residuals():
 def view_xyz():
     PATH=sys.argv[2]
     NAME = sys.argv[3]
+    NAME_ERR = sys.argv[4]
     fig = plt.figure()
     ax1 = fig.add_subplot()
 
-    pt = pd.read_table(PATH + '/final_xyz.txt', delimiter = " ", names = ['X', 'Y', 'Z'])
+    pt = pd.read_csv(PATH + '/final_xyz.txt', delimiter = " ", names = ['X', 'Y', 'Z'])
 
     ax1 = (sns.jointplot(x = 'X', y = 'Y', data = pt, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="b")).plot_joint(plt.scatter, c="b", s=0.1, linewidth=1, marker='+')
     ax1.set_axis_labels("X", "Y")
@@ -90,10 +96,23 @@ def view_xyz():
     ax1.set_axis_labels("Y", "Z")
     plt.savefig("YZobj.png")
 
-    perrors = pd.read_table(NAME, delimiter = " ", names = ['X', 'Y', 'Z'])
+    perrors = pd.read_csv(NAME, delimiter = " ", names = ['X', 'Y', 'Z'])
 
     ax2 = fig.add_subplot()
 
+    ax2 = (sns.jointplot(x = 'X', y = 'Y', data = perrors, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="green")).plot_joint(plt.scatter, c="green", s=0.1, linewidth=1, marker='+')
+    ax2.set_axis_labels("X", "Y")
+    plt.savefig("XYmiss.png")
+
+    ax2 = (sns.jointplot(x = 'X', y = 'Z', data = perrors, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="green")).plot_joint(plt.scatter, c="green", s=0.1, linewidth=1, marker='+')
+    ax2.set_axis_labels("X", "Z")
+    plt.savefig("XZmiss.png")
+
+    ax2 = (sns.jointplot(x = 'Y', y = 'Z', data = perrors, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="green")).plot_joint(plt.scatter, c="green", s=0.1, linewidth=1, marker='+')
+    ax2.set_axis_labels("Y", "Z")
+    plt.savefig("YZmiss.png")
+
+    perrors = pd.read_csv(NAME_ERR, delimiter = " ", names = ['X', 'Y', 'Z'])
     ax2 = (sns.jointplot(x = 'X', y = 'Y', data = perrors, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="red")).plot_joint(plt.scatter, c="red", s=0.1, linewidth=1, marker='+')
     ax2.set_axis_labels("X", "Y")
     plt.savefig("XYerr.png")
@@ -105,6 +124,7 @@ def view_xyz():
     ax2 = (sns.jointplot(x = 'Y', y = 'Z', data = perrors, xlim = [-10, 10], ylim = [-10, 10], s=0.1, color="red")).plot_joint(plt.scatter, c="red", s=0.1, linewidth=1, marker='+')
     ax2.set_axis_labels("Y", "Z")
     plt.savefig("YZerr.png")
+
 
 
 if sys.argv[1] == "s":

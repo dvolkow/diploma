@@ -253,6 +253,7 @@ opt_t *opt_linear(linear_equation_t *eq,
         }
 
 
+	update_table_R0(table, opt_params.r_0);
         opt_t *ret = dv_alloc(sizeof(opt_t));
         *ret = opt_params;
         return ret;

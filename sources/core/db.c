@@ -17,6 +17,11 @@ int db_init(void)
         return 0;
 }
 
+void db_clear(unsigned int type)
+{
+	db[type]->size = 0;
+}
+
 
 void db_add(apogee_rc_table_t *table)
 {
