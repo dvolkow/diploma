@@ -67,7 +67,7 @@ def view_residuals():
 
     pt = pd.read_csv(PATH + '/theta_errs.txt', delimiter = " ", names = ['R', 'dT'])
     g = sns.distplot(pt['dT'], kde = True, rug = True, bins = 100)
-    plt.savefig("mu_l.png")
+    plt.savefig("theta_err.png")
     plt.clf()
 
     pt = pd.read_csv(PATH + '/uni_profile.txt', delimiter = " ", names = ['R_0', 'Sigma'])
