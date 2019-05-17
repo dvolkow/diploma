@@ -11,6 +11,7 @@ enum {
 
 int db_init(void);
 void db_exit(void);
+void db_clear(unsigned int);
 void db_add(apogee_rc_table_t *);
 unsigned int db_size(void);
 apogee_rc_table_t *db_get(unsigned int);

@@ -97,6 +97,8 @@ int main(int argc, const char *argv[])
 		break;
         case UNI_MODE:
                 get_united_solution(table);
+		const apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
+		dump_objects_xyz(dumped, dumped->size, "err_xyz.txt");
                 break;
         case UNINAT_MODE:
                 get_united_sigma_0_solution(table);

@@ -141,8 +141,7 @@ static opt_t *__get_solution_iterate(apogee_rc_table_t *table,
         return solution;
 }
 
-void get_iterate_solution(apogee_rc_table_t *table,
-                          opt_t *solution);
+void get_iterate_solution(apogee_rc_table_t *table);
 void get_iterate_solution_nerr(apogee_rc_table_t *table,
                                opt_t *solution);
 
@@ -242,41 +241,14 @@ void get_partial_vr_solution(apogee_rc_table_t *table)
 void get_united_solution(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
-        unsigned int size = cfg->ord;
-        double *matrix = dv_alloc(sizeof(double) * (size + BETA_QTY) *
-                                                   (size + BETA_QTY));
 
-        filter_get_and_apply(table);
-
-        linear_equation_t eq = {
-                .data = matrix,
-                .right = dv_alloc(sizeof(double) * (size + BETA_QTY)),
-                .size = size + BETA_QTY,
-                .ord = size
-        };
-
-        opt_params_t params = {
-                .residuals_summary = opt_residuals_summary,
-                .fill_mnk_matrix = fill_mnk_matrix_vr,
-        };
-        opt_t *solution = opt_linear(&eq, table, &params);
-        // TODO: function's interface need improve
-        cfg->filter = ERR_FILTER;
-        cfg->h = get_limit_by_eps(table->size);
-        cfg->l = sqrt(solution->sq / (solution->size - solution->s.size - 1));
-        unsigned int old_size = table->size;
-        while (true) {
-                solution = __get_solution_iterate(table, &eq);
-                cfg->h = get_limit_by_eps(table->size);
-                cfg->l = sqrt(solution->sq / (solution->size - solution->s.size - 1));
-                if (table->size == old_size)
-                        break;
-                old_size = table->size;
-        }
-
-        get_iterate_solution(table, solution);
+        cfg->filter = MATCH_FILTER;
+        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
-        dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
+        dump_objects_xyz(dumped, dumped->size, "missing_xyz.txt");
+	db_clear(ERROR_LIMITED);
+
+        get_iterate_solution(table);
 }
 
 void find_united_sigma_0_solution(apogee_rc_table_t *table)
@@ -402,7 +374,6 @@ void vr_b_iterations(apogee_rc_table_t *table)
         double r_new = GET_TABLE_R0(table);
         solution = core_b_entry(table);
         double w_new = table->w_sun;
-        sd[B_PART] = table->sigma[B_PART];
 
         while (ITER_CONDITION(w_old, w_new, r_old, r_new)) {
                 r_old = r_new;
@@ -411,8 +382,9 @@ void vr_b_iterations(apogee_rc_table_t *table)
                 r_new = GET_TABLE_R0(table);
                 solution = core_b_entry(table);
                 w_new = table->w_sun;
-                sd[B_PART] = table->sigma[B_PART];
         }
+
+        sd[B_PART] = table->sigma[B_PART];
 
         dump_objects_theta_R(table, solution, B_PART, "B_PART_OBJ.txt");
         dump_part_rotation_curve(solution, B_PART, "b_cur.txt", table->omega_0);
@@ -433,14 +405,12 @@ void vr_b_iterations(apogee_rc_table_t *table)
 }
 
 
-void get_iterate_solution(apogee_rc_table_t *table,
-                          opt_t *solution)
+void get_iterate_solution(apogee_rc_table_t *table)
 {
         double sd[TOTAL_QTY];
+	opt_t *solution;
 
         parser_t *cfg = get_parser();
-        cfg->filter = MATCH_FILTER;
-        table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
 
         table->w_sun = W_SUN_START;
         double w_old = W_SUN_START;
@@ -493,6 +463,7 @@ void get_iterate_solution(apogee_rc_table_t *table,
 
 	precalc_vsd_to_dump(table);
 	dump_residuals(table);
+        dump_uni_rotation_objs(table, solution); // must be here wher R is precached!
 
 	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS + 1, "u_unfresult.txt");
         if (cfg->draw_profile)
@@ -513,11 +484,12 @@ void get_iterate_solution(apogee_rc_table_t *table,
         dump_table_parameters(table, mk_sol);
 
         dump_result(mk_sol);
-        dump_uni_rotation_objs(table, solution);
 
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
-        dump_uni_rotation_objs_named(dumped,
+        /**
+	 * dump_uni_rotation_objs_named(dumped,
                                      solution,
                                      "ERROR_LIMITED_R_THETA");
+	 */
         dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
 }

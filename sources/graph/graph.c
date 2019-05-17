@@ -870,24 +870,50 @@ void dump_uni_rotation_objs_named(const apogee_rc_table_t *table,
         FILE *oout = fopen(filename, "w");
         CHECK_FILE_AND_RET(oout, filename);
 
+        FILE *dout = fopen("theta_errs.txt", "w");
+        CHECK_FILE_AND_RET(oout, filename);
+
+        FILE *eout = fopen("theta_sd.txt", "w");
+        CHECK_FILE_AND_RET(oout, filename);
+
         unsigned int i;
-        double R;
+        double R, theta, theta_mod;
+	double sum = 0;
+
+
         for (i = 0; i < table->size; ++i) {
 #ifndef PRECACHED_TABLE_R
                 R = get_R_distance(&table->data[i], GET_SOLUTION_R0(solution));
 #else
+		assert(DOUBLE_EQUAL_EPS(GET_TABLE_R0(table), GET_SOLUTION_R0(solution)));
                 R = GET_TABLE_R(table, i);
 #endif
+		theta_mod = get_point_by_uni_solution(solution, R);
+		theta = get_theta_uni_obj(&table->data[i], solution);
+		sum += pow_double(theta - theta_mod, 2);
                 fprintf(oout, "%lf %lf\n",
                                 R,
-                                get_theta_uni_obj(&table->data[i], solution));
+                                theta);
+                fprintf(dout, "%lf %lf\n",
+                                R,
+                                theta_mod - theta
+				);
         }
+
+	fprintf(eout, "%lf\n", sqrt(sum / (table->size - 1)));
+
+        fclose(eout);
+        fclose(dout);
         fclose(oout);
 }
 
 void dump_uni_rotation_objs(const apogee_rc_table_t *table,
                             const opt_t *solution)
 {
+
+#ifdef PRECACHED_TABLE_R
+	assert(DOUBLE_EQUAL_EPS(GET_TABLE_R0(table), GET_SOLUTION_R0(solution)));
+#endif
         dump_uni_rotation_objs_named(table,
                                      solution,
                                      DF_OUT_FILE_NAME);
