@@ -478,8 +478,6 @@ opt_t *united_entry(apogee_rc_table_t *table)
         opt_t *opt = united_solution(&eq, table);
         update_table_R0(table, GET_SOLUTION_R0(opt));
 
-        vr_b_iterations(table);
-        update_table_R0(table, GET_SOLUTION_R0(opt));
         return opt;
 }
 
