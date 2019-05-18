@@ -87,7 +87,7 @@ int parser_init(void);
 void parser_exit(void);
 
 
-#define PREC_COMPARE_ITER                       1e-5
+#define PREC_COMPARE_ITER                       1e-3
 #define ITER_CONDITION(w_1, w_2, r_1, r_2)              \
         (fabs((w_1) - (w_2)) > PREC_COMPARE_ITER ||     \
          fabs((r_1) - (r_2)) > PREC_COMPARE_ITER)

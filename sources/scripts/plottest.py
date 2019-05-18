@@ -11,12 +11,20 @@ import sys
 def view_one_pairplot():
     FILE=str(sys.argv[2])
     pt = pd.read_table(FILE, delimiter=" ", names = ['x', 'y'], dtype = float)
-    print(pt)
+    #print(pt)
     g = (sns.jointplot(x = 'x', y = 'y', data = pt, kind = "kde", color="blue")).plot_joint(plt.scatter, c="b", s=1, linewidth=1, marker='+')
     g.set_axis_labels("$R_0$", "$\Theta$")
     plt.savefig("out.png")
     print(stat.pearsonr(pt['x'], pt['y']))
 
+
+def view_errors():
+    PATH=str(sys.argv[2])
+    sol = pd.DataFrame({})
+    for j in range(1, int(sys.argv[3])):
+        pt = pd.read_csv(PATH + str(j) + "/" + str(sys.argv[4]), delimiter = " ")
+        sol = pd.concat([sol, pt], axis = 0, sort = False, ignore_index = True)
+    print(sol)
 
 
 
@@ -45,7 +53,7 @@ def view_united_sequences(size):
 def view_cormatrix():
     FILE=str(sys.argv[2])
     pt = pd.read_csv(FILE, delimiter = " ")
-    print(pt)
+    #print(pt)
     g = sns.PairGrid(pt)
     g.map_diag(sns.kdeplot)
     g.map_lower(sns.kdeplot, n_levels = 6)
@@ -71,7 +79,7 @@ def view_residuals():
     plt.clf()
 
     pt = pd.read_csv(PATH + '/uni_profile.txt', delimiter = " ", names = ['R_0', 'Sigma'])
-    print(pt)
+    #print(pt)
     g = sns.lineplot(x = "R_0", y="Sigma", data=pt, markers=True, linewidth=1.5, palette="tab10")
     plt.savefig("profile.png")
 
@@ -139,6 +147,8 @@ elif sys.argv[1] == "xy":
     view_xyz()
 elif sys.argv[1] == "th":
     view_one_pairplot()
+elif sys.argv[1] == "err":
+    view_errors()
 else: 
     print("Nothing. Keys: s, v, r.")
 

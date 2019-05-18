@@ -310,6 +310,9 @@ void find_united_sigma_0_solution(apogee_rc_table_t *table)
                                           table,
                                           &mk_params);
 
+        dump_mk_errors_uni(mk_sol);
+        dump_mk_values(mk_sol);
+
         if (cfg->draw_profile) {
                 dump_united_sigma0_solution_profile(table, cfg->ord);
         }
@@ -358,6 +361,8 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
                                           &mk_params);
         dump_result(mk_sol);
         dump_united_solution(mk_sol);
+        dump_mk_errors_uni(mk_sol);
+        dump_mk_values(mk_sol);
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         dump_objects_xyz(dumped, dumped->size, "missing_xyz.txt");
 }
@@ -484,6 +489,8 @@ void get_iterate_solution(apogee_rc_table_t *table)
         dump_table_parameters(table, mk_sol);
 
         dump_result(mk_sol);
+        dump_mk_errors_uni(mk_sol);
+        dump_mk_values(mk_sol);
 
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         /**
