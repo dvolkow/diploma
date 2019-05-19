@@ -257,6 +257,14 @@ void find_united_sigma_0_solution(apogee_rc_table_t *table)
         cfg->filter = MATCH_FILTER;
         table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
 
+        apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
+        dump_objects_xyz(dumped, dumped->size, "missing_xyz.txt");
+	db_clear(ERROR_LIMITED);
+
+
+        if (cfg->bolter > 0)
+                vr_b_iterations(table);
+
 	double sigma_0_opt = cfg->sigma_0;
         opt_t *solution = united_with_nature_errs_entry(table);
 
@@ -310,6 +318,9 @@ void find_united_sigma_0_solution(apogee_rc_table_t *table)
                                           table,
                                           &mk_params);
 
+        dump_mk_errors_uni(mk_sol);
+        dump_mk_values(mk_sol);
+
         if (cfg->draw_profile) {
                 dump_united_sigma0_solution_profile(table, cfg->ord);
         }
@@ -317,9 +328,6 @@ void find_united_sigma_0_solution(apogee_rc_table_t *table)
 
         dump_result(mk_sol);
         dump_united_solution(mk_sol);
-
-        apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
-        dump_objects_xyz(dumped, dumped->size, "missing_xyz.txt");
 }
 
 
@@ -358,6 +366,8 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
                                           &mk_params);
         dump_result(mk_sol);
         dump_united_solution(mk_sol);
+        dump_mk_errors_uni(mk_sol);
+        dump_mk_values(mk_sol);
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         dump_objects_xyz(dumped, dumped->size, "missing_xyz.txt");
 }
@@ -365,27 +375,60 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
 
 void vr_b_iterations(apogee_rc_table_t *table)
 {
+        parser_t *cfg = get_parser();
         double sd[TOTAL_QTY];
+
         table->w_sun = W_SUN_START;
         double w_old = W_SUN_START;
         double r_old = GET_TABLE_R0(table);
 
         opt_t *solution = core_vr_entry(table);
+        sd[VR_PART] = solution->sq;
         double r_new = GET_TABLE_R0(table);
         solution = core_b_entry(table);
+        sd[B_PART] = solution->sq;
         double w_new = table->w_sun;
+        solution = core_l_entry(table);
+        sd[L_PART] = solution->sq;
+        uni_g_sd_init(sd);
 
-        while (ITER_CONDITION(w_old, w_new, r_old, r_new)) {
-                r_old = r_new;
-                w_old = w_new;
-                solution = core_vr_entry(table);
-                r_new = GET_TABLE_R0(table);
-                solution = core_b_entry(table);
-                w_new = table->w_sun;
+
+        unsigned int new_table_size = table->size;
+        unsigned int old_table_size;
+        unsigned int i = 0;
+#define MAX_ITERATIONS_COUNT 5
+        while (true) {
+                old_table_size = new_table_size;
+                while (ITER_CONDITION(w_old, w_new, r_old, r_new) && (i < MAX_ITERATIONS_COUNT)) {
+                        r_old = r_new;
+                        w_old = w_new;
+                        solution = cfg->bolter == 0 ? core_vr_entry(table)
+                                                    : exception_algorithm(table,
+                                                                          core_vr_entry,
+                                                                          precalc_errors_vr);
+                        r_new = GET_TABLE_R0(table);
+                        solution = cfg->bolter == 0 ? core_b_entry(table)
+                                                    : exception_algorithm(table,
+                                                                          core_b_entry,
+                                                                          precalc_errors_mu_b);
+                        w_new = table->w_sun;
+                        ++i;
+                }
+
+
+                solution = cfg->bolter == 0 ? core_l_entry(table)
+                                            : exception_algorithm(table,
+                                                                  core_l_entry,
+                                                                  precalc_errors_mu_l);
+
+                new_table_size = table->size;
+
+                if (new_table_size == old_table_size) {
+                        break;
+                }
         }
 
         sd[B_PART] = table->sigma[B_PART];
-
         dump_objects_theta_R(table, solution, B_PART, "B_PART_OBJ.txt");
         dump_part_rotation_curve(solution, B_PART, "b_cur.txt", table->omega_0);
 	partial_dump_unfriendly_result(solution, MAX_PRINTF_COLS, "b_unfresult.txt");
@@ -407,52 +450,11 @@ void vr_b_iterations(apogee_rc_table_t *table)
 
 void get_iterate_solution(apogee_rc_table_t *table)
 {
-        double sd[TOTAL_QTY];
 	opt_t *solution;
-
         parser_t *cfg = get_parser();
 
-        table->w_sun = W_SUN_START;
-        double w_old = W_SUN_START;
-        double r_old = GET_TABLE_R0(table);
 
-        solution = exception_algorithm(table,
-                                       core_vr_entry,
-                                       precalc_errors_vr);
-        sd[VR_PART] = table->sigma[VR_PART];
-        double r_new = GET_SOLUTION_R0(solution);
-        solution = exception_algorithm(table,
-                                       core_b_entry,
-                                       precalc_errors_mu_b);
-        double w_new = table->w_sun;
-        sd[B_PART] = table->sigma[B_PART];
-
-        while (ITER_CONDITION(w_old, w_new, r_old, r_new)) {
-                r_old = r_new;
-                w_old = w_new;
-                solution = exception_algorithm(table,
-                                               core_vr_entry,
-                                               precalc_errors_vr);
-                r_new = GET_TABLE_R0(table);
-                sd[VR_PART] = table->sigma[VR_PART];
-                solution = exception_algorithm(table,
-                                               core_b_entry,
-                                               precalc_errors_mu_b);
-                w_new = table->w_sun;
-        }
-
-        sd[B_PART] = table->sigma[B_PART];
-
-        solution = core_vr_entry(table);
-        sd[VR_PART] = table->sigma[VR_PART];
-
-        solution = core_b_entry(table);
-        sd[B_PART] = table->sigma[B_PART];
-
-        solution = core_l_entry(table);
-        sd[L_PART] = table->sigma[L_PART];
-
-        uni_g_sd_init(sd);
+        vr_b_iterations(table);
         // TODO: need modify dispersion?
         if (cfg->bolter > 0)
                 solution = exception_algorithm(table,
@@ -484,12 +486,6 @@ void get_iterate_solution(apogee_rc_table_t *table)
         dump_table_parameters(table, mk_sol);
 
         dump_result(mk_sol);
-
-        apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
-        /**
-	 * dump_uni_rotation_objs_named(dumped,
-                                     solution,
-                                     "ERROR_LIMITED_R_THETA");
-	 */
-        dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
+        dump_mk_errors_uni(mk_sol);
+        dump_mk_values(mk_sol);
 }

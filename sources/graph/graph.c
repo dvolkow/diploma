@@ -6,6 +6,7 @@
 
 #include "graph.h"
 #include "trigonometry.h"
+#include "generators.h"
 #include "io.h"
 #include "opt.h"
 #include "core_l.h"
@@ -166,6 +167,81 @@ void dump_vr_solution(const opt_t *opt)
         PRINT_OUTPUT_LINE(fout);
         fclose(fout);
 
+
+}
+
+
+/**
+ * @solution: Solution struct from Monte-Karlo subroutine
+ */
+void dump_mk_errors_uni(const opt_t *solution)
+{
+        FILE *fout = fopen("errors.txt", "w");
+        CHECK_FILE_AND_RET(fout, "errors.txt");
+
+        /* Header: */
+        fprintf(fout, "R_0sd Usd Vsd Wsd OMEGAsd Asd");
+        if (solution->s.size > BETA_QTY + 2) { // 3 + omega_0 + A
+                unsigned int i;
+                for (i = BETA_QTY + 2; i < solution->s.size; ++i) {
+                        fprintf(fout, " %ssd", name_for_column_uni_solution(i - BETA_QTY));
+                }
+        }
+        fprintf(fout, "\n");
+
+        fprintf(fout, "%.3lf %.3lf %.3lf %.3lf %.3lf %.3lf",
+                       solution->dr_0,
+                       solution->bounds[0].l, // U
+                       solution->bounds[1].l, // V
+                       solution->bounds[2].l, // W
+                       solution->bounds[3].l, // omega_0
+                       solution->bounds[4].l // A
+                       );
+        
+        if (solution->s.size > BETA_QTY + 2) { // 3 + omega_0 + A
+                unsigned int i;
+                for (i = 5; i < solution->s.size; ++i) {
+                        fprintf(fout, " %.3lf", solution->bounds[i].l);
+                }
+        }
+
+        fprintf(fout, "\n");
+        fclose(fout);
+}
+
+void dump_mk_values(const opt_t *solution)
+{
+        FILE *fout = fopen("solution.txt", "w");
+        CHECK_FILE_AND_RET(fout, "solution.txt");
+
+        /* Header: */
+        fprintf(fout, "R_0 U V W OMEGA A");
+        if (solution->s.size > BETA_QTY + 2) { // 3 + omega_0 + A
+                unsigned int i;
+                for (i = BETA_QTY + 2; i < solution->s.size; ++i) {
+                        fprintf(fout, " %s", name_for_column_uni_solution(i - BETA_QTY));
+                }
+        }
+        fprintf(fout, "\n");
+
+        fprintf(fout, "%.3lf %.3lf %.3lf %.3lf %.3lf %.3lf",
+                       GET_SOLUTION_R0(solution),
+                       solution->s.data[0], // U
+                       solution->s.data[1], // V
+                       solution->s.data[2], // W
+                       solution->s.data[3], // omega_0
+                       solution->s.data[4] // A
+                       );
+        
+        if (solution->s.size > BETA_QTY + 2) { // 3 + omega_0 + A
+                unsigned int i;
+                for (i = 5; i < solution->s.size; ++i) {
+                        fprintf(fout, " %.3lf", solution->s.data[i]);
+                }
+        }
+
+        fprintf(fout, "\n");
+        fclose(fout);
 
 }
 
@@ -871,10 +947,13 @@ void dump_uni_rotation_objs_named(const apogee_rc_table_t *table,
         CHECK_FILE_AND_RET(oout, filename);
 
         FILE *dout = fopen("theta_errs.txt", "w");
-        CHECK_FILE_AND_RET(oout, filename);
+        CHECK_FILE_AND_RET(dout, filename);
 
         FILE *eout = fopen("theta_sd.txt", "w");
-        CHECK_FILE_AND_RET(oout, filename);
+        CHECK_FILE_AND_RET(eout, filename);
+
+        FILE *sout = fopen("sigma_0.txt", "w");
+        CHECK_FILE_AND_RET(sout, filename);
 
         unsigned int i;
         double R, theta, theta_mod;
@@ -902,6 +981,9 @@ void dump_uni_rotation_objs_named(const apogee_rc_table_t *table,
 
 	fprintf(eout, "%lf\n", sqrt(sum / (table->size - 1)));
 
+        fprintf(sout, "%lf\n", table->sigma_0);
+
+        fclose(sout);
         fclose(eout);
         fclose(dout);
         fclose(oout);

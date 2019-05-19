@@ -67,6 +67,8 @@ double *gen_vector_by_bounds_uni(const gsl_rng *r,
                                  const double h,
                                  const unsigned int size);
 
+char *name_for_column_uni_solution(const unsigned int);
+
 void generate(void);
 apogee_rc_table_t *create_apogee_rc_table_by_size(unsigned int);
 apogee_rc_table_t *generic_table(void);

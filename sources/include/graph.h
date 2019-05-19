@@ -124,6 +124,10 @@ void dump_profile(linear_equation_t *,
                   opt_params_t *,
                   const char *);
 
+
+void dump_mk_errors_uni(const opt_t *);
+void dump_mk_values(const opt_t *);
+
 void multiply_dump_unfriendly_result(const opt_t **,
 				     const unsigned int,
 				     const char *);

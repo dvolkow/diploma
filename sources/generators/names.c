@@ -19,3 +19,21 @@ char *name_for_obj(const unsigned int i,
         sprintf(s, "%s_%u_%u", prefix, i, n);
         return s;
 }
+
+const char *basenames[] = {
+        "N",
+        "R_0",
+        "SD",
+        "U",
+        "V",
+        "W",
+        "omega_0",
+        "A"
+};
+
+char *name_for_column_uni_solution(const unsigned int i)
+{
+        char *s = generic_name();
+        sprintf(s, "Theta%u", i);
+        return s;
+}

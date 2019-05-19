@@ -160,7 +160,7 @@ void precalc_errors_mu_l(apogee_rc_table_t *table,
 {
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                if (table->data[i].eps / table->sigma[L_PART] > limit) {
+                if (pow_double(table->data[i].eps, 2) / table->sigma[L_PART] > pow_double(limit, 2)) {
                         table->data[i].pm_match = 0;
                 }
         }
@@ -239,7 +239,7 @@ opt_t *core_l_get_linear_solution(linear_equation_t *eq,
         opt_params.sq = residuals_summary(&opt_params, table);
         // core_l_get_errors(&opt_params, table);
         /* To dump get sd: */
-        opt_params.sq = sqrt(opt_params.sq / (table->size - s.size - 1));
+        opt_params.sq = sqrt(opt_params.sq / (table->size - s.size));
 
         *ret = opt_params;
         return ret;

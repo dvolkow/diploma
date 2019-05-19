@@ -117,7 +117,7 @@ void precalc_errors_vr(apogee_rc_table_t *table,
 {
         unsigned int i;
         for (i = 0; i < table->size; ++i) {
-                if (fabs(table->data[i].eps) / table->sigma[VR_PART] > limit) {
+                if (pow_double(table->data[i].eps, 2) / table->sigma[VR_PART] > pow_double(limit, 2)) {
                         table->data[i].pm_match = 0;
                 }
         }

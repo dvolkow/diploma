@@ -85,6 +85,7 @@ int main(int argc, const char *argv[])
         db_add(generic_table()); // ERROR_LIMITED
 
         solution_mode_t mode = GET_SOLUTION_MODE(cfg);
+
         switch(mode) {
 	case VR_PART_MODE:
 		get_partial_vr_solution(table);
@@ -97,8 +98,6 @@ int main(int argc, const char *argv[])
 		break;
         case UNI_MODE:
                 get_united_solution(table);
-		const apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
-		dump_objects_xyz(dumped, dumped->size, "err_xyz.txt");
                 break;
         case UNINAT_MODE:
                 get_united_sigma_0_solution(table);
@@ -111,6 +110,8 @@ int main(int argc, const char *argv[])
 		break;
         }
 
+        const apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
+        dump_objects_xyz(dumped, dumped->size, "err_xyz.txt");
         dump_objects_xyz(table, table->size, "final_xyz.txt");
         dump_table(table);
         deinitialization_process();

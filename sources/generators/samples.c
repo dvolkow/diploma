@@ -328,6 +328,12 @@ opt_t *monte_carlo_entry(const opt_t *solution,
         double *test_b = dv_alloc(sizeof(double) * count);
 #endif
 
+
+#ifdef PRECACHED_TABLE_R
+        update_table_R0(data, GET_SOLUTION_R0(solution));
+        //assert(DOUBLE_EQUAL_EPS(GET_TABLE_R0(data), GET_SOLUTION_R0(solution)));
+#endif
+
         i = 0;
         while (r < ROTC_UPPER_BOUND) {
                 curve[i].theta = params->f_point_by_solution(solution, r);
