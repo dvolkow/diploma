@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_MEMORY_USAGE        150000000
+#define MAX_MEMORY_USAGE        (1U << 28)
 
 void *dv_alloc(const size_t size);
 void *dv_dalloc(const size_t size, const size_t num);

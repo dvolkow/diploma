@@ -947,10 +947,13 @@ void dump_uni_rotation_objs_named(const apogee_rc_table_t *table,
         CHECK_FILE_AND_RET(oout, filename);
 
         FILE *dout = fopen("theta_errs.txt", "w");
-        CHECK_FILE_AND_RET(oout, filename);
+        CHECK_FILE_AND_RET(dout, filename);
 
         FILE *eout = fopen("theta_sd.txt", "w");
-        CHECK_FILE_AND_RET(oout, filename);
+        CHECK_FILE_AND_RET(eout, filename);
+
+        FILE *sout = fopen("sigma_0.txt", "w");
+        CHECK_FILE_AND_RET(sout, filename);
 
         unsigned int i;
         double R, theta, theta_mod;
@@ -978,6 +981,9 @@ void dump_uni_rotation_objs_named(const apogee_rc_table_t *table,
 
 	fprintf(eout, "%lf\n", sqrt(sum / (table->size - 1)));
 
+        fprintf(sout, "%lf\n", table->sigma_0);
+
+        fclose(sout);
         fclose(eout);
         fclose(dout);
         fclose(oout);
