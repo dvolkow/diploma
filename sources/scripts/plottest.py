@@ -60,6 +60,19 @@ def view_cormatrix():
     g.map_upper(plt.scatter, s = 0.5)
     plt.savefig("pairplot.png")
 
+def view_unf():
+    FILE=str(sys.argv[2])
+    na = pd.read_csv(FILE, delimiter = " ")
+    print(na.T.to_latex())
+
+def view_r0res():
+    FILE=str(sys.argv[2])
+    na = pd.read_csv(FILE, delimiter = " ")
+    for index, row in na.iterrows():
+        print("$_{-" + str(row[0]) + "}^{+" + str(row[1]) + "}$")
+
+
+
 def view_residuals():
     PATH=sys.argv[2]
     pt = pd.read_csv(PATH + '/residuals.txt', delimiter = " ", names = ['V_R', 'mu_b', 'mu_l'])
@@ -157,6 +170,10 @@ elif sys.argv[1] == "err":
     view_errors()
 elif sys.argv[1] == "p":
     view_profile()
+elif sys.argv[1] == "a":
+    view_unf()
+elif sys.argv[1] == "r0":
+    view_r0res()
 else: 
     print("Nothing. Keys: s, v, r.")
 
