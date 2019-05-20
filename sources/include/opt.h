@@ -4,6 +4,8 @@
 #include "math.h"
 #include "types.h"
 
+#define BOUNDS_R0_PREC	(1e-3)
+
 typedef enum {
         LOWER,
         UPPER
@@ -44,4 +46,10 @@ opt_t *exception_algorithm(apogee_rc_table_t *,
                            opt_t *(*f)(apogee_rc_table_t *),
                            void (*precalc_errors)(apogee_rc_table_t *,
                                                   const double));
+
+
+void find_r_0_bounds(apogee_rc_table_t *,
+		     opt_t *,
+		     opt_params_t *,
+		     linear_equation_t *);
 #endif // OPT_H

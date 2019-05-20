@@ -229,12 +229,15 @@ void get_partial_vr_solution(apogee_rc_table_t *table)
                                           &mk_params);
 
 
-        dump_result(mk_sol);
+        if (mk_sol) dump_result(mk_sol);
 
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         dump_objects_theta_R(dumped, solution, TOTAL_QTY, "vr_objs_err.txt");
-        dump_vr_solution(mk_sol);
+        if (mk_sol) dump_vr_solution(mk_sol);
         dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
+
+	find_r_0_bounds(table, solution, &params, &eq);
+	dump_r0_bounds(solution);
 }
 
 
@@ -318,16 +321,18 @@ void find_united_sigma_0_solution(apogee_rc_table_t *table)
                                           table,
                                           &mk_params);
 
-        dump_mk_errors_uni(mk_sol);
-        dump_mk_values(mk_sol);
+        if (mk_sol) {
+		dump_mk_errors_uni(mk_sol);
+		dump_mk_values(mk_sol);
+		dump_result(mk_sol);
+		dump_united_solution(mk_sol);
+	}
 
         if (cfg->draw_profile) {
                 dump_united_sigma0_solution_profile(table, cfg->ord);
         }
 
-
-        dump_result(mk_sol);
-        dump_united_solution(mk_sol);
+	dump_united_solution_r0_bounds(table, solution);
 }
 
 
@@ -364,12 +369,15 @@ void get_united_sigma_0_solution(apogee_rc_table_t *table)
         opt_t *mk_sol = monte_carlo_entry(solution,
                                           table,
                                           &mk_params);
-        dump_result(mk_sol);
-        dump_united_solution(mk_sol);
-        dump_mk_errors_uni(mk_sol);
-        dump_mk_values(mk_sol);
+	if (mk_sol) {
+		dump_result(mk_sol);
+		dump_united_solution(mk_sol);
+		dump_mk_errors_uni(mk_sol);
+		dump_mk_values(mk_sol);
+	}
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         dump_objects_xyz(dumped, dumped->size, "missing_xyz.txt");
+	dump_united_solution_r0_bounds(table, solution);
 }
 
 
@@ -482,10 +490,13 @@ void get_iterate_solution(apogee_rc_table_t *table)
         opt_t *mk_sol = monte_carlo_entry(solution,
                                           table,
                                           &mk_params);
-        dump_united_solution(mk_sol);
-        dump_table_parameters(table, mk_sol);
+	if (mk_sol) {
+		dump_united_solution(mk_sol);
+		dump_table_parameters(table, mk_sol);
+		dump_result(mk_sol);
+		dump_mk_errors_uni(mk_sol);
+		dump_mk_values(mk_sol);
+	}
 
-        dump_result(mk_sol);
-        dump_mk_errors_uni(mk_sol);
-        dump_mk_values(mk_sol);
+	dump_united_solution_r0_bounds(table, solution);
 }

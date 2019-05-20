@@ -301,6 +301,9 @@ opt_t *monte_carlo_entry(const opt_t *solution,
                          const mk_params_t *params)
 {
         const unsigned int count = params->count;
+	if (count < 1)
+		return NULL;
+
         const opt_t **results = dv_alloc(sizeof(opt_t *) * count);
         apogee_rc_table_t *tmp_table = dv_alloc(sizeof(apogee_rc_table_t));
         const unsigned int ssize = data->size;

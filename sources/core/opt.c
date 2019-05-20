@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "asserts.h"
+#include "debug.h"
 
 #include "types.h"
 #include "math.h"
@@ -182,20 +183,6 @@ static double __bound_parameter(linear_equation_t *eq,
 
         return GET_TABLE_R0(table);
 }
-
-double lower_bound_search(linear_equation_t *eq,
-                                apogee_rc_table_t *table,
-                                double r_0)
-{
-        return __bound_parameter(eq, table, r_0, LOWER);
-}
-
-double upper_bound_search(linear_equation_t *eq,
-                                apogee_rc_table_t *table,
-                                double r_0)
-{
-        return __bound_parameter(eq, table, r_0, UPPER);
-}
 #endif
 
 opt_t *opt_linear(linear_equation_t *eq,
@@ -309,3 +296,79 @@ void get_errors(opt_t *solution, apogee_rc_table_t *table)
         }
 }
 */
+
+void find_r_0_bounds(apogee_rc_table_t *table,
+		     opt_t *solution,
+		     opt_params_t *params,
+		     linear_equation_t *eq)
+{
+	solution->bounds = dv_alloc(sizeof(prec_t) * 1);
+
+	parser_t *cfg = get_parser();
+        solution_mode_t mode = GET_SOLUTION_MODE(cfg);
+
+	double n_free;
+
+	switch(mode) {
+	case VR_PART_MODE:
+        case L_PART_MODE:
+        case B_PART_MODE:
+		n_free = table->size - solution->s.size - 1.0;
+		break;
+        case UNI_MODE:
+        case UNINAT_MODE:
+        case FIND_SIGMA0_MODE:
+		n_free = 3.0 * table->size - solution->s.size - 1.0;
+		break;
+        default:
+		PR_WARN("No supported mode");
+		return;
+	}
+
+        linear_eq_solve_t s = {
+                .data = dv_alloc(sizeof(double) * eq->size),
+                .size = eq->size
+        };
+
+        assert(params != NULL);
+        assert(params->residuals_summary != NULL);
+        assert(params->fill_mnk_matrix != NULL);
+
+        double start_r0 = GET_SOLUTION_R0(solution);
+        update_table_R0(table, start_r0);
+        params->fill_mnk_matrix(eq, table);
+        solve(eq, &s);
+        double sq = params->residuals_summary(&s, table);
+        const double thr_sq = sq * (1.0 + 1.0 / n_free);
+#ifdef DEBUG
+	printf("%s: thr_sq = %lf, sq = %lf\n", __func__, thr_sq, sq);
+#endif
+
+        while (sq < thr_sq) {
+		start_r0 += BOUNDS_R0_PREC;
+		update_table_R0(table, start_r0);
+		params->fill_mnk_matrix(eq, table);
+		solve(eq, &s);
+		sq = params->residuals_summary(&s, table);
+#ifdef DEBUG
+		printf("%s: start_r0 = %lf, sq = %lf\n", __func__, start_r0, sq);
+#endif
+	}
+
+	solution->bounds[0].h = start_r0;
+	sq = 0;
+
+	start_r0 = GET_SOLUTION_R0(solution);
+        while (sq < thr_sq) {
+		start_r0 -= BOUNDS_R0_PREC;
+		update_table_R0(table, start_r0);
+		params->fill_mnk_matrix(eq, table);
+		solve(eq, &s);
+		sq = params->residuals_summary(&s, table);
+#ifdef DEBUG
+		printf("%s: start_r0 = %lf, sq = %lf\n", __func__, start_r0, sq);
+#endif
+	}
+
+	solution->bounds[0].l = start_r0;
+}

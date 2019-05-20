@@ -1,6 +1,7 @@
 #include <math.h>
 #include <assert.h>
 
+#include "debug.h"
 #include "types.h"
 #include "core.h"
 #include "mem.h"
@@ -476,6 +477,7 @@ opt_t *united_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_solution(&eq, table);
+
         update_table_R0(table, GET_SOLUTION_R0(opt));
 
         return opt;
@@ -526,6 +528,73 @@ void dump_united_solution_profile(apogee_rc_table_t *table,
         dump_profile(&eq, table, &params, "uni_profile.txt");
 }
 
+static void __find_r_0_bounds_f(apogee_rc_table_t *table,
+			        opt_t *solution)
+{
+	parser_t *cfg = get_parser();
+        unsigned int size = cfg->ord;
+        unsigned int dim = size + TOTAL_QTY + 1;
+        double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
+
+        linear_equation_t eq = {
+                .data = matrix,
+                .right = (double *)dv_alloc(sizeof(double) * dim),
+                .size = dim,
+                .ord = size
+        };
+
+        opt_params_t params = {
+                .residuals_summary = residuals_summary_nerr,
+                .fill_mnk_matrix = uni_fill_mnk_matrix_nerr,
+        };
+
+	find_r_0_bounds(table, solution, &params, &eq);
+	dump_r0_bounds(solution);
+}
+
+static void __find_r_0_bounds_u(apogee_rc_table_t *table,
+			        opt_t *solution)
+{
+	parser_t *cfg = get_parser();
+        unsigned int size = cfg->ord;
+        unsigned int dim = size + TOTAL_QTY + 1;
+        double *matrix = (double *)dv_alloc(sizeof(double) * dim * dim);
+
+        linear_equation_t eq = {
+                .data = matrix,
+                .right = (double *)dv_alloc(sizeof(double) * dim),
+                .size = dim,
+                .ord = size
+        };
+
+        opt_params_t params = {
+                .residuals_summary = residuals_summary,
+                .fill_mnk_matrix = uni_fill_mnk_matrix,
+        };
+
+
+	find_r_0_bounds(table, solution, &params, &eq);
+	dump_r0_bounds(solution);
+}
+
+void dump_united_solution_r0_bounds(apogee_rc_table_t *table,
+				    opt_t *solution)
+{
+	parser_t *cfg = get_parser();
+        solution_mode_t mode = GET_SOLUTION_MODE(cfg);
+	switch(mode) {
+        case UNI_MODE:
+		__find_r_0_bounds_u(table, solution);
+		return;
+        case FIND_SIGMA0_MODE:
+		__find_r_0_bounds_f(table, solution);
+		return;
+        default:
+		PR_WARN("Unknown united solution mode");
+		return;
+	}
+}
+
 opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
 {
         parser_t *cfg = get_parser();
@@ -542,6 +611,7 @@ opt_t *united_with_nature_errs_entry(apogee_rc_table_t *table)
         };
 
         opt_t *opt = united_with_nerr_solution(&eq, table);
+
         update_table_R0(table, GET_SOLUTION_R0(opt));
 
         return opt;

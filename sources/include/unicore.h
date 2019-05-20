@@ -47,4 +47,6 @@ double sigma_for_k(const unsigned int,
                    const apogee_rc_t *,
                    const double);
 
+void dump_united_solution_r0_bounds(apogee_rc_table_t *,
+				    opt_t *);
 #endif // UNICORE_H  1

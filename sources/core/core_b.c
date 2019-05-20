@@ -329,11 +329,14 @@ void get_partial_b_solution(apogee_rc_table_t *table)
                                           &mk_params);
 
 
-        dump_result(mk_sol);
+	if (mk_sol) {
+		dump_result(mk_sol);
+		dump_vr_solution(mk_sol);
+	}
+
         apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
         dump_objects_theta_R(dumped, solution, B_PART, "b_objs_err.txt");
 
-        dump_vr_solution(mk_sol);
         dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
 }
 
