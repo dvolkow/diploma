@@ -1,19 +1,37 @@
 \begin{thebibliography}{99}
-\bibitem{1} см. $http://data.sdss3.org/datamodel/files/APOGEE\_RC/cat/apogee$-$rc$-$DR12.html$
-\bibitem{2} Каталог APOGEE-RC:  $http://data.sdss3.org/sas/dr12/apogee/vac/apogee$-$rc/cat/apogee$-$rc$-$DR12.fits$
-\bibitem{3} \textit{Куликовский П.Г.}\  <<Звездная астрономия>>
-\bibitem{4} \textit{Никифоров И.И. } \ <<Пространственно-кинематическое моделирование
-однородной плоской подсистемы опорных объектов
-с учетом их собственных движений. Мазеры>>
-\bibitem{5} Bovy and etc. $http://adsabs.harvard.edu/abs/2014arXiv1405.1032B$
-\bibitem{6} \textit{Никифоров И.И.} <<Проблема определения расстояния до центра Галактики>> 
-\bibitem{7} \textit{Никифоров И.И.} Материалы с семинара по технике моделирования 8.03.2013 г.
+\bibitem{1} \textrm{http://data.sdss3.org/datamodel/files/APOGEE\_RC/cat/apogee-rc-DR12.html}
+\bibitem{2} \textrm{http://data.sdss3.org/sas/dr12/apogee/vac/apogee-rc/cat/apogee-rc-DR12.fits}
+\bibitem{3} \textit{Куликовский П.Г.} // Звездная астрономия. M.: Наука, 1985. 272 c.
+\bibitem{4} \textit{Acker A.} // Astron. and Astrophys. Suppl. Ser. 1978. V. 33. P. 367.
+\bibitem{5} \textit{Bovy and etc.} $http://adsabs.harvard.edu/abs/2014arXiv1405.1032B$
+\bibitem{6} \textit{Агекян Т. А.} Основы теории ошибок для астрономов и физиков. Москва: Наука, 1968. 148 с
+\bibitem{7} \textit{Shapley H.} // Astrophys. J. 1918. V. 48. P. 154.
 \bibitem{8} \textit{Никифоров И.И.} <<Пространственно-кинематическое и динамическое моделирование Галактики>> (диссертация на соискание ученой степени кандидата физико-математических наук), 2003 г.
-\bibitem{9} \textit{Никифоров И.И.} <<Исключение измерений с избыточными невязками в задачах
-оптимизации модельных параметров>> (семинар по звездной динамике и галактической астрономии
-26 марта 2009 г.)
-\bibitem{10} \textit{Валеев С.Г.} <<Тестирование мер в задачах оптимизации>>, 2001 г.
-\bibitem{11} $https://cran.r$-$project.org/web/views/Distributions.html$
-\bibitem{12} \textit{Линник Ю.В.} <<Метод наименьших квадратов и основы математико-статистической обработки наблюдений>>, 1962
+\bibitem{9} \textit{Nikiforov I.I.} Exclusion of measurements with excessive residuals (blunders) in estimating model parameters. AApTr. 2012 V. 27 P. 537 
+\bibitem{10} \textit{Валеев С.Г.} // Тестирование мер в задачах оптимизации, 2001.
+\bibitem{11} \textit{Nikiforov I.I., Bobrova (Mel'nichnikova) A.Yu.} // Кинематика и физика неб. тел. Приложение. 1999. №2. С. 29.
+\bibitem{12} \textit{Van de Steene G.C., Zijlstra A.A.} // Astron. and Astrophys. 1995. V. 293. P. 541.
+\bibitem{13} \textit{Fish M., Blitz L., Stark A.A.} // Astrophys. J. 1989. V. 342. P. 272
+\bibitem{14} \textit{Fish M., Tremaine S.} // Annual Rev. Astron. and Astrophys. 1991. V. 29. P. 409.
+\bibitem{15} \textit{Reid M. J., Menten K. M., Zheng X. W. et al.} // ApJ, 2009. V. 700, P. 137
+\bibitem{16} \textit{Gromov A. O., Nikiforov I. I., Ossipkov L. P.} // Baltic Astronomy, 2016. V. 25 P. 59
+\bibitem{17} \textit{Chini R., Wink J.E.} // Astron. and Astrophys. 1984. V. 139. P. L5.
+\bibitem{18} \textit{Lepine J.R.D., Amaral L.H.} // Mem. Soc. Astron. Ital. 1995. V. 66. P. 649.
+\bibitem{19} \textit{Merrifield M.R.} // Back to the Galaxy. Proc. 3. October Astrophysics Conference in Maryland, College Park, USA / EDS Holt S.S., Verter F. AIP Conf. Proc. No. 278, 1993. P. 437.
+\bibitem{20} \textit{Ситник Т.Г., Мельник А.М.} // Письма в "Астрон. журн." 1999, T. 25. C. 194.
+\bibitem{21} \textit{Mishurov Yu.N., Zenina I.A., Dambis A.K., Mel'nik A.M., Rastorguev A.S.} // Astron. and Astrophys. 1997. V. 323. P. 775
+\bibitem{22} \textit{Nikiforov I.I., Shekhovtsova T.V.} // Stellar Dynamics: from Classic to Modern. Proc. of the International Conference held in Saint Petersburg, Russia, August 21-27, 2000, in honour of 100th birthday of Professor K. F. Ogorodnikov (1900-1985) / Eds Ossipkov L.P., Nikiforov I.I., СПб: НИИХ СПбГУ, 2001. P. 88. 
+\bibitem{23} \textit{Rohlfs K., Chini R., Wink J.E., Boehme R.} // Astron. and Astrophys. 1986. V. 158. P. 181.
+\bibitem{24} \textit{Kerr F.J., Lynden-Bell D.} // Monthly Noties Roy. Astron. Soc. 1986. V. 221. P. 1023.
+\bibitem{25} \textit{Fridman A.M., Khoruzhii O.V., Lyakhovich V.V., Avedisova V.S.} // Unsolved Problems of the Milky Way. IAU Symp. №169 / Eds Blitz L., Teuben P.J., Dordrecht: Kluwer, 1996. P. 597.
+\bibitem{26} \textit{Paczynski B., Stanek K.Z.} // Astrophys. J. 1998. V. 494. P. L219.
+\bibitem{27} \textit{Stanek K.Z., Kaluzny J., Wysocka A., Thompson I.} // Acta Astronomica. 2000. V. 50. P. 191.
+\bibitem{28} \textit{Локтин А.В.} // Астрон. журн. 1979. Т. 56. С. 1188.
+\bibitem{29} \textit{Balona L.A., Feast M.W.} // Monthly Noties Roy. Astron. Soc. 1974. V. 167. P. 621.
+\bibitem{30} \textit{Blitz L., Brand J.} // The outer Galaxy / Eds Blitz L., Lockman F.J. Berlin: Springer-Verlag, 1988. P. 73.
+\bibitem{31} \textit{Gwinn C.R., Moran J.M., Reid M.J.} // Astrophys. J. 1992. V. 393. P. 149.
+\bibitem{32} \textit{Balona L.A., Feast M.W.} // Monthly Noties Roy. Astron. Soc. 1974. V. 167. P. 621.
+\bibitem{33} \textit{Shapiro S.S., Wilk M.B.} // An analysis of variance test for normality. Biometrika, 1965, 52 №3. P.591-611.
+
 \end{thebibliography}
 

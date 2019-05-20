@@ -183,7 +183,8 @@
     \ifthenelse{\equal{\my@title@type@ru}{coursework}}
     {Курсовая работа}
     {\ifthenelse{\equal{\my@title@type@ru}{diploma}}
-    {Дипломная работа}
+    {Выпускная квалификационная работа \\
+    \normalsize{Уровень образования:\\ Специальность 03.05.01 «Астрономия»\\СМ.5012.2014 «Астрономия»}}
     {\ifthenelse{\equal{\my@title@type@ru}{master}}
     {Магистерская диссертация}
     {\ifthenelse{\equal{\my@title@type@ru}{bachelor}}
