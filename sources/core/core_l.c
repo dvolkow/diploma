@@ -6,6 +6,7 @@
 #include "mem.h"
 #include "db.h"
 #include "core.h"
+#include "opt.h"
 #include "core_l.h"
 #include "graph.h"
 #include "generators.h"
@@ -288,6 +289,10 @@ void get_partial_l_solution(apogee_rc_table_t *table)
         cfg->filter = MATCH_FILTER;
         table = get_limited_generic(table, filter_factory(cfg), L_FILTER);
 
+        apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
+        dump_objects_xyz(dumped, dumped->size, "missing_xyz.txt");
+	db_clear(ERROR_LIMITED);
+
         opt_params_t params = {
                 .residuals_summary = residuals_summary_opt,
                 .fill_mnk_matrix = core_l_fill_mnk_matrix,
@@ -309,6 +314,9 @@ void get_partial_l_solution(apogee_rc_table_t *table)
         }
 
         table->omega_0 = solution->s.data[BETA_QTY - 1];
+
+	find_r_0_bounds(table, solution, &params, &eq);
+	dump_r0_bounds(solution);
 
         update_table_R0(table, GET_SOLUTION_R0(solution));
         table->sigma[L_PART] = solution->sq / (table->size - eq.size - 1);
@@ -332,11 +340,9 @@ void get_partial_l_solution(apogee_rc_table_t *table)
                                           &mk_params);
 
 
-        dump_result(mk_sol);
-        apogee_rc_table_t *dumped = db_get(ERROR_LIMITED);
-        dump_objects_theta_R(dumped, solution, L_PART, "l_objs_err.txt");
-
-        dump_vr_solution(mk_sol);
-        dump_objects_xyz(dumped, dumped->size, "ERROR_LIMITED");
+	if (mk_sol) {
+		dump_result(mk_sol);
+		dump_vr_solution(mk_sol);
+	}
 }
 

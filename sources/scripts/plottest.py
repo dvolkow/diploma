@@ -46,7 +46,7 @@ def view_united_sequences(size):
     PATH=str(sys.argv[3])
     sol = pd.DataFrame({'R_0': []})
     for j in range(1,size):
-        u_pt = pd.read_csv(PATH + str(j) + "/u_unfresult.txt", delimiter=" ", names = ['N', 'R_0', 'SD', 'u', 'v', 'w', 'omega_0', 'A', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6', 'theta7', 'theta8', 'theta9', 'theta10'])
+        u_pt = pd.read_csv(PATH + str(j) + "/" + str(sys.argv[4]), delimiter=" ", names = ['N', 'R_0', 'SD', 'u', 'v', 'w', 'omega_0', 'A', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6', 'theta7', 'theta8', 'theta9', 'theta10'])
         sol = pd.concat([sol, u_pt], axis = 0, sort=False, ignore_index=True)
     print(sol)
 
@@ -80,6 +80,12 @@ def view_residuals():
 
     pt = pd.read_csv(PATH + '/uni_profile.txt', delimiter = " ", names = ['R_0', 'Sigma'])
     #print(pt)
+    g = sns.lineplot(x = "R_0", y="Sigma", data=pt, markers=True, linewidth=1.5, palette="tab10")
+    plt.savefig("profile.png")
+
+def view_profile():
+    plt.figure(figsize=(10, 10))
+    pt = pd.read_csv(str(sys.argv[2]), delimiter = " ", names = ['R_0', 'Sigma'])
     g = sns.lineplot(x = "R_0", y="Sigma", data=pt, markers=True, linewidth=1.5, palette="tab10")
     plt.savefig("profile.png")
 
@@ -149,6 +155,8 @@ elif sys.argv[1] == "th":
     view_one_pairplot()
 elif sys.argv[1] == "err":
     view_errors()
+elif sys.argv[1] == "p":
+    view_profile()
 else: 
     print("Nothing. Keys: s, v, r.")
 

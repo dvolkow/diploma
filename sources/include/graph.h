@@ -134,4 +134,5 @@ void multiply_dump_unfriendly_result(const opt_t **,
 void partial_dump_unfriendly_result(const opt_t *,
 				    unsigned int,
 				    const char *);
+void dump_r0_bounds(const opt_t *);
 #endif // GRAPH_H

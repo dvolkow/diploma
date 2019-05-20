@@ -1030,6 +1030,17 @@ void dump_objects_xyz(const apogee_rc_table_t *table,
         fclose(fout);
 }
 
+void dump_r0_bounds(const opt_t *solution)
+{
+        FILE *fout = fopen("r0_bounds.txt", "w");
+        CHECK_FILE_AND_RET(fout, "r0_bounds.txt");
+	fprintf(fout, "%lf %lf\n",
+		GET_SOLUTION_R0(solution) - solution->bounds[0].l,
+		solution->bounds[0].h - GET_SOLUTION_R0(solution)
+		);
+        fclose(fout);
+}
+
 void dump_profile(linear_equation_t *eq,
                   apogee_rc_table_t *table,
                   opt_params_t *params,
@@ -1048,7 +1059,7 @@ void dump_profile(linear_equation_t *eq,
         assert(params->fill_mnk_matrix != NULL);
 
         update_table_R0(table, ROTC_LOWER_BOUND);
-                
+
         while (GET_TABLE_R0(table) < ROTC_UPPER_BOUND) {
                 params->fill_mnk_matrix(eq, table);
                 solve(eq, &s);
