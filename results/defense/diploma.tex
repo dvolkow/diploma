@@ -287,7 +287,7 @@ Aналогично для собственных движений \cite{3}
         \Theta_{\mathrm{obs}}(R) = \left( \frac{k\mu_{l, \mathrm{obs}} - k\mu_{l, \odot} + \omega_0 \cos{b}}{\frac{R_0 \cos{l}}{r} - \cos{b}} r + \omega_0 \right) R.
 \end{equation}
 
-\subsubsection{Совмесное трехкомпонентное решение}
+\subsubsection{Совмесное трехкомпонентное решение} \label{united_mod_section}
 Кривая вращения строится аналогично (\ref{curve_mod_vr}) и (\ref{curve_mod_l}). Для перехода в галактоцентрическую систему координат, связанную с объектами, используем формулы \cite{15}, \cite{16}:
 \begin{equation}
         \Theta = V_g \cos{\beta} + U_g \sin{\beta},
@@ -354,11 +354,11 @@ Apache Point Observatory Galactic Evolution Experiment (APOGEE) представ
 \begin{figure}[h!]
 \caption{Распределение объектов APOGEE-RC в гeлиоцентрических декартовых координатах.}
 \begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XYobj.png}
+        \includegraphics[width=0.95\textwidth]{../imgs/XYobj.png}
 \end{minipage}
 \hfill
 \begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XZobj.png}
+        \includegraphics[width=0.95\textwidth]{../imgs/XZobj.png}
 \end{minipage}
 \end{figure}
 
@@ -367,48 +367,43 @@ Apache Point Observatory Galactic Evolution Experiment (APOGEE) представ
 
 \begin{figure}[h!]
 \caption{Распределение объектов в галактических координатах.}
-\begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XYobj.png}
-\end{minipage}
-\hfill
-\begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XZobj.png}
+\begin{minipage}[h]{1.0\linewidth}
+        \includegraphics[width=0.95\textwidth]{../imgs/lb.png}
 \end{minipage}
 \end{figure}
 
-
-
+\pagebreak
 \subsubsection*{Распределение ошибок скоростей:}
 \begin{figure}[h!]
 \caption{Распределение лучевых скоростей и их измертельных ошибок.}
 \begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XYobj.png}
+        \includegraphics[width=0.95\textwidth]{../imgs/vr_distr.png}
 \end{minipage}
 \hfill
 \begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XZobj.png}
+        \includegraphics[width=0.95\textwidth]{../imgs/vr_err_distr.png}
 \end{minipage}
 \end{figure}
 
 \begin{figure}[h!]
 \caption{Распределение ошибок собственных движений в каталоге UCAC-4.}
 \begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XYobj.png}
+        \includegraphics[width=0.95\textwidth]{../imgs/pm_ra_err_distr.png}
 \end{minipage}
 \hfill
 \begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XZobj.png}
+        \includegraphics[width=0.95\textwidth]{../imgs/pm_dec_err_distr.png}
 \end{minipage}
 \end{figure}
 
 \begin{figure}[h!]
 \caption{Распределение ошибок собственных движений в каталоге HSOY.}
 \begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XYobj.png}
+        \includegraphics[width=0.95\textwidth]{../imgs/pm_ra_err_distr_hsoy.png}
 \end{minipage}
 \hfill
 \begin{minipage}[h]{0.49\linewidth}
-        \includegraphics[width=0.95\textwidth]{../res_u_21/1/XZobj.png}
+        \includegraphics[width=0.95\textwidth]{../imgs/pm_dec_err_distr_hsoy.png}
 \end{minipage}
 \end{figure}
 
@@ -511,6 +506,18 @@ Apache Point Observatory Galactic Evolution Experiment (APOGEE) представ
         \zeta^2_1(R_0) = \zeta_0^2 \left( 1 + \frac{s^2}{N_{\mathrm{free}}} \right).
 \end{equation}
 Несимметричные профили для $R_0$ приводят к тому, что оценки снизу и сверху отличаются. В результатах приводятся обе границы доверительного интервала. 
+
+
+\begin{figure}[h!]
+        \caption{Пример профилей решения для варианта \ref{united_mod_section}.}
+        \begin{center}
+\begin{minipage}[h]{0.8\linewidth}
+        \includegraphics[width=0.95\textwidth]{../imgs/profiles.png}
+\end{minipage}
+        \end{center}
+\end{figure}
+
+
 \pagebreak
 \subsection{Моделирование по лучевым скоростям}
 Решается (\ref{v_r_sys}) с полным набором параметров. Порядок разложения $n < 10$. Итеративно применяется \ref{err_filter}, пока в выборке не будет объектов, попадающих под критерий (\ref{criteria}). После этого производится оценка ошибок параметров с помощью \ref{mk} по финальной выборке размера $N_{\mathrm{end}}$. Результаты приведены в таблице. 
@@ -643,7 +650,7 @@ $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\\hline
 Вариант решения \ref{united_mod}. Порядок разложения $n < 10$. Итеративно применяется \ref{err_filter} для всех компонент -- модельных лучевых скоростей и собственных движений. После этого производится оценка ошибок параметров с помощью \ref{mk} по финальной выборке размера $N_{\mathrm{end}}$. Результаты приведены в таблице. 
 \begin{table}[h!!]
 \centering
-\caption{APOGEE-RC с собственными движениями UCAC-4.}
+\caption{APOGEE-RC с собственными движениями из UCAC-4.}
 \begin{tabular}{r|rrr|r|rrrrr}
 \hline
 $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
@@ -685,19 +692,29 @@ $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
 
 Оптимален 4-й порядок. Приводится соответствующая кривая вращения.
 
+%\pagebreak
+%\begin{figure}[h!!]
+%\caption{Кривая вращения для порядка $n=4$.}
+%
+%\vfill
+%
+%\begin{center}
+%\begin{minipage}[h!!]{0.65\linewidth}
+%        \includegraphics[width=1.0\textwidth]{../imgs/u_exc/theta_obj.png}
+%\end{minipage}
+%\begin{minipage}[h!!]{0.60\linewidth}
+%        \includegraphics[width=1.0\textwidth]{../imgs/u_exc/zoomed.png}
+%\end{minipage}
+%\end{figure}
+%\end{center}
+%\vfill
+%
+%
 \pagebreak
-\begin{figure}[h!]
-\caption{Кривая вращения для порядка $n=4$.}
-\begin{minipage}[h]{1.0\linewidth}
-\includegraphics[width=1.0\textwidth]{../united_except/4/theta_obj.png}
-\end{minipage}
-\end{figure}
 
-\pagebreak
-
-\begin{table}[h!!]
+\begin{table}[h!]
 \centering
-\caption{APOGEE-RC с собственными движениями HSOY.}
+\caption{APOGEE-RC с собственными движениями из HSOY.}
 \begin{tabular}{r|rrrrrrrrr}
 \hline
 $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
@@ -737,10 +754,11 @@ $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
 \end{tabular}
 \end{table}
 
+\pagebreak
 
-\pagebreak
-        \includegraphics[width=0.9\textwidth]{../../sources/scripts/out.png}
-\pagebreak
+%\pagebreak
+%        \includegraphics[width=0.9\textwidth]{../../sources/scripts/out.png}
+%\pagebreak
 
 \subsubsection{Результаты по уравнению с природной дисперсией}
 Вариант решения \ref{sigma_0_mode}. Порядок разложения $n < 10$. Итеративно применяется \ref{err_filter} для всех компонент -- модельных лучевых скоростей и собственных движений. После этого производится оценка ошибок параметров с помощью \ref{mk} по финальной выборке размера $N_{\mathrm{end}}$. Результаты приведены в таблице. 
@@ -752,10 +770,10 @@ $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
 $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
  $N_{\mathrm{end}}$ & 26504       &   26507 &   26502 &   26504 &   26504 &   26506 &   26506 &   26505 &   26507 \\
  $R_0 $& \textbf{8.689}       &   \textbf{8.048} &   \textbf{7.907} &   \textbf{8.342} &   \textbf{7.879} &   \textbf{7.886} &   \textbf{7.897} &   \textbf{7.853} &   \textbf{8.008} \\
-       & $_{-0.044}^{+0.043}* $ & $_{-0.023}^{+0.023}*$ & $_{-0.032}^{+0.034}*$   & $_{-0.039}^{+0.047}*$  & $_{-0.034}^{+0.037}*$  & $_{-0.035}^{+0.039}*$  & $_{-0.082}^{+0.102}$  & $_{-0.074}^{+0.095}$  & $_{-0.119}^{+0.144}$  \\\hline
- $\sigma_0 $& -      &  - &  - &  21.312 &  21.301 &  21.306 &  21.304 &  21.297 &  21.308  \\ 
+       & $_{-0.314}^{+0.191} $ & $_{-0.079}^{+0.091}$ & $_{-0.110}^{+0.156}$   & $_{-0.114}^{+0.112}$  & $_{-0.087}^{+0.119}$  & $_{-0.079}^{+0.100}$  & $_{-0.082}^{+0.102}$  & $_{-0.074}^{+0.095}$  & $_{-0.119}^{+0.144}$  \\\hline
  $\chi^2 $& 79506   &   79514 &   79498 &   79503 &   79502 &   79507 &   79506 &   79502 &   79507 \\
  $N_{\mathrm{free}} $& 79506      &  79514 &   79498 &   79503 &   79502 &   79507 &   79506 &   79502 &   79507 \\
+ $\sigma_0 $& 21.335      &  21.355 &  21.313 &  21.312 &  21.301 &  21.306 &  21.304 &  21.297 &  21.308  \\ 
  $\sigma_{\Theta} $& 71.134      &  71.403 &  71.603 &  71.223 &  71.327 &  71.342 &  71.343 &  71.301 &  71.313  \\\hline 
  $ u_{\odot} $& 12.376      &  12.272 &  12.542 &  12.593 &  12.629 &  12.651 &  12.652 &  12.657 &  12.636 \\
  $\sigma_{u_{\odot}} $&0.188       &   0.182 &   0.183 &    0.180 &   0.181 &   0.184 &   0.187 &   0.192 &   0.186 \\
@@ -786,11 +804,6 @@ $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
 \end{tabular}
 \end{table}
 
-
-\pagebreak
-\paragraph{Кривая вращения.} Приводятся кривые вращения, полученные для различных $n$. 
-
-        \includegraphics[width=0.9\textwidth]{../../sources/scripts/out.png}
 \pagebreak
 \begin{table}[h!!]
 \centering
@@ -799,8 +812,8 @@ $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
 \hline
 $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
  $N_{\mathrm{end}}$ & 27995       &    28007 &   28007 &   28006 &   28004 &   28004 &    28004 &   28005 &   28007 \\
- $R_0 *$& \textbf{8.509}       &     \textbf{7.520} &   \textbf{7.548} &   \textbf{7.458} &   \textbf{7.483} &   \textbf{7.539} &     \textbf{7.540} &   \textbf{7.529} &   \textbf{7.831} \\
-       & $_{-0.044}^{+0.043} $ & $_{-0.023}^{+0.023}$ & $_{-0.032}^{+0.034}$   & $_{-0.039}^{+0.047}$  & $_{-0.034}^{+0.037}$  & $_{-0.035}^{+0.039}$  & $_{-0.031}^{+0.033}$  & $_{-0.029}^{+0.031}$  & $_{-0.026}^{+0.029}$  \\\hline
+ $R_0 $& \textbf{8.509}       &     \textbf{7.520} &   \textbf{7.548} &   \textbf{7.458} &   \textbf{7.483} &   \textbf{7.539} &     \textbf{7.540} &   \textbf{7.529} &   \textbf{7.831} \\
+       & $_{-0.155}^{+0.194} $ & $_{-0.040}^{+0.038}$ & $_{-0.089}^{+0.066}$   & $_{-0.050}^{+0.055}$  & $_{-0.092}^{+0.113}$  & $_{-0.117}^{+0.082}$  & $_{-0.067}^{+0.053}$  & $_{-0.029}^{+0.031} *$  & $_{-0.026}^{+0.029} *$  \\\hline
  $\chi^2 $& 83979   &  84014 &   84013 &   84009 &   84002 &   84001 &  84000 &   84002 &   84007 \\
  $N_{\mathrm{free}} $& 83979   &  84014 &   84013 &   84009 &   84002 &   84001 &  84000 &   84002 &   84007 \\
  $\sigma_0 $& 20.984      &  21.013 &  20.983 &  20.963 &  20.959 &  20.961 &  20.955 &  20.959 &  20.972  \\ 
@@ -833,12 +846,6 @@ $n$ & $1$ & $2$ & $3$ & $\textbf{4}$ & $5$&$ 6 $&$ 7 $&$ 8 $&$ 9 $\\
  $ \sigma(\theta_9)$&-     &    - &    - &    - &    - &    - &    - &    - &   0.206  \\
 \end{tabular}
 \end{table}
-
-
-\pagebreak
-\paragraph{Кривая вращения.} Приводятся кривые вращения, полученные для различных $n$. 
-
-        \includegraphics[width=0.9\textwidth]{../../sources/scripts/out.png}
 \pagebreak
 
 \subsubsection{Обобщение результатов}
