@@ -18,6 +18,7 @@
 \bibitem{Lynden-Bell} \textit{Kerr F.J., Lynden-Bell D.} // Monthly Noties Roy. Astron. Soc. 1986. V. 221. P. 1023.
 \bibitem{Laney} \textit{C. D. Laney, M. D. Joner and G. Pietrzynski} // A new Large Magellanic Cloud K-band distance from precision measurements of nearby red clump stars. MNRAS, 2012, 419. P. 1637-1641
 \bibitem{Lepine} \textit{Lepine J.R.D., Amaral L.H.} // Mem. Soc. Astron. Ital. 1995. V. 66. P. 649.
+\bibitem{Malkin} \textit{Malkin Z.} // The current best estimate of the Galactocentric distance of the Sun based on comparison of different statistical techniques. 2012. \textrm{https://arxiv.org/pdf/1202.6128.pdf}
 \bibitem{Merrifield} \textit{Merrifield M.R.} // Back to the Galaxy. Proc. 3. October Astrophysics Conference in Maryland, College Park, USA / EDS Holt S.S., Verter F. AIP Conf. Proc. No. 278, 1993. P. 437.
 \bibitem{Mishurov} \textit{Mishurov Yu.N., Zenina I.A., Dambis A.K., Mel'nik A.M., Rastorguev A.S.} // Astron. and Astrophys. 1997. V. 323. P. 775
 \bibitem{NIIE} \textit{Nikiforov I.I.} Exclusion of measurements with excessive residuals (blunders) in estimating model parameters. AApTr. 2012 V. 27 P. 537 
@@ -25,14 +26,18 @@
 \bibitem{NIISch} \textit{Nikiforov I.I., Shekhovtsova T.V.} // Stellar Dynamics: from Classic to Modern. Proc. of the International Conference held in Saint Petersburg, Russia, August 21-27, 2000, in honour of 100th birthday of Professor K. F. Ogorodnikov (1900-1985) / Eds Ossipkov L.P., Nikiforov I.I., СПб: НИИХ СПбГУ, 2001. P. 88. 
 \bibitem{Paczynski} \textit{Paczynski B., Stanek K.Z.} // Astrophys. J. 1998. V. 494. P. L219.
 \bibitem{Reid} \textit{Reid M. J., Menten K. M., Zheng X. W. et al.} // ApJ, 2009. V. 700, P. 137
+\bibitem{ReidSolo} \textit{Reid M. J., Brunthaler A.} // The proper motion of Sagittarius A*. II. The mass of Sagittarius A*.  Astrophys. J. 2004. 616. 872.
 \bibitem{Rohlfs} \textit{Rohlfs K., Chini R., Wink J.E., Boehme R.} // Astron. and Astrophys. 1986. V. 158. P. 181.
 \bibitem{Shapley} \textit{Shapley H.} // Astrophys. J. 1918. V. 48. P. 154.
+\bibitem{Shourya} \textit{Shourya Khanna et al.} // The GALAH survey: velocity fluctuations in the Milky Way using Red Clump giants. 2018. MNRAS 482, 4215.
 \bibitem{Stanek} \textit{Stanek K.Z., Kaluzny J., Wysocka A., Thompson I.} // Acta Astronomica. 2000. V. 50. P. 191.
+\bibitem{Camarillo} \textit{Tia Camarillo, Varun Mathur, Tyler Mitchell, and Bharat Ratra} // Median statistics estimate of the distance to the galactic center. 2018. Publications of the Astronomical Society of the Pacific, 130:024101
+\bibitem{CamarilloVEL} \textit{Camarillo, T., Dredger, P. & Ratra, B.} // Astrophys Space Sci (2018) 363: 268. 
 \bibitem{Steene} \textit{Van de Steene G.C., Zijlstra A.A.} // Astron. and Astrophys. 1995. V. 293. P. 541.
-\bibitem{Wegg} \textit{Wegg Ch., Gerhard O.} Mapping the three-dimensional density of the Galactic bulge with VVV red clump stars. MNRAS 2013. 435, 1874–1887
-\bibitem{Yang} \textit{Yuan-Sen Ting, Keith Hawkins, and Hans-Walter Rix} // A Large and Pristine Sample of Standard Candles across the Milky Way: ∼100,000 Red Clump Stars with 3\% Contamination. 2018. Astrophys. J. L., 858. L7 
+\bibitem{Wegg} \textit{Wegg Ch., Gerhard O.} // Mapping the three-dimensional density of the Galactic bulge with VVV red clump stars. MNRAS 2013. 435, 1874–1887
+\bibitem{Yang} \textit{Yuan-Sen Ting, Keith Hawkins, and Hans-Walter Rix} // A Large and Pristine Sample of Standard Candles across the Milky Way: 100,000 Red Clump Stars with 3\% Contamination. 2018. Astrophys. J. L., 858. L7 
 \bibitem{UCAC4} \textit{N. Zacharias, C. T. Finch, T. M. Girard et al.} // The Fourth US NAVAL Observatory CCD Astrograph Catalog. Astronomical J., V. 145. N. 2.
-\bibitem{Agekyan} \textit{Агекян Т. А.} Основы теории ошибок для астрономов и физиков. Москва: Наука, 1968. 148 с
+\bibitem{Agekyan} \textit{Агекян Т. А.} // Основы теории ошибок для астрономов и физиков. Москва: Наука, 1968. 148 с
 \bibitem{Valeev} \textit{Валеев С.Г.} // Тестирование мер в задачах оптимизации, 2001.
 \bibitem{Kulik} \textit{Куликовский П.Г.} // Звездная астрономия. M.: Наука, 1985. 272 c.
 \bibitem{Loktin} \textit{Локтин А.В.} // Астрон. журн. 1979. Т. 56. С. 1188.
@@ -40,8 +45,9 @@
 \bibitem{Sitnik} \textit{Ситник Т.Г., Мельник А.М.} // Письма в "Астрон. журн." 1999, T. 25. C. 194.
 \bibitem{Rastorguev} \textit{Расторгуев А.С., Уткин Н.Д., Заболоцких М.В., Дамбис А.К., Байкова А.Т., Бобылев В.В..} // Астрофизический бюллетень. 2017. Т. 72. №2 С. 134
 %\bibitem{33} \textit{Shapiro S.S., Wilk M.B.} // An analysis of variance test for normality. Biometrika, 1965, 52 №3. P.591-611.
-\bibitem{DRdata} \textrm{http://data.sdss3.org/datamodel/files/APOGEE\_RC/cat/apogee-rc-DR12.html}
-\bibitem{DRdecs} \textrm{http://data.sdss3.org/sas/dr12/apogee/vac/apogee-rc/cat/apogee-rc-DR12.fits}
+\bibitem{APOGEE} \textrm{https://www.sdss.org/dr14/irspec/}
+\bibitem{DRdata} \textrm{http://data.sdss3.org/datamodel/files/APOGEE\_RC/cat/apogee-rc-DR14.html}
+\bibitem{DRdecs} \textrm{http://data.sdss3.org/sas/dr14/apogee/vac/apogee-rc/cat/apogee-rc-DR14.fits}
 
 \end{thebibliography}
 

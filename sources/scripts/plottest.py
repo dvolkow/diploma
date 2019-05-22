@@ -1,11 +1,38 @@
 #! /usr/bin/env python3
 
 import seaborn as sns
+import math
 import numpy as np
 import pandas as pd
 import scipy.stats as stat
 import matplotlib.pyplot as plt
 import sys
+
+def mean_weight(values, errors):
+    u = 0
+    c = 0
+    b = 0
+    for i in range(len(values)):
+        u += values[i] / errors[i] ** 2
+        b += 1 / errors[i] ** 2
+        c += errors[i] ** 2
+    return u / b, math.sqrt(c)
+
+def view_weight():
+    FILE_val=str(sys.argv[2])
+    FILE_err=str(sys.argv[3])
+    v_list = []
+    err_list = []
+    with open(FILE_val) as f_val:
+        v_list = [float(i) for line in f_val for i in line.split() if i.strip()]
+    with open(FILE_err) as f_err:
+        err_list = [float(i) for line in f_err for i in line.split() if i.strip()]
+    print(mean_weight(v_list, err_list))
+    print(v_list)
+    print(err_list)
+    
+
+
 
 # Below code for plotting ellipsods marginal distributions:
 def view_one_pairplot():
@@ -26,6 +53,42 @@ def view_errors():
         sol = pd.concat([sol, pt], axis = 0, sort = False, ignore_index = True)
     print(sol)
 
+def weight_A():
+    PATH = str(sys.argv[2])
+
+    Avr = 0
+    Avr_err = 0
+    Al = 0
+    Al_err = 0
+
+    with open(PATH + "/vr_part/" + str(sys.argv[3]) + "/unfresult.txt") as f:
+        pt_vr = f.readline().split()
+        i = 0
+        for e in pt_vr:
+            i += 1
+            if i == 11:
+                Avr = float(e)
+            if i == 12:
+                Avr_err = float(e)
+                break
+
+    with open(PATH + "/l_part_hsoy/" + str(sys.argv[3]) + "/unfresult.txt") as f:
+        pt_vr = f.readline().split()
+        i = 0
+        for e in pt_vr:
+            i += 1
+            if i == 11:
+                Al = float(e)
+            if i == 12:
+                Al_err = float(e)
+                break
+
+
+    print(Al, Al_err, Avr, Avr_err)
+    coeff = Avr / Al
+    err = Al_err / Al + Avr_err / Avr
+    abserr = err * coeff
+    print(coeff, err, abserr)
 
 
 # View general and partial solutions:
@@ -208,6 +271,10 @@ elif sys.argv[1] == "r0":
     view_r0res()
 elif sys.argv[1] == "lb":
     view_lb()
+elif sys.argv[1] == "w":
+    weight_A()
+elif sys.argv[1] == "gw":
+    view_weight()
 else: 
     print("Nothing. Keys: s, v, r.")
 
