@@ -1,0 +1,64 @@
+% File latex_nii_R.sty
+% Generic corrections in Russian style for latex.ltx
+% I.I.Nikiforov 1.0 (22.01.2010)
+%               1.1 (12.04.2010)
+%               1.2 (07.07.2010)
+%
+% 1.0:1	Point after section's number in heading
+% 1.0:2 Deleting space under section's number for second and following lines in heading
+%	(because of Russian-style centering headings)
+% 1.1	Russian style of label for item of references' list
+% 1.2   Point after section's number in contents. 
+%
+% The basic text is from /usr/share/texmf/tex/latex/base/latex.ltx:
+%
+%% This is file `latex.ltx',
+%% generated with the docstrip utility.
+%% Copyright 1993 1994 1995 1996 1997 1998 1999 2000 2001
+%% The LaTeX3 Project and any individual authors listed elsewhere
+%% in this file.
+%
+%
+\def\@sect#1#2#3#4#5#6[#7]#8{%
+  \ifnum #2>\c@secnumdepth
+    \let\@svsec\@empty
+  \else
+    \refstepcounter{#1}%
+    \protected@edef\@svsec{\@seccntformat{#1}\relax}%
+  \fi
+  \@tempskipa #5\relax
+  \ifdim \@tempskipa>\z@
+    \begingroup
+      #6{%
+%       \@hangfrom{\hskip #3\relax\@svsec}%
+%         \interlinepenalty \@M #8\@@par}%
+        \@hangfrom{\hskip #3}%					1.0:2
+          \interlinepenalty \@M \@svsec#8\@@par}%		1.0:2
+    \endgroup
+    \csname #1mark\endcsname{#7}%
+    \addcontentsline{toc}{#1}{%
+      \ifnum #2>\c@secnumdepth \else
+%       \protect\numberline{\csname the#1\endcsname}%
+        \protect\numberline{\csname the#1\endcsname.}%		1.2
+      \fi
+      #7}%
+  \else
+    \def\@svsechd{%
+      #6{\hskip #3\relax
+      \@svsec #8}%
+      \csname #1mark\endcsname{#7}%
+      \addcontentsline{toc}{#1}{%
+        \ifnum #2>\c@secnumdepth \else
+         \protect\numberline{\csname the#1\endcsname}%
+        \fi
+        #7}}%
+  \fi
+  \@xsect{#5}}
+%
+%
+%\def\@seccntformat#1{\csname the#1\endcsname\quad}
+\def\@seccntformat#1{\csname the#1\endcsname.\kern0.5em}%	1.0:1
+%
+%
+%\def\@biblabel#1{[#1]}
+\def\@biblabel#1{#1.}					%	1.1
