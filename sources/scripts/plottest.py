@@ -8,28 +8,34 @@ import scipy.stats as stat
 import matplotlib.pyplot as plt
 import sys
 
-def mean_weight(values, errors):
+def mean_weight(values, errors, nfree):
     u = 0
     c = 0
     b = 0
+    p = 0
     for i in range(len(values)):
         u += values[i] / errors[i] ** 2
         b += 1 / errors[i] ** 2
-        c += errors[i] ** 2
-    return u / b, math.sqrt(c)
+        c += nfree[i] / (2 * errors[i] ** 2)
+        p += nfree[i] / (2. * errors[i] ** 4)
+    return u / b, math.sqrt(c * (1. / p))
 
 def view_weight():
     FILE_val=str(sys.argv[2])
     FILE_err=str(sys.argv[3])
+    FILE_nfree=str(sys.argv[4])
     v_list = []
     err_list = []
     with open(FILE_val) as f_val:
         v_list = [float(i) for line in f_val for i in line.split() if i.strip()]
     with open(FILE_err) as f_err:
         err_list = [float(i) for line in f_err for i in line.split() if i.strip()]
-    print(mean_weight(v_list, err_list))
+    with open(FILE_nfree) as f_nfree:
+        nfree_list = [float(i) for line in f_nfree for i in line.split() if i.strip()]
+    print(mean_weight(v_list, err_list, nfree_list))
     print(v_list)
     print(err_list)
+    print(nfree_list)
     
 
 
@@ -66,9 +72,9 @@ def weight_A():
         i = 0
         for e in pt_vr:
             i += 1
-            if i == 11:
+            if i == 2:
                 Avr = float(e)
-            if i == 12:
+            if i == 3:
                 Avr_err = float(e)
                 break
 
@@ -77,18 +83,18 @@ def weight_A():
         i = 0
         for e in pt_vr:
             i += 1
-            if i == 11:
+            if i == 2:
                 Al = float(e)
-            if i == 12:
+            if i == 3:
                 Al_err = float(e)
                 break
 
 
     print(Al, Al_err, Avr, Avr_err)
-    coeff = Avr / Al
+    coeff = Al / Avr
     err = Al_err / Al + Avr_err / Avr
     abserr = err * coeff
-    print(coeff, err, abserr)
+    print(coeff, abserr)
 
 
 # View general and partial solutions:
