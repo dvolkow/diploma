@@ -1,9 +1,10 @@
 \begin{thebibliography}{99}
-\bibitem{Agekyan} \textit{Агекян Т. А.} // Основы теории ошибок для астрономов и физиков. Москва: Наука, 1968. 148 с
-\bibitem{Valeev} \textit{Валеев С.Г.} // Тестирование мер в задачах оптимизации, 2001.
+\bibitem{Agekyan} \textit{Агекян Т. А.} // Основы теории ошибок для астрономов и физиков. Москва: Наука, 1968. 148 с.
+\bibitem{Valeev} \textit{Валеев С.Г.} // Регрессионное моделирование при обработке данных, 2001. Казань: ФЭН. 296 с.
 \bibitem{Kulik} \textit{Куликовский П.Г.} // Звездная астрономия. M.: Наука, 1985. 272 c.
 \bibitem{Loktin} \textit{Локтин А.В.} // Астрон. журн. 1979. Т. 56. С. 1188.
-\bibitem{NII} \textit{Никифоров И.И.} <<Пространственно-кинематическое и динамическое моделирование Галактики>> (диссертация на соискание ученой степени кандидата физико-математических наук), 2003 г.
+\bibitem{NII} \textit{Никифоров И.И.} Пространственно-кинематическое и динамическое моделирование Галактики. Дис. ... кандидата физ.-мат. наук. СПб.: Науч.-исслед. Астрон. ин-т. им. В.В. Соболева СПбГУ, 2003. 197 c. [эл. ресурс \textrm{http://www.astro.spbu.ru/sites/default/files/NikiforovII2003\_thesis.pdf}]
+\bibitem{Agladze} \textit{Никифоров И.И., Агладзе Е.В.} Осевая зона избегания в системе шаровых скоплений и расстояние до центра Галактики. // "Письма в Астрономический журнал", 2017, т. 43, № 2, с. 97-128.
 \bibitem{Sitnik} \textit{Ситник Т.Г., Мельник А.М.} // Письма в "Астрон. журн." 1999, T. 25. C. 194.
 \bibitem{Rastorguev} \textit{Расторгуев А.С., Уткин Н.Д., Заболоцких М.В., Дамбис А.К., Байкова А.Т., Бобылев В.В..} // Астрофизический бюллетень. 2017. Т. 72. №2 С. 134
 
@@ -30,6 +31,8 @@
 \bibitem{Merrifield} \textit{Merrifield M.R.} // Back to the Galaxy. Proc. 3. October Astrophysics Conference in Maryland, College Park, USA / EDS Holt S.S., Verter F. AIP Conf. Proc. No. 278, 1993. P. 437.
 \bibitem{Mishurov} \textit{Mishurov Yu.N., Zenina I.A., Dambis A.K., Mel'nik A.M., Rastorguev A.S.} // Astron. and Astrophys. 1997. V. 323. P. 775
 \bibitem{NIIE} \textit{Nikiforov I.I.} // Exclusion of measurements with excessive residuals (blunders) in estimating model parameters. AApTr. 2012 V. 27 P. 537 
+\bibitem{NIId} \textit{Nikiforov I.I.} The Distance to the Center of the Galaxy: the Current State-of-the-Art in Measuring $R_0$. // 2004 ASP Conference Series, Order and Chaos in Stellar and Planetary Systems. V. 316.
+\bibitem{NIIm} \textit{Nikiforov I.I.}  Milky Way Rotation Models from Neutral Hydrogen and Molecular Clouds: Galactic Constants, Common Details and Differences. //  Small Galaxy Groups: IAU Colloquium 174, ASP Conference Series, Volume 209. Held in Turku, Finland, 13-18th June 1999. Edited by Mauri J. Valtonen and Chris Flynn. Published by Astronomical Society of the Pacific, San Francisco, CA, 2000. P. 403.
 \bibitem{NIIBob} \textit{Nikiforov I.I., Bobrova (Mel'nichnikova) A.Yu.} // Кинематика и физика неб. тел. Приложение. 1999. №2. С. 29.
 \bibitem{NIISch} \textit{Nikiforov I.I., Shekhovtsova T.V.} // Stellar Dynamics: from Classic to Modern. Proc. of the International Conference held in Saint Petersburg, Russia, August 21-27, 2000, in honour of 100th birthday of Professor K. F. Ogorodnikov (1900-1985) / Eds Ossipkov L.P., Nikiforov I.I., СПб: НИИХ СПбГУ, 2001. P. 88. 
 \bibitem{Paczynski} \textit{Paczynski B., Stanek K.Z.} // Astrophys. J. 1998. V. 494. P. L219.

@@ -22,6 +22,7 @@
                 }                                       \
         } while (0)
 
+#define K_A     1.044 // Calibration coeff.
 
 
 apogee_rc_table_t *read_table(const char *input_file_name);

@@ -53,6 +53,9 @@ apogee_rc_table_t *read_table(const char *input_file_name)
                                 &(apogee_rc[i].pm_dec_err),
                                 &(apogee_rc[i].pm_match)
                                 );
+#ifdef CALIBRATION
+                apogee_rc[i].dist *= K_A;
+#endif
                 apogee_rc[i].l = deg_to_rad(apogee_rc[i].l);
                 apogee_rc[i].b = deg_to_rad(apogee_rc[i].b);
                 apogee_rc[i].ra = deg_to_rad(apogee_rc[i].ra);

@@ -155,6 +155,16 @@ def view_residuals():
     plt.savefig("mu_l.png")
     plt.clf()
 
+    print(stat.shapiro(pt['V_R']))
+    print(stat.skewtest(pt['V_R']))
+    print(stat.normaltest(pt['V_R']))
+    print(stat.shapiro(pt['mu_b']))
+    print(stat.skewtest(pt['mu_b']))
+    print(stat.normaltest(pt['mu_b']))
+    print(stat.shapiro(pt['mu_l']))
+    print(stat.skewtest(pt['mu_l']))
+    print(stat.normaltest(pt['mu_l']))
+
     pt = pd.read_csv(PATH + '/theta_errs.txt', delimiter = " ", names = ['R', 'dT'])
     g = sns.distplot(pt['dT'], kde = True, rug = True, bins = 100)
     plt.savefig("theta_err.png")
