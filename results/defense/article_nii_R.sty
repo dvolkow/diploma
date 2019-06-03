@@ -1,0 +1,73 @@
+% File article_nii_R.sty
+% Generic corrections in Russian style for article.cls
+% I.I.Nikiforov	1.0 (25.01.2010)
+% 		1.1 (07.07.2010)
+% 		1.2 (11.10.2010)
+%
+% 1.0:1 Centering section heading and/or changing font size for the heading
+% 1.0:2 Indent for first line after heading 
+% 1.1   Additional skip after section's number in contents (due to setting point
+%	after section's number and to exceeding some part of this number digit 9) 
+% 1.2	Caption for tables and figures: exchange ":" into "." between number on 
+%	table/figure and text of caption inself
+%
+% The basic text is from /usr/share/texmf/tex/latex/base/article.cls:
+%
+%% This is file `article.cls',
+%% generated with the docstrip utility.
+%% Copyright 1993 1994 1995 1996 1997 1998 1999 2000 2001
+%% The LaTeX3 Project and any individual authors listed elsewhere
+%% in this file.
+%\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+%\ProvidesClass{article}
+%              [2001/04/21 v1.4e
+% Standard LaTeX document class]
+%
+%
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+%                                  {-3.5ex \@plus -1ex \@minus -.2ex}%
+                                   {3.5ex \@plus 1ex \@minus .2ex}%		1.0:2
+                                   {2.3ex \@plus.2ex}%
+%                                  {\normalfont\Large\bfseries}}
+                                   {\centering\normalfont\large\bfseries}} %	1.0:1
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+%                                    {-3.25ex\@plus -1ex \@minus -.2ex}%	
+                                     {3.25ex\@plus 1ex \@minus .2ex}%		1.0:2
+                                     {1.5ex \@plus .2ex}%
+%                                    {\normalfont\large\bfseries}} %
+                                     {\centering\normalfont\normalsize\bfseries}} %1.0:1
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+%                                    {-3.25ex\@plus -1ex \@minus -.2ex}%	1.0:2
+                                     {3.25ex\@plus 1ex \@minus .2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\centering\normalfont\normalsize\slshape}}  %1.0:1
+%\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\parindent}%		1.0:2
+                                    {3.25ex \@plus1ex \@minus.2ex}%
+                                    {-1em}%
+%                                   {\normalfont\normalsize\bfseries}} 
+                                    {\normalfont\normalsize\sffamily}} %	1.0:1
+\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\parindent}%
+                                       {3.25ex \@plus1ex \@minus .2ex}%
+                                       {-1em}%
+%                                     {\normalfont\normalsize\bfseries}}
+                                      {\normalfont\normalsize\slshape}} %	1.0:1
+
+
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip
+%  \sbox\@tempboxa{#1: #2}%
+  \sbox\@tempboxa{#1. #2}%	% 1.2	
+  \ifdim \wd\@tempboxa >\hsize
+%    #1: #2\par
+    #1. #2\par			% 1.2	
+  \else
+    \global \@minipagefalse
+    \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi
+  \vskip\belowcaptionskip}
+
+%\newcommand*\l@subsection{\@dottedtocline{2}{1.5em}{2.3em}}
+\renewcommand*\l@subsection{\@dottedtocline{2}{1.5em}{2.6em}}%			1.1
+%\newcommand*\l@subsubsection{\@dottedtocline{3}{3.8em}{3.2em}}
+\renewcommand*\l@subsubsection{\@dottedtocline{3}{3.8em}{3.4em}}%		1.1

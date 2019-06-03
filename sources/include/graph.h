@@ -8,8 +8,8 @@
 #define EDGE_SPARCE_DIVISOR     10
 #define OMEGA_SUN               30.50
 #define ROTC_STEP_R             0.1
-#define ROTC_LOWER_BOUND        2
-#define ROTC_UPPER_BOUND        15
+#define ROTC_LOWER_BOUND        0.1
+#define ROTC_UPPER_BOUND        20
 
 #define MAX_PRINTF_COLS		12
 
